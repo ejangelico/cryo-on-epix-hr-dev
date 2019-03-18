@@ -1,4 +1,4 @@
-# epix-hr-dev
+# cryo-on-epix-hr-dev
 
 # Before you clone the GIT repository
 
@@ -15,4 +15,4 @@
 > $ git lfs install
 
 # Clone the GIT repository
-``` $ git clone --recursive git@github.com:slaclab/epix-hr-dev```
+``` $ git clone --recursive git@github.com:slaclab/cryo-on-epix-hr-dev.git```
