@@ -452,7 +452,7 @@ begin
       iSaciSelL(0)      when boardConfig.epixhrDbgSel1 = "01001" else
       iSaciSelL(1)      when boardConfig.epixhrDbgSel1 = "01010" else
       asicRdClk         when boardConfig.epixhrDbgSel1 = "01011" else
-      --bitClk            when boardConfig.epixhrDbgSel1 = "01100" else --
+      --bitClk            when boardConfig.epixhrDbgSel1 = "01100" else 
       byteClk           when boardConfig.epixhrDbgSel1 = "01101" else
       WFdacDin_i        when boardConfig.epixhrDbgSel1 = "01110" else
       WFdacSclk_i       when boardConfig.epixhrDbgSel1 = "01111" else
