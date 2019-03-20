@@ -85,33 +85,33 @@ SetDebugCoreClk ${ilaName} {U_App/byteClk}
 #ConfigProbe ${ilaName} {U_App/U_MonAdcReadout/GEN_ULTRASCALE_AD9249.U_AD9249_0/U_FRAME_DESERIALIZER/adcDV4R[*]}
 #ConfigProbe ${ilaName} {U_App/U_MonAdcReadout/GEN_ULTRASCALE_AD9249.U_AD9249_0/U_FRAME_DESERIALIZER/adcDV7R[*]}
 # data channel
-#ConfigProbe ${ilaName} {U_App/U_MonAdcReadout/GEN_ULTRASCALE_AD9249.U_AD9249_0/GenData[0].U_DATA_DESERIALIZER/adcDV4R[*]}
-#ConfigProbe ${ilaName} {U_App/U_MonAdcReadout/GEN_ULTRASCALE_AD9249.U_AD9249_0/GenData[0].U_DATA_DESERIALIZER/adcDV7R[*]}
+ConfigProbe ${ilaName} {U_App/U_MonAdcReadout/GEN_ULTRASCALE_AD9249.U_AD9249_0/GenData[0].U_DATA_DESERIALIZER/adcDV4R[*]}
+ConfigProbe ${ilaName} {U_App/U_MonAdcReadout/GEN_ULTRASCALE_AD9249.U_AD9249_0/GenData[0].U_DATA_DESERIALIZER/adcDV7R[*]}
 #
 #ConfigProbe ${ilaName} {U_App/U_MonAdcReadout/GEN_ULTRASCALE_AD9249.U_AD9249_0/U_FRAME_DESERIALIZER/sData_i}
 #ConfigProbe ${ilaName} {U_App/U_MonAdcReadout/GEN_ULTRASCALE_AD9249.U_AD9249_0/U_FRAME_DESERIALIZER/loadDelaySync}
 #ConfigProbe ${ilaName} {U_App/U_MonAdcReadout/GEN_ULTRASCALE_AD9249.U_AD9249_0/adcBitClkRD4}
 #ConfigProbe ${ilaName} {U_App/U_MonAdcReadout/GEN_ULTRASCALE_AD9249.U_AD9249_0/adcBitClkR}
 
-ConfigProbe ${ilaName} {U_App/G_ASICS[0].U_AXI_ASIC/GEN_ULTRASCALE_HRADC.U_HrADC_0/GenData[0].U_DATA_DESERIALIZER/adcDV4R[*]}
-ConfigProbe ${ilaName} {U_App/G_ASICS[0].U_AXI_ASIC/GEN_ULTRASCALE_HRADC.U_HrADC_0/GenData[0].U_DATA_DESERIALIZER/adcDV7R[*]}
-ConfigProbe ${ilaName} {U_App/G_ASICS[0].U_AXI_ASIC/GEN_ULTRASCALE_HRADC.U_HrADC_0/GenData[1].U_DATA_DESERIALIZER/adcDV4R[*]}
-ConfigProbe ${ilaName} {U_App/G_ASICS[0].U_AXI_ASIC/GEN_ULTRASCALE_HRADC.U_HrADC_0/GenData[1].U_DATA_DESERIALIZER/adcDV7R[*]}
+#ConfigProbe ${ilaName} {U_App/G_ASICS[0].U_AXI_ASIC/GEN_ULTRASCALE_HRADC.U_HrADC_0/GenData[0].U_DATA_DESERIALIZER/adcDV4R[*]}
+#ConfigProbe ${ilaName} {U_App/G_ASICS[0].U_AXI_ASIC/GEN_ULTRASCALE_HRADC.U_HrADC_0/GenData[0].U_DATA_DESERIALIZER/adcDV7R[*]}
+#ConfigProbe ${ilaName} {U_App/G_ASICS[0].U_AXI_ASIC/GEN_ULTRASCALE_HRADC.U_HrADC_0/GenData[1].U_DATA_DESERIALIZER/adcDV4R[*]}
+#ConfigProbe ${ilaName} {U_App/G_ASICS[0].U_AXI_ASIC/GEN_ULTRASCALE_HRADC.U_HrADC_0/GenData[1].U_DATA_DESERIALIZER/adcDV7R[*]}
 #ConfigProbe ${ilaName} {U_App/G_ASICS[0].U_AXI_ASIC/GEN_ULTRASCALE_HRADC.U_HrADC_0/adcData[*]}
 #ConfigProbe ${ilaName} {U_App/G_ASICS[0].U_AXI_ASIC/GEN_ULTRASCALE_HRADC.U_HrADC_0/dataValid[*]}
 #ConfigProbe ${ilaName} {U_App/G_ASICS[0].U_AXI_ASIC/GEN_ULTRASCALE_HRADC.U_HrADC_0/adcR[*]}
 
 
 ConfigProbe ${ilaName} {U_App/iAsicAcq}
-ConfigProbe ${ilaName} {U_App/G_ASICS[0].U_Framers/s[*]}
-ConfigProbe ${ilaName} {U_App/G_ASICS[0].U_Framers/rxDataCs[*]}
-ConfigProbe ${ilaName} {U_App/G_ASICS[0].U_Framers/rxValidCs}
-ConfigProbe ${ilaName} {U_App/G_ASICS[0].U_Framers/decSof[*]}
-ConfigProbe ${ilaName} {U_App/G_ASICS[0].U_Framers/decEof[*]}
-ConfigProbe ${ilaName} {U_App/G_ASICS[0].U_Framers/decValidOut[*]}
-ConfigProbe ${ilaName} {U_App/G_ASICS[0].U_Framers/decDataOut[*]}
-ConfigProbe ${ilaName} {U_App/G_ASICS[0].U_Framers/dFifoSof[*]}
-ConfigProbe ${ilaName} {U_App/G_ASICS[0].U_Framers/dFifoEof[*]}
+#ConfigProbe ${ilaName} {U_App/G_ASICS[0].U_Framers/s[*]}
+#ConfigProbe ${ilaName} {U_App/G_ASICS[0].U_Framers/rxDataCs[*]}
+#ConfigProbe ${ilaName} {U_App/G_ASICS[0].U_Framers/rxValidCs}
+#ConfigProbe ${ilaName} {U_App/G_ASICS[0].U_Framers/decSof[*]}
+#ConfigProbe ${ilaName} {U_App/G_ASICS[0].U_Framers/decEof[*]}
+#ConfigProbe ${ilaName} {U_App/G_ASICS[0].U_Framers/decValidOut[*]}
+#ConfigProbe ${ilaName} {U_App/G_ASICS[0].U_Framers/decDataOut[*]}
+#ConfigProbe ${ilaName} {U_App/G_ASICS[0].U_Framers/dFifoSof[*]}
+#ConfigProbe ${ilaName} {U_App/G_ASICS[0].U_Framers/dFifoEof[*]}
 #ConfigProbe ${ilaName} {U_App/G_ASICS[0].U_Framers/sAxisMaster[*]}
 #ConfigProbe ${ilaName} {U_App/G_ASICS[0].U_Framers/imAxisMaster[*]}
 #ConfigProbe ${ilaName} {U_App/G_ASICS[0].U_Framers/imAxisSlave[*]}
