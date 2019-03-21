@@ -227,15 +227,131 @@ class EpixHRGen1Cryo(pr.Device):
         self.add(pr.LocalCommand(name='SendAdcData',   description='Generates the sequence necessary to send adc data', function=self.fnSendAdcData))
 
 
+
     def fnInitCryo(self, dev,cmd,arg):
         """SetTestBitmap command function"""       
         print("Rysync cryo started")
         if arg == 1:
-            self.fnInitCryo1(dev,cmd,arg)        
+            self.fnInitCryo1(dev,cmd,arg)
+        elif arg == 2:
+            self.fnInitCryo2(dev,cmd,arg)        
+        elif arg == 3:
+            self.fnInitCryo3(dev,cmd,arg)        
+        elif arg == 4:
+            self.fnInitCryo4(dev,cmd,arg)        
 
     def fnInitCryo1(self, dev,cmd,arg):
         """SetTestBitmap command function"""       
-        print("Rysync cryo started")
+        print("Init cryo at 112MHz with PLL started")
+        print(arg)
+        self.AppFpgaRegisters.SR0Polarity.set(False)
+        delay = 1.0
+        USE_CRYO_PLL_1MSPS = True
+        if USE_CRYO_PLL_1MSPS :
+            print("Loading MMCM configuration")
+            self.MMCMSerdesRegisters.enable.set(True)
+            self.root.readBlocks()
+            time.sleep(delay/10) 
+            self.MMCMSerdesRegisters.CLKOUT0HighTime.set(4)   
+            self.MMCMSerdesRegisters.CLKOUT0LowTime.set(4)
+            time.sleep(delay/10) 
+            self.MMCMSerdesRegisters.CLKOUT1HighTime.set(16)
+            self.MMCMSerdesRegisters.CLKOUT1LowTime.set(16)
+            time.sleep(delay/10) 
+            self.MMCMSerdesRegisters.CLKOUT2HighTime.set(28)
+            self.MMCMSerdesRegisters.CLKOUT2LowTime.set(28)
+            time.sleep(delay/10) 
+            self.MMCMSerdesRegisters.CLKOUT3HighTime.set(8)
+            self.MMCMSerdesRegisters.CLKOUT3LowTime.set(8)
+            time.sleep(delay/10) 
+            self.root.readBlocks()
+            self.MMCMSerdesRegisters.enable.set(False)
+            time.sleep(delay) 
+            self.root.readBlocks()
+            print("Completed")
+
+        # load config that sets prog supply
+        print("Loading supply configuration")
+        self.root.ReadConfig('./yml/cryo_tunnedPowerSupply_roomTemperature_v0.yml')
+        time.sleep(delay) 
+
+        if USE_CRYO_PLL_1MSPS :
+            # load config that sets CJC
+            print("Loading CJC configuration")
+            filename = './yml/cryo_roomTemperature_v0_InternalPLL_224MHz_CJC.yml'
+            self.root.ReadConfig(filename)
+            print(filename)
+            time.sleep(delay) 
+
+        ## takes the asic off of reset
+        print("Taking asic off of reset")
+        self.AppFpgaRegisters.enable.set(True)
+        self.AppFpgaRegisters.GlblRstPolarity.set(False)
+        time.sleep(delay) 
+        self.AppFpgaRegisters.GlblRstPolarity.set(True)
+        time.sleep(delay) 
+        self.root.readBlocks()
+        time.sleep(delay) 
+
+        if USE_CRYO_PLL_1MSPS :
+            ## load config for the asic
+            print("Loading timing configuration")
+            self.root.ReadConfig('./yml/cryo_tunnedPowerSupply_roomTemperature_v0_56MHz_pllClk_500KSPS_RoomT3.yml')
+            time.sleep(5*delay) 
+
+        ## start deserializer config for the asic
+        EN_DESERIALIZERS = True
+        if EN_DESERIALIZERS : 
+            print("Starting deserializer")
+            self.serializerSyncAttempsts = 0
+            while True:
+                #make sure idle
+                self.CryoAsic0.encoder_mode_dft.set(0)
+                self.AppFpgaRegisters.SR0Polarity.set(False)
+                time.sleep(2*delay) 
+                self.DeserRegisters.enable.set(True)
+                self.root.readBlocks()
+                time.sleep(2*delay) 
+                self.DeserRegisters.InitAdcDelay()
+                time.sleep(delay)   
+                self.DeserRegisters.Delay0.set(self.DeserRegisters.sugDelay0)
+                self.DeserRegisters.Delay1.set(self.DeserRegisters.sugDelay1)
+                self.DeserRegisters.Resync.set(True)
+                time.sleep(delay) 
+                self.DeserRegisters.Resync.set(False)
+                time.sleep(5*delay) 
+                if self.DeserRegisters.Locked0.get() and self.DeserRegisters.Locked1.get():
+                    break
+                #limits the number of attempts to get serializer synch.
+                self.serializerSyncAttempsts = self.serializerSyncAttempsts + 1
+                if self.serializerSyncAttempsts > 2:
+                    break
+
+
+        EN_SR0 = True
+        EN_ALL_CRYO_ADCS = True
+        if EN_SR0 : 
+            print("Settig SR0 set to true")
+            self.AppFpgaRegisters.enable.set(True)
+            self.root.readBlocks()
+            for i in range(2):
+                self.AppFpgaRegisters.SR0Polarity.set(False)
+                time.sleep(delay) 
+                self.AppFpgaRegisters.SR0Polarity.set(True)
+                self.root.readBlocks()
+                time.sleep(delay) 
+
+            if EN_ALL_CRYO_ADCS : 
+                self.fnEnAllCryoAdcs(dev,cmd,arg)
+
+
+        BYPASS_DECODER = True
+        if BYPASS_DECODER : 
+            self.fnBypassDecoder(dev,cmd,arg)
+
+    def fnInitCryo2(self, dev,cmd,arg):
+        """SetTestBitmap command function"""       
+        print("Init cryo at 224MHz with PLL started")
         print(arg)
         self.AppFpgaRegisters.SR0Polarity.set(False)
         delay = 1.0
@@ -290,6 +406,7 @@ class EpixHRGen1Cryo(pr.Device):
 
         ## start deserializer config for the asic
         EN_DESERIALIZERS = True
+        self.serializerSyncAttempsts = 0
         if EN_DESERIALIZERS : 
             print("Starting deserializer")
             while True:
@@ -309,6 +426,124 @@ class EpixHRGen1Cryo(pr.Device):
                 self.DeserRegisters.Resync.set(False)
                 time.sleep(5*delay) 
                 if self.DeserRegisters.Locked0.get() and self.DeserRegisters.Locked1.get():
+                    break
+                #limits the number of attempts to get serializer synch.
+                self.serializerSyncAttempsts = self.serializerSyncAttempsts + 1
+                if self.serializerSyncAttempsts > 2:
+                    break
+
+        EN_SR0 = True
+        EN_ALL_CRYO_ADCS = True
+        if EN_SR0 : 
+            print("Settig SR0 set to true")
+            self.AppFpgaRegisters.enable.set(True)
+            self.root.readBlocks()
+            for i in range(2):
+                self.AppFpgaRegisters.SR0Polarity.set(False)
+                time.sleep(delay) 
+                self.AppFpgaRegisters.SR0Polarity.set(True)
+                self.root.readBlocks()
+                time.sleep(delay) 
+
+            if EN_ALL_CRYO_ADCS : 
+                self.fnEnAllCryoAdcs(dev,cmd,arg)
+
+
+        BYPASS_DECODER = True
+        if BYPASS_DECODER : 
+            self.fnBypassDecoder(dev,cmd,arg)
+
+    def fnInitCryo3(self, dev,cmd,arg):
+        """SetTestBitmap command function"""       
+        print("Init cryo at 448MHz with PLL started")
+        print("Place holder")
+
+
+    def fnInitCryo4(self, dev,cmd,arg):
+        """SetTestBitmap command function"""       
+        print("Init cryo at 112MHz without PLL started")
+        print(arg)
+        self.AppFpgaRegisters.SR0Polarity.set(False)
+        delay = 1.0
+        USE_CRYO_PLL_1MSPS = True
+        if USE_CRYO_PLL_1MSPS :
+            print("Loading MMCM configuration")
+            self.MMCMSerdesRegisters.enable.set(True)
+            self.root.readBlocks()
+            time.sleep(delay/10) 
+            self.MMCMSerdesRegisters.CLKOUT0HighTime.set(4)   
+            self.MMCMSerdesRegisters.CLKOUT0LowTime.set(4)
+            time.sleep(delay/10) 
+            self.MMCMSerdesRegisters.CLKOUT1HighTime.set(16)
+            self.MMCMSerdesRegisters.CLKOUT1LowTime.set(16)
+            time.sleep(delay/10) 
+            self.MMCMSerdesRegisters.CLKOUT2HighTime.set(28)
+            self.MMCMSerdesRegisters.CLKOUT2LowTime.set(28)
+            time.sleep(delay/10) 
+            self.MMCMSerdesRegisters.CLKOUT3HighTime.set(4)
+            self.MMCMSerdesRegisters.CLKOUT3LowTime.set(4)
+            time.sleep(delay/10) 
+            self.root.readBlocks()
+            self.MMCMSerdesRegisters.enable.set(False)
+            time.sleep(delay) 
+            self.root.readBlocks()
+            print("Completed")
+
+        # load config that sets prog supply
+        print("Loading supply configuration")
+        self.root.ReadConfig('./yml/cryo_tunnedPowerSupply_roomTemperature_v0.yml')
+        time.sleep(delay) 
+
+        if USE_CRYO_PLL_1MSPS :
+            # load config that sets CJC
+            print("Loading CJC configuration")
+            filename = './yml/cryo_roomTemperature_v0_extClk_112MHz_CJC.yml'
+            self.root.ReadConfig(filename)
+            print(filename)
+            time.sleep(delay) 
+
+        ## takes the asic off of reset
+        print("Taking asic off of reset")
+        self.AppFpgaRegisters.enable.set(True)
+        self.AppFpgaRegisters.GlblRstPolarity.set(False)
+        time.sleep(delay) 
+        self.AppFpgaRegisters.GlblRstPolarity.set(True)
+        time.sleep(delay) 
+        self.root.readBlocks()
+        time.sleep(delay) 
+
+        if USE_CRYO_PLL_1MSPS :
+            ## load config for the asic
+            print("Loading timing configuration")
+            self.root.ReadConfig('./yml/cryo_tunnedPowerSupply_roomTemperature_v0_112MHz_extClk_RoomT3.yml')
+            time.sleep(5*delay) 
+
+        ## start deserializer config for the asic
+        EN_DESERIALIZERS = True
+        if EN_DESERIALIZERS : 
+            print("Starting deserializer")
+            self.serializerSyncAttempsts = 0
+            while True:
+                #make sure idle
+                self.CryoAsic0.encoder_mode_dft.set(0)
+                self.AppFpgaRegisters.SR0Polarity.set(False)
+                time.sleep(2*delay) 
+                self.DeserRegisters.enable.set(True)
+                self.root.readBlocks()
+                time.sleep(2*delay) 
+                self.DeserRegisters.InitAdcDelay()
+                time.sleep(delay)   
+                self.DeserRegisters.Delay0.set(self.DeserRegisters.sugDelay0)
+                self.DeserRegisters.Delay1.set(self.DeserRegisters.sugDelay1)
+                self.DeserRegisters.Resync.set(True)
+                time.sleep(delay) 
+                self.DeserRegisters.Resync.set(False)
+                time.sleep(5*delay) 
+                if self.DeserRegisters.Locked0.get() and self.DeserRegisters.Locked1.get():
+                    break
+                #limits the number of attempts to get serializer synch.
+                self.serializerSyncAttempsts = self.serializerSyncAttempsts + 1
+                if self.serializerSyncAttempsts > 2:
                     break
 
 
@@ -332,6 +567,7 @@ class EpixHRGen1Cryo(pr.Device):
         BYPASS_DECODER = True
         if BYPASS_DECODER : 
             self.fnBypassDecoder(dev,cmd,arg)
+
 
 
     def fnReSyncCryo(self, dev,cmd,arg):
