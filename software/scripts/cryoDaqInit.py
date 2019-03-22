@@ -229,6 +229,13 @@ class Board(pyrogue.Root):
         @self.command()
         def Trigger():
             self.cmd.sendCmd(0, 0)
+            if (self.EpixHRGen1Cryo.CryoAsic0.test.get()):
+                pulserAmpliture = self.EpixHRGen1Cryo.CryoAsic0.Pulser.get()
+                if pulserAmpliture == 1023:
+                    pulserAmpliture = 0
+                else:
+                    pulserAmpliture += 1
+                self.EpixHRGen1Cryo.CryoAsic0.Pulser.set(pulserAmpliture)
 
         # Add Devices
         if ( args.type == 'kcu1500' ):
@@ -284,7 +291,7 @@ cryoAsicBoard.EpixHRGen1Cryo.Ad9249Config_Adc_0.enable.set(True)
 cryoAsicBoard.readBlocks()
 cryoAsicBoard.EpixHRGen1Cryo.Ad9249Config_Adc_0.InternalPdwnMode.set(3)
 cryoAsicBoard.EpixHRGen1Cryo.Ad9249Config_Adc_0.InternalPdwnMode.set(0)
-cryoAsicBoard.EpixHRGen1Cryo.Ad9249Config_Adc_0.OutputFormat.set(1)
+cryoAsicBoard.EpixHRGen1Cryo.Ad9249Config_Adc_0.OutputFormat.set(0)
 cryoAsicBoard.readBlocks()
 cryoAsicBoard.EpixHRGen1Cryo.Ad9249Config_Adc_0.enable.set(False)
 cryoAsicBoard.readBlocks()

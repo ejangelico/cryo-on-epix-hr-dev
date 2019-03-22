@@ -141,7 +141,7 @@ if(SAVEHDF5):
 if PLOT_ADC9_VS_N :
     # All averages
     i=1
-    plt.plot(imgDesc[i,0,:])
+    plt.plot(imgDesc[i,2,:])
     plt.title('ADC value')
     plt.show()
 
