@@ -209,7 +209,7 @@ class MyRunControl(pyrogue.RunControl):
         while (self.runState.value() == 'Running'): 
             delay = 1.0 / ({value: key for key,value in self.runRate.enum.items()}[self._runRate]) 
             time.sleep(delay) 
-            self._root.ssiPrbsTx.oneShot() 
+            #self._root.ssiPrbsTx.oneShot() 
   
             self._runCount += 1 
             if self._last != int(time.time()): 
@@ -229,13 +229,13 @@ class Board(pyrogue.Root):
         @self.command()
         def Trigger():
             self.cmd.sendCmd(0, 0)
-            if (self.EpixHRGen1Cryo.CryoAsic0.test.get()):
-                pulserAmpliture = self.EpixHRGen1Cryo.CryoAsic0.Pulser.get()
-                if pulserAmpliture == 1023:
-                    pulserAmpliture = 0
+            if (self.EpixHRGen1Cryo.CryoAsic0.test.get() and dataWriter.frameCount.get()):
+                pulserAmplitude = self.dataWriter.frameCount.get() #self.EpixHRGen1Cryo.CryoAsic0.Pulser.get()
+                if pulserAmplitude%1024 == 1023:
+                    pulserAmplitude = 0
                 else:
-                    pulserAmpliture += 1
-                self.EpixHRGen1Cryo.CryoAsic0.Pulser.set(pulserAmpliture)
+                    pulserAmplitude += 1
+                self.EpixHRGen1Cryo.CryoAsic0.Pulser.set(pulserAmplitude)
 
         # Add Devices
         if ( args.type == 'kcu1500' ):

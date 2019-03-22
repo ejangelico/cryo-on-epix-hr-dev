@@ -463,6 +463,7 @@ class EpixHRGen1Cryo(pr.Device):
         """SetTestBitmap command function"""       
         print("Init cryo at 112MHz without PLL started")
         print(arg)
+        self.AppFpgaRegisters.enable.set(True)
         self.AppFpgaRegisters.SR0Polarity.set(False)
         delay = 1.0
         USE_CRYO_PLL_1MSPS = True
@@ -504,11 +505,14 @@ class EpixHRGen1Cryo(pr.Device):
 
         ## takes the asic off of reset
         print("Taking asic off of reset")
-        self.AppFpgaRegisters.enable.set(True)
-        self.AppFpgaRegisters.GlblRstPolarity.set(False)
-        time.sleep(delay) 
-        self.AppFpgaRegisters.GlblRstPolarity.set(True)
-        time.sleep(delay) 
+        self.root.readBlocks()
+        for i in range(2):
+            self.AppFpgaRegisters.enable.set(True)
+            self.root.readBlocks()
+            self.AppFpgaRegisters.GlblRstPolarity.set(False)
+            time.sleep(5*delay) 
+            self.AppFpgaRegisters.GlblRstPolarity.set(True)
+            time.sleep(delay) 
         self.root.readBlocks()
         time.sleep(delay) 
 
