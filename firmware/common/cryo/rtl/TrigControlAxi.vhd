@@ -3,7 +3,7 @@
 -- Author     : Maciej Kwiatkowski, mkwiatko@slac.stanford.edu
 -- Company    : SLAC National Accelerator Laboratory
 -- Created    : 04/07/2017
--- Last update: 04/07/2017
+-- Last update: 2019-03-21
 -------------------------------------------------------------------------------
 -- Description: 
 -------------------------------------------------------------------------------
@@ -130,11 +130,26 @@ architecture rtl of TrigControlAxi is
 
    -- Op code signals
    signal syncOpCode : slv(7 downto 0);
-   
-   signal trigSync : TriggerType;
+   signal ssiCmdSync : SsiCmdMasterType;
+   signal trigSync   : TriggerType;
    
 begin
 
+   -- synchronizers
+   Sync1_U : entity work.SynchronizerVector
+     generic map (
+       WIDTH_G => 33)
+   port map (
+      clk     => sysClk,
+      rst     => sysRst,
+      dataIn(0)            => ssiCmd.valid,
+      dataIn(8 downto 1)   => ssiCmd.opCode,
+      dataIn(32 downto 9)  => ssiCmd.context,
+      dataOut(0)           => ssiCmdSync.valid,
+      dataOut(8 downto 1)  => ssiCmdSync.opCode,
+      dataOut(32 downto 9) => ssiCmdSync.context
+   );
+   
    -----------------------------------
    -- SW Triggers:
    --   Run trigger is opCode x00
@@ -147,7 +162,7 @@ begin
    )
    port map (
        -- Local command signal
-      cmdSlaveOut => ssiCmd,
+      cmdSlaveOut => ssiCmdSync,
       --addressed cmdOpCode
       opCode      => x"00",
       -- output pulse to sync module
