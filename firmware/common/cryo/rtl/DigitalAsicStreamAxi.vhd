@@ -716,7 +716,7 @@ begin
                sv.dFifoRd := (others=>'1');                       
                sv.stCnt := s.stCnt + 1;
                if ((dFifoEof /= VECTOR_OF_ZEROS_C(STREAMS_PER_ASIC_G-1 downto 0) or dFifoEofe /= VECTOR_OF_ZEROS_C(STREAMS_PER_ASIC_G-1 downto 0)) or s.stCnt = s.asicDataReq) then 
-                 sv.frmSize := toSlv(s.stCnt, 16);
+                 sv.frmSize := toSlv(s.stCnt, 32);
                  sv.stCnt := 0;
                  if s.frmMax <= sv.frmSize then
                    sv.frmMax := sv.frmSize;
