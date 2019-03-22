@@ -696,7 +696,7 @@ begin
              sv.stCnt := s.stCnt + 1;
              -- data package completed
              if s.stCnt = s.asicDataReq then 
-               sv.frmSize := toSlv(s.stCnt, 16);
+               sv.frmSize := toSlv(s.stCnt, 32);
                sv.stCnt := 0;
                if s.frmMax <= sv.frmSize then
                  sv.frmMax := sv.frmSize;
