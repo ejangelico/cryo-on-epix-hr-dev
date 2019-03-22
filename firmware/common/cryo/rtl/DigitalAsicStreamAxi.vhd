@@ -103,15 +103,15 @@ architecture RTL of DigitalAsicStreamAxi is
       sampleCntOffset  : slv(4 downto 0);
       stopDataTx       : sl;
       testBitFlip      : sl;
-      frmSize          : slv(15 downto 0);
-      frmMax           : slv(15 downto 0);
-      frmMin           : slv(15 downto 0);
+      frmSize          : slv(31 downto 0);
+      frmMax           : slv(31 downto 0);
+      frmMin           : slv(31 downto 0);
       acqNo            : Slv32Array(1 downto 0);
       frmCnt           : slv(31 downto 0);
       sofError         : slv(15 downto 0);
       eofError         : slv(15 downto 0);
       ovError          : slv(15 downto 0);
-      asicDataReq      : slv(15 downto 0);
+      asicDataReq      : slv(31 downto 0);
       rstCnt           : sl;
       errInhibit       : sl;
       dFifoRd          : slv(STREAMS_PER_ASIC_G-1 downto 0);
@@ -158,14 +158,14 @@ architecture RTL of DigitalAsicStreamAxi is
       stopDataTx        : sl;
       decDataBitOrder   : sl;
       decBypass         : sl;
-      frmSize           : slv(15 downto 0);
-      frmMax            : slv(15 downto 0);
-      frmMin            : slv(15 downto 0);
+      frmSize           : slv(31 downto 0);
+      frmMax            : slv(31 downto 0);
+      frmMin            : slv(31 downto 0);
       frmCnt            : slv(31 downto 0);
       sofError          : slv(15 downto 0);
       eofError          : slv(15 downto 0);
       ovError           : slv(15 downto 0);
-      asicDataReq       : slv(15 downto 0);
+      asicDataReq       : slv(31 downto 0);
       rstCnt            : slv(2 downto 0);
       rstSt             : sl;
       sAxilWriteSlave   : AxiLiteWriteSlaveType;
@@ -187,7 +187,7 @@ architecture RTL of DigitalAsicStreamAxi is
       sofError          => (others=>'0'),
       eofError          => (others=>'0'),
       ovError           => (others=>'0'),
-      asicDataReq       => toSlv(ASIC_DATA_G, 16),
+      asicDataReq       => toSlv(ASIC_DATA_G, 32),
       rstCnt            => (others=>'0'),
       rstSt             => '0',
       sAxilWriteSlave   => AXI_LITE_WRITE_SLAVE_INIT_C,
