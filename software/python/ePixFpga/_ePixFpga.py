@@ -296,7 +296,7 @@ class EpixHRGen1Cryo(pr.Device):
         if USE_CRYO_PLL_1MSPS :
             ## load config for the asic
             print("Loading timing configuration")
-            self.root.ReadConfig('./yml/cryo_tunnedPowerSupply_roomTemperature_v0_56MHz_pllClk_500KSPS_RoomT3.yml')
+            self.root.ReadConfig('./yml/cryo_tunnedPowerSupply_roomTemperature_v0_56MHz_pllClk_RoomT3.yml')
             time.sleep(5*delay) 
 
         ## start deserializer config for the asic
@@ -463,7 +463,6 @@ class EpixHRGen1Cryo(pr.Device):
         """SetTestBitmap command function"""       
         print("Init cryo at 112MHz without PLL started")
         print(arg)
-        self.AppFpgaRegisters.enable.set(True)
         self.AppFpgaRegisters.SR0Polarity.set(False)
         delay = 1.0
         USE_CRYO_PLL_1MSPS = True
@@ -505,14 +504,11 @@ class EpixHRGen1Cryo(pr.Device):
 
         ## takes the asic off of reset
         print("Taking asic off of reset")
-        self.root.readBlocks()
-        for i in range(2):
-            self.AppFpgaRegisters.enable.set(True)
-            self.root.readBlocks()
-            self.AppFpgaRegisters.GlblRstPolarity.set(False)
-            time.sleep(5*delay) 
-            self.AppFpgaRegisters.GlblRstPolarity.set(True)
-            time.sleep(delay) 
+        self.AppFpgaRegisters.enable.set(True)
+        self.AppFpgaRegisters.GlblRstPolarity.set(False)
+        time.sleep(delay) 
+        self.AppFpgaRegisters.GlblRstPolarity.set(True)
+        time.sleep(delay) 
         self.root.readBlocks()
         time.sleep(delay) 
 
@@ -1924,7 +1920,7 @@ class DigitalPktRegisters(pr.Device):
       self.add(pr.RemoteVariable(name='StreamDataMode',  description='Streams data cont.',                          offset=0x00000020, bitSize=1,   bitOffset=0, base=pr.Bool, mode='RW'))
       self.add(pr.RemoteVariable(name='StopDataTx',      description='Interrupt data stream',                       offset=0x00000020, bitSize=1,   bitOffset=1, base=pr.Bool, mode='RW'))
       self.add(pr.RemoteVariable(name='ResetCounters',   description='ResetCounters',                               offset=0x00000024, bitSize=1,   bitOffset=0, base=pr.Bool, mode='WO'))
-      self.add(pr.RemoteVariable(name='asicDataReq',     description='Number of samples requested per ADC stream.', offset=0x00000028, bitSize=32,  bitOffset=0, base=pr.UInt, disp = '{}', mode='RW'))
+      self.add(pr.RemoteVariable(name='asicDataReq',     description='Number of samples requested per ADC stream.', offset=0x00000028, bitSize=16,  bitOffset=0, base=pr.UInt, disp = '{}', mode='RW'))
       self.add(pr.RemoteVariable(name='adcIndexOffset',  description='Changes the sequence where adc are readout',  offset=0x0000002C, bitSize=5,   bitOffset=0, base=pr.UInt, disp = '{}', mode='RW'))
       self.add(pr.RemoteVariable(name='DecData0',        description='Decoded data',                                offset=0x00000080, bitSize=32,  bitOffset=0, base=pr.UInt, disp = '{}', mode='RO'))
       self.add(pr.RemoteVariable(name='DecData1',        description='Decoded data',                                offset=0x00000084, bitSize=32,  bitOffset=0, base=pr.UInt, disp = '{}', mode='RO'))      
