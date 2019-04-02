@@ -460,6 +460,8 @@ begin
    -- Serial IDs: FPGA Device DNA + DS2411's
    -----------------------------------------------  
    GEN_DEVICE_DNA : if (EN_DEVICE_DNA_G = true) generate
+      signal dummy : slv(63 downto 0);
+   begin
       G_DEVICE_DNA : entity work.DeviceDna
          generic map (
             TPD_G        => TPD_G,
@@ -467,7 +469,7 @@ begin
          port map (
             clk      => axiClk,
             rst      => axiReset,
-            dnaValue(127 downto 64) => open,
+            dnaValue(127 downto 64) => dummy,
             dnaValue( 63 downto  0) => idValues(0),
             dnaValid => idValids(0)
          );

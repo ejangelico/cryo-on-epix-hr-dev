@@ -15,7 +15,5 @@ loadRuckusTcl $::env(TOP_DIR)/submodules
 loadRuckusTcl $::env(TOP_DIR)/common/cryo
 
 
-set_property STEPS.SYNTH_DESIGN.ARGS.FLATTEN_HIERARCHY none [get_runs synth_1]
-
 # set top moudule
 set_property top {cryo_full_tb} [get_filesets sim_1]

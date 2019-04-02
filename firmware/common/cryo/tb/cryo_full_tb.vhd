@@ -263,6 +263,8 @@ architecture arch of cryo_full_tb is
   signal serialDataOut2 : sl;
   signal chId           : slv(11 downto 0);
 
+signal dummy : slv(1 downto 0);
+
 begin  --
 
   -- clock generation
@@ -316,8 +318,8 @@ begin  --
       rstIn           => sysRst,
       clkOut(0)       => dClkP,       --bit clk
       clkOut(1)       => fClkP,
-      rstOut(0)       => open,
-      rstOut(1)       => open,
+      rstOut(0)       => dummy(0),
+      rstOut(1)       => dummy(1),
       locked          => open
    );
   

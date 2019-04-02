@@ -75,7 +75,7 @@ entity Application is
       -- Microblaze's Interrupt bus (sysClk domain)
       mbIrq            : out   slv(7 downto 0);
       -- ssi commands (Lane and Vc 0)
-      ssiCmd           : in    SsiCmdMasterType;
+      ssiCmd           : in    SsiCmdMasterType := SSI_CMD_MASTER_INIT_C;
       -----------------------
       -- Application Ports --
       -----------------------
@@ -316,6 +316,8 @@ architecture mapping of Application is
    attribute keep of iAsicAcq          : signal is "true";
 
    attribute keep of adcStreams        : signal is "true";
+
+    signal dummy : slv(3 downto 0);
 
 
 begin
@@ -559,8 +561,8 @@ begin
       clkOut(1)       => idelayCtrlClk, 
       clkOut(2)       => adcClk, 
       rstOut(0)       => appRst,
-      rstOut(1)       => open,
-      rstOut(2)       => open,
+      rstOut(1)       => dummy(0),
+      rstOut(2)       => dummy(1),
       locked          => clkLocked,
       -- AXI-Lite Interface 
       axilClk         => appClk,
@@ -653,8 +655,8 @@ begin
       clkOut(2)       => byteClk,
       clkOut(3)       => asicRdClk,
       rstOut(0)       => bitRst,
-      rstOut(1)       => open,
-      rstOut(2)       => open,
+      rstOut(1)       => dummy(2),
+      rstOut(2)       => dummy(3),
       rstOut(3)       => asicRdClkRst,
       locked          => open,
       -- AXI-Lite Interface
