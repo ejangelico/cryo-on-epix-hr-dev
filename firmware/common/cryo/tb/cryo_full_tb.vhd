@@ -6,7 +6,7 @@
 -- Author     : Dionisio Doering  <ddoering@tid-pc94280.slac.stanford.edu>
 -- Company    : 
 -- Created    : 2017-05-22
--- Last update: 2019-02-22
+-- Last update: 2019-04-03
 -- Platform   : 
 -- Standard   : VHDL'87
 -------------------------------------------------------------------------------
@@ -233,6 +233,8 @@ architecture arch of cryo_full_tb is
   -- Auxiliary AXI Stream, (sysClk domain)
   signal sAuxAxisMasters : AxiStreamMasterArray(1 downto 0);
   signal sAuxAxisSlaves  : AxiStreamSlaveArray(1 downto 0);
+  -- ssi commands (Lane and Vc 0)
+  signal ssiCmd          : SsiCmdMasterType;
   -- DDR's AXI Memory Interface (sysClk domain)
   signal axiReadMaster   : AxiReadMasterType;
   signal axiReadSlave    : AxiReadSlaveType;
@@ -473,6 +475,7 @@ begin  --
          -- Auxiliary AXI Stream, (sysClk domain)
          sAuxAxisMasters  => sAuxAxisMasters,
          sAuxAxisSlaves   => sAuxAxisSlaves,
+         ssiCmd           => ssiCmd,
          -- DDR's AXI Memory Interface (sysClk domain)
          -- DDR Address Range = [0x00000000:0x3FFFFFFF]
          mAxiReadMaster   => axiReadMaster,
@@ -580,6 +583,7 @@ begin  --
          -- Auxiliary AXI Stream, (sysClk domain)
          sAuxAxisMasters  => sAuxAxisMasters,
          sAuxAxisSlaves   => sAuxAxisSlaves,
+         ssiCmd           => ssiCmd,
          -- DDR's AXI Memory Interface (sysClk domain)
          -- DDR Address Range = [0x00000000:0x3FFFFFFF]
          sAxiReadMaster   => axiReadMaster,

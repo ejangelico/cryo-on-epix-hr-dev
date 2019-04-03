@@ -17,6 +17,7 @@
 # copied, modified, propagated, or distributed except according to the terms 
 # contained in the LICENSE.txt file.
 #-----------------------------------------------------------------------------
+import setupLibPaths
 import pyrogue as pr
 import pyrogue.utilities.prbs
 import pyrogue.utilities.fileio
@@ -124,13 +125,14 @@ elif ( args.type == 'kcu1500' ):
     pgpL3Vc0 = rogue.hardware.axi.AxiStreamDma('/dev/datadev_0',(3*32)+0, True) # Data
 elif ( args.type == 'SIM' ):          
     print('Sim mode')
+    simPort = 11000
     rogue.Logging.setFilter('pyrogue.SrpV3', rogue.Logging.Debug)
-    pgpL0Vc0  = rogue.interfaces.stream.TcpClient('localhost',7000+(34*0)+2*0) # VC0
-    pgpL0Vc1  = rogue.interfaces.stream.TcpClient('localhost',7000+(34*0)+2*1) # VC1
-    pgpL0Vc2  = rogue.interfaces.stream.TcpClient('localhost',7000+(34*0)+2*2) # VC2
-    pgpL0Vc3  = rogue.interfaces.stream.TcpClient('localhost',7000+(34*0)+2*3) # VC3    
-    pgpL2Vc0  = rogue.interfaces.stream.TcpClient('localhost',7000+(34*2)+2*0) # OP-Code    
-    pgpL3Vc0  = rogue.interfaces.stream.TcpClient('localhost',7000+(34*3)+2*0) # OP-Code    
+    pgpL0Vc0  = rogue.interfaces.stream.TcpClient('localhost',simPort+(34*0)+2*0) # VC0
+    pgpL0Vc1  = rogue.interfaces.stream.TcpClient('localhost',simPort+(34*0)+2*1) # VC1
+    pgpL0Vc2  = rogue.interfaces.stream.TcpClient('localhost',simPort+(34*0)+2*2) # VC2
+    pgpL0Vc3  = rogue.interfaces.stream.TcpClient('localhost',simPort+(34*0)+2*3) # VC3    
+    pgpL2Vc0  = rogue.interfaces.stream.TcpClient('localhost',simPort+(34*2)+2*0) # L2VC0    
+    pgpL3Vc0  = rogue.interfaces.stream.TcpClient('localhost',simPort+(34*3)+2*0) # L3VC0
     #pgpL0Vc0 = pyrogue.interfaces.simulation.StreamSim(host='localhost', dest=0, uid=1, ssi=True)
     #pgpL0Vc1 = pyrogue.interfaces.simulation.StreamSim(host='localhost', dest=1, uid=1, ssi=True)
     #pgpL0Vc2 = pyrogue.interfaces.simulation.StreamSim(host='localhost', dest=2, uid=1, ssi=True)
