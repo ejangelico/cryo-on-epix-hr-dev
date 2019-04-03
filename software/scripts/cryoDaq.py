@@ -17,16 +17,18 @@
 # copied, modified, propagated, or distributed except according to the terms 
 # contained in the LICENSE.txt file.
 #-----------------------------------------------------------------------------
-
-
-import rogue.hardware.pgp
+import pyrogue as pr
 import pyrogue.utilities.prbs
 import pyrogue.utilities.fileio
-
-import pyrogue as pr
 import pyrogue.interfaces.simulation
 import pyrogue.gui
+import rogue.hardware.pgp
+import rogue.protocols
 import surf
+import surf.axi
+import surf.protocols.ssi
+from XilinxKcu1500Pgp3.XilinxKcu1500Pgp3 import *
+
 import threading
 import signal
 import atexit
@@ -38,13 +40,6 @@ import sys
 import ePixViewer as vi
 import ePixFpga as fpga
 
-#import pyrogue.utilities.prbs
-#import pyrogue.utilities.fileio
-
-import surf
-import surf.axi
-import surf.protocols.ssi
-from XilinxKcu1500Pgp3.XilinxKcu1500Pgp3 import *
 
 try:
     from PyQt5.QtWidgets import *
@@ -130,12 +125,18 @@ elif ( args.type == 'kcu1500' ):
 elif ( args.type == 'SIM' ):          
     print('Sim mode')
     rogue.Logging.setFilter('pyrogue.SrpV3', rogue.Logging.Debug)
-    pgpL0Vc0 = pyrogue.interfaces.simulation.StreamSim(host='localhost', dest=0, uid=1, ssi=True)
-    pgpL0Vc1 = pyrogue.interfaces.simulation.StreamSim(host='localhost', dest=1, uid=1, ssi=True)
-    pgpL0Vc2 = pyrogue.interfaces.simulation.StreamSim(host='localhost', dest=2, uid=1, ssi=True)
-    pgpL0Vc3 = pyrogue.interfaces.simulation.StreamSim(host='localhost', dest=3, uid=1, ssi=True)
-    pgpL2Vc0 = pyrogue.interfaces.simulation.StreamSim(host='localhost', dest=0, uid=2, ssi=True)
-    pgpL3Vc0 = pyrogue.interfaces.simulation.StreamSim(host='localhost', dest=0, uid=3, ssi=True)
+    pgpL0Vc0  = rogue.interfaces.stream.TcpClient('localhost',7000+(34*0)+2*0) # VC0
+    pgpL0Vc1  = rogue.interfaces.stream.TcpClient('localhost',7000+(34*0)+2*1) # VC1
+    pgpL0Vc2  = rogue.interfaces.stream.TcpClient('localhost',7000+(34*0)+2*2) # VC2
+    pgpL0Vc3  = rogue.interfaces.stream.TcpClient('localhost',7000+(34*0)+2*3) # VC3    
+    pgpL2Vc0  = rogue.interfaces.stream.TcpClient('localhost',7000+(34*2)+2*0) # OP-Code    
+    pgpL3Vc0  = rogue.interfaces.stream.TcpClient('localhost',7000+(34*3)+2*0) # OP-Code    
+    #pgpL0Vc0 = pyrogue.interfaces.simulation.StreamSim(host='localhost', dest=0, uid=1, ssi=True)
+    #pgpL0Vc1 = pyrogue.interfaces.simulation.StreamSim(host='localhost', dest=1, uid=1, ssi=True)
+    #pgpL0Vc2 = pyrogue.interfaces.simulation.StreamSim(host='localhost', dest=2, uid=1, ssi=True)
+    #pgpL0Vc3 = pyrogue.interfaces.simulation.StreamSim(host='localhost', dest=3, uid=1, ssi=True)
+    #pgpL2Vc0 = pyrogue.interfaces.simulation.StreamSim(host='localhost', dest=0, uid=2, ssi=True)
+    #pgpL3Vc0 = pyrogue.interfaces.simulation.StreamSim(host='localhost', dest=0, uid=3, ssi=True)
 elif ( args.type == 'dataFile' ):
     print("Bypassing hardware.")
 
