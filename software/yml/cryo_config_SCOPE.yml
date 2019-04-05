@@ -1,0 +1,21 @@
+cryoAsicGen1:
+  enable: True
+  ForceWrite: False
+  EpixHRGen1Cryo:
+    enable: True
+    Oscilloscope:
+      enable: True
+      ArmReg: False
+      TrigReg: False
+      ScopeEnable: False
+      TriggerEdge: Falling
+      TriggerChannel: AcqStart
+      TriggerMode: Always
+      TriggerAdcThresh: 0
+      TriggerHoldoff: 0
+      TriggerOffset: 0
+      TraceLength: 2000
+      SkipSamples: 0
+      InputChannelA: Asic0TpsMux
+      InputChannelB: Asic0TpsMux
+      TriggerDelay: 0

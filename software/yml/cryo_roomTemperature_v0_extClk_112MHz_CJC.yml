@@ -1,0 +1,123 @@
+cryoAsicGen1:
+  enable: True
+  ForceWrite: False
+  dataWriter:
+    enable: True
+    dataFile: ''
+    open: False
+    bufferSize: 0
+    maxFileSize: 0
+  XilinxKcu1500Pgp3:
+    enable: True
+    AxiPcieCore:
+      enable: True
+      AxiPciePhy:
+        enable: True
+      AxiVersion:
+        enable: True
+        ScratchPad: 0x000000
+        FpgaReloadHalt: 0x0
+        FpgaReloadAddress: 0x0
+        UserReset: 0x0
+      DmaIbAxisMon:
+        enable: True
+      DmaObAxisMon:
+        enable: True
+    Lane[0]:
+      enable: True
+      AutoStatus: False
+      Loopback: 0x0
+      SkipInterval: 65520
+      FlowControlDisable: False
+      TxDisable: False
+    Lane[1]:
+      enable: True
+      AutoStatus: False
+      Loopback: 0x0
+      SkipInterval: 65520
+      FlowControlDisable: False
+      TxDisable: False
+    Lane[2]:
+      enable: True
+      AutoStatus: False
+      Loopback: 0x0
+      SkipInterval: 65520
+      FlowControlDisable: False
+      TxDisable: False
+    Lane[3]:
+      enable: True
+      AutoStatus: False
+      Loopback: 0x0
+      SkipInterval: 65520
+      FlowControlDisable: False
+      TxDisable: False
+    Lane[4]:
+      enable: True
+      AutoStatus: False
+      Loopback: 0x0
+      SkipInterval: 65520
+      FlowControlDisable: False
+      TxDisable: False
+    Lane[5]:
+      enable: True
+      AutoStatus: False
+      Loopback: 0x0
+      SkipInterval: 65520
+      FlowControlDisable: False
+      TxDisable: False
+    Lane[6]:
+      enable: True
+      AutoStatus: False
+      Loopback: 0x0
+      SkipInterval: 65520
+      FlowControlDisable: False
+      TxDisable: False
+    Lane[7]:
+      enable: True
+      AutoStatus: False
+      Loopback: 0x0
+      SkipInterval: 65520
+      FlowControlDisable: False
+      TxDisable: False
+  EpixHRGen1Cryo:
+    enable: True
+    AxiVersion:
+      enable: True
+      ScratchPad: 0x000000
+      FpgaReloadHalt: 0x0
+      FpgaReloadAddress: 0x0
+      UserReset: 0x0
+    Clock Jitter Cleaner:
+      enable: True
+      RstL: True
+      Dec: False
+      Inc: False
+      Frqtbl: False
+      FrqtblZ: True
+      Rate: 0x0
+      RateZ: 0x0
+      BwSel: 0x0
+      BwSelZ: 0x2
+      FreqSel: 0x8
+      FreqSelZ: 0x0
+      Sfout: 0x2
+      SfoutZ: 0x1
+    DeserRegisters:
+      enable: True
+      StreamsEn_n: 0x0
+      Resync: False
+      14bData_ser0:
+        enable: True
+      14bData_ser1:
+        enable: True
+    PacketRegisters:
+      enable: True
+      decDataBitOrder: True
+      StreamDataMode: False
+      StopDataTx: False
+      ResetCounters: False
+      asicDataReq: 2048
+  runControl:
+    enable: True
+    runState: Stopped
+    runRate: 1 Hz
