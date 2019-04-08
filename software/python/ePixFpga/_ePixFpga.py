@@ -231,6 +231,7 @@ class EpixHRGen1Cryo(pr.Device):
     def fnInitCryo(self, dev,cmd,arg):
         """SetTestBitmap command function"""       
         print("Rysync cryo started")
+        self.filenameSCOPE = "./yml/cryo_config_SCOPE.yml"
         if arg == 1:
             self.filenameMMCM = "./yml/cryo_config_mmcm_ExtClk_112MHz.yml"
             self.filenamePowerSupply = "./yml/cryo_config_PowerSupply_2v5.yml"
@@ -261,7 +262,38 @@ class EpixHRGen1Cryo(pr.Device):
             self.filenamePowerSupply = "./yml/cryo_config_PowerSupply_2v5.yml"
             self.filenameCJC = "./yml/cryo_config_CJC_PLLClk_56MHz.yml"
             self.filenameASIC = "./yml/cryo_config_ASIC_PLLClk_448MHz_RoomTemp_v0p1.yml"
-        self.fnInitCryoScript(dev,cmd,arg)
+        elif arg == 7:
+            self.filenameMMCM = "./yml/cryo_config_mmcm_ExtClk_112MHz.yml"
+            self.filenamePowerSupply = "./yml/cryo_config_PowerSupply_2v5.yml"
+            self.filenameCJC = "./yml/cryo_config_CJC_ExtClk_112MHz.yml"
+            self.filenameASIC = "./yml/cryo_config_ASIC_ExtClk_DUNETemp_v0p1.yml"
+        elif arg == 8:
+            self.filenameMMCM = "./yml/cryo_config_mmcm_ExtClk_224MHz.yml"
+            self.filenamePowerSupply = "./yml/cryo_config_PowerSupply_2v5.yml"
+            self.filenameCJC = "./yml/cryo_config_CJC_ExtClk_224MHz.yml"
+            self.filenameASIC = "./yml/cryo_config_ASIC_ExtClk_DUNETemp_v0p1.yml"
+        elif arg == 9:
+            self.filenameMMCM = "./yml/cryo_config_mmcm_ExtClk_448MHz.yml"
+            self.filenamePowerSupply = "./yml/cryo_config_PowerSupply_2v5.yml"
+            self.filenameCJC = "./yml/cryo_config_CJC_ExtClk_448MHz.yml"
+            self.filenameASIC = "./yml/cryo_config_ASIC_ExtClk_DUNETemp_v0p1.yml"
+        elif arg == 10:
+            self.filenameMMCM = "./yml/cryo_config_mmcm_PLLClk_112MHz.yml"
+            self.filenamePowerSupply = "./yml/cryo_config_PowerSupply_2v5.yml"
+            self.filenameCJC = "./yml/cryo_config_CJC_PLLClk_56MHz.yml"
+            self.filenameASIC = "./yml/cryo_config_ASIC_PLLClk_112MHz_DUNETemp_v0p1.yml"
+        elif arg == 11:
+            self.filenameMMCM = "./yml/cryo_config_mmcm_PLLClk_224MHz.yml"
+            self.filenamePowerSupply = "./yml/cryo_config_PowerSupply_2v5.yml"
+            self.filenameCJC = "./yml/cryo_config_CJC_PLLClk_56MHz.yml"
+            self.filenameASIC = "./yml/cryo_config_ASIC_PLLClk_224MHz_DUNETemp_v0p1.yml"
+        elif arg == 12:
+            self.filenameMMCM = "./yml/cryo_config_mmcm_PLLClk_448MHz.yml"
+            self.filenamePowerSupply = "./yml/cryo_config_PowerSupply_2v5.yml"
+            self.filenameCJC = "./yml/cryo_config_CJC_PLLClk_56MHz.yml"
+            self.filenameASIC = "./yml/cryo_config_ASIC_PLLClk_448MHz_DUNETemp_v0p1.yml"
+        if arg != 0:
+            self.fnInitCryoScript(dev,cmd,arg)
 
     def fnInitCryoScript(self, dev,cmd,arg):
         """SetTestBitmap command function"""       
@@ -294,9 +326,10 @@ class EpixHRGen1Cryo(pr.Device):
         print("Loading CJC configuration")
         self.root.ReadConfig(self.filenameCJC)
         print(self.filenameCJC)
-        for i in range(5):
+        self.numberOfAttempts = 5
+        for i in range(self.numberOfAttempts):
             time.sleep(2*delay)
-            print("Waiting asic to stablize", i)
+            print("Waiting asic to stablize %d out of %d" % (i, self.numberOfAttempts))
 
         ## takes the asic off of reset
         print("Taking asic off of reset")
@@ -311,7 +344,12 @@ class EpixHRGen1Cryo(pr.Device):
         ## load config for the asic
         print("Loading timing configuration")
         self.root.ReadConfig(self.filenameASIC)
-        time.sleep(5*delay) 
+        print(self.filenameASIC)
+        self.numberOfAttempts = 30
+        for i in range(self.numberOfAttempts):
+            time.sleep(2*delay)
+            print("Waiting LDO to settle, attempt %d out of %d" % (i, self.numberOfAttempts))
+
 
         ## start deserializer config for the asic
         EN_DESERIALIZERS = True
@@ -344,7 +382,7 @@ class EpixHRGen1Cryo(pr.Device):
         EN_SR0 = True
         EN_ALL_CRYO_ADCS = True
         if EN_SR0 : 
-            print("Settig SR0 set to true")
+            print("Setting SR0 set to true")
             self.AppFpgaRegisters.enable.set(True)
             self.root.readBlocks()
             for i in range(2):
@@ -361,6 +399,11 @@ class EpixHRGen1Cryo(pr.Device):
         BYPASS_DECODER = True
         if BYPASS_DECODER : 
             self.fnBypassDecoder(dev,cmd,arg)
+
+        CONFIG_SCOPE = True
+        if CONFIG_SCOPE :
+            print("Loading Pseudo Scope configuration")
+            self.root.ReadConfig(self.filenameSCOPE)
 
     def fnReSyncCryo(self, dev,cmd,arg):
         """SetTestBitmap command function"""       
@@ -422,19 +465,21 @@ class EpixHRGen1Cryo(pr.Device):
         print("Enabling stream readout")
         self.PacketRegisters.enable.set(True)
         self.PacketRegisters.StreamDataMode.set(True)
+        self.PacketRegisters.decDataBitOrder.set(True)
 
     def fnSendAdcData(self, dev,cmd,arg):
         print("Sends adc data in stream mode")
         delay = 1.0
         self.PacketRegisters.enable.set(True)
         self.root.readBlocks()
-        self.PacketRegisters.decBypass.set(False)
         time.sleep(delay/10) 
         print("Setting cryo to send counter to readout")
         self.CryoAsic0.encoder_mode_dft.set(0)
+        time.sleep(delay/10) 
         print("Enabling stream readout")
-        self.PacketRegisters.enable.set(True)
         self.PacketRegisters.StreamDataMode.set(True)
+        self.PacketRegisters.decDataBitOrder.set(True)
+        self.PacketRegisters.decBypass.set(False)
 
 
     def fnSetWaveform(self, dev,cmd,arg):
@@ -1712,7 +1757,7 @@ class DigitalPktRegisters(pr.Device):
       self.add(pr.RemoteVariable(name='StreamDataMode',  description='Streams data cont.',                          offset=0x00000020, bitSize=1,   bitOffset=0, base=pr.Bool, mode='RW'))
       self.add(pr.RemoteVariable(name='StopDataTx',      description='Interrupt data stream',                       offset=0x00000020, bitSize=1,   bitOffset=1, base=pr.Bool, mode='RW'))
       self.add(pr.RemoteVariable(name='ResetCounters',   description='ResetCounters',                               offset=0x00000024, bitSize=1,   bitOffset=0, base=pr.Bool, mode='WO'))
-      self.add(pr.RemoteVariable(name='asicDataReq',     description='Number of samples requested per ADC stream.', offset=0x00000028, bitSize=16,  bitOffset=0, base=pr.UInt, disp = '{}', mode='RW'))
+      self.add(pr.RemoteVariable(name='asicDataReq',     description='Number of samples requested per ADC stream.', offset=0x00000028, bitSize=32,  bitOffset=0, base=pr.UInt, disp = '{}', mode='RW'))
       self.add(pr.RemoteVariable(name='adcIndexOffset',  description='Changes the sequence where adc are readout',  offset=0x0000002C, bitSize=5,   bitOffset=0, base=pr.UInt, disp = '{}', mode='RW'))
       self.add(pr.RemoteVariable(name='DecData0',        description='Decoded data',                                offset=0x00000080, bitSize=32,  bitOffset=0, base=pr.UInt, disp = '{}', mode='RO'))
       self.add(pr.RemoteVariable(name='DecData1',        description='Decoded data',                                offset=0x00000084, bitSize=32,  bitOffset=0, base=pr.UInt, disp = '{}', mode='RO'))      
