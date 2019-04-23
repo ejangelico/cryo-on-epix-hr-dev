@@ -143,7 +143,7 @@ begin
    U_TrigPulser : entity work.SsiCmdMasterPulser
    generic map (
       OUT_POLARITY_G => '1',
-      PULSE_WIDTH_G  => 1
+      PULSE_WIDTH_G  => 2
    )
    port map (
        -- Local command signal
