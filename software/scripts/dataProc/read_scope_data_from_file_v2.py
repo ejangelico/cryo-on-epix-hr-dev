@@ -44,10 +44,10 @@ PLOT_ADC_VS_N         = True
 ##################################################
 # Dark images
 ##################################################
-#if (len(sys.argv[1])>0):
-#    filename = sys.argv[1]
-#else:
-filename = '/data/cryoData/backend/pulse_pseudoScope.dat'
+if (len(sys.argv[1])>0):
+    filename = sys.argv[1]
+else:
+    filename = '/data/cryoData/backend/pulse_pseudoScope.dat'
 
 f = open(filename, mode = 'rb')
 
