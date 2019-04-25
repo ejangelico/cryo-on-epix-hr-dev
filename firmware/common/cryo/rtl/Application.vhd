@@ -2,7 +2,7 @@
 -- File       : Application.vhd
 -- Company    : SLAC National Accelerator Laboratory
 -- Created    : 2017-04-21
--- Last update: 2019-03-18
+-- Last update: 2019-04-23
 -------------------------------------------------------------------------------
 -- Description: Application Core's Top Level
 -------------------------------------------------------------------------------
@@ -783,8 +783,8 @@ begin
    U_TrigControl : entity work.TrigControlAxi
    port map (
       -- Trigger outputs
-      sysClk         => appClk,
-      sysRst         => appRst,
+      appClk         => appClk,
+      appRst         => appRst,
       acqStart       => acqStart,
       dataSend       => dataSend,
       
@@ -793,8 +793,8 @@ begin
       daqTrigger     => iDaqTrigger,
       
       -- PGP clocks and reset
-      pgpClk         => sysClk,
-      pgpClkRst      => sysRst,
+      sysClk         => sysClk,
+      sysRst         => sysRst,
       -- SW trigger in (from VC)
       ssiCmd         => ssiCmd,
       -- PGP RxOutType (to trigger from sideband)
