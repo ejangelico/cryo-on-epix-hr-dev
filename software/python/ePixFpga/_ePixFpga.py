@@ -238,15 +238,17 @@ class EpixHRGen1Cryo(pr.Device):
         self.currentFrameCount = self.root.dataWriter.frameCount.get()
         dacValue = 1
         self.HSDac.enable.set(True)
-        for i in range(64):
-            self.HSDac.DacValue.set(dacValue*1024-1)
+#        for i in range(64):
+#            self.HSDac.DacValue.set(dacValue*1024-1)
+        for i in range(65536):
+            self.HSDac.DacValue.set(dacValue-1)
             self.root.dataWriter.dataFile.set(self.currentFilename +"_"+ str(i)+".dat")
             self.root.dataWriter.open.set(True)
-            while(True):
+            for i in range(10):
                 self.root.Trigger()
-                if self.root.dataWriter.frameCount.get() > self.currentFrameCount :
-                    self.currentFrameCount = self.root.dataWriter.frameCount.get()
-                    break
+                time.sleep(0.001) 
+            time.sleep(0.003) 
+                
             self.root.dataWriter.open.set(False)
             dacValue = dacValue + 1
             
@@ -368,7 +370,7 @@ class EpixHRGen1Cryo(pr.Device):
         print("Loading timing configuration")
         self.root.ReadConfig(self.filenameASIC)
         print(self.filenameASIC)
-        self.numberOfAttempts = 30
+        self.numberOfAttempts = 18
         for i in range(self.numberOfAttempts):
             time.sleep(2*delay)
             print("Waiting LDO to settle, attempt %d out of %d" % (i, self.numberOfAttempts))
