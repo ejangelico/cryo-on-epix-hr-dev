@@ -5,7 +5,7 @@ cryoAsicGen1:
     enable: True
     CryoAsic0:
       enable: True
-      TPS_DAC: 0x27
+      TPS_DAC: 0x20
       TPS_GR: 0x0
       TPSMux: 0x0
       Bias_TPS_Buffer: 0x5
@@ -53,12 +53,12 @@ cryoAsicGen1:
       SAH_VcmBuf_B0: 0x0
       SigBuf_B0: 0x0
       ADC_VrefBuf_B0: 0x0
-      ADC_B0: 0x0
+      ADC_B0: 0x3
       ADC_VcmBuf_B0: 0x0
       bamp: 0x4
       bleak: 0x2
       brstVref: 0x4
-      SAH_Ctrl_Visel: True
+      SAH_Ctrl_Visel: False
       ADC_Ocen_Bk0: True
       ADC_Ocen_Bk1: True
       VrefBuffExt_En_Bk0: True
@@ -73,7 +73,7 @@ cryoAsicGen1:
       LDO_VTBias_B0: 0x3
       LDO_VTBias_T0: 0xc
       LDO_VTBias_Br0: 0x0
-      LDO_VTBias_Tr0: 0x2
+      LDO_VTBias_Tr0: 0x0
       TPS_DAC_Gain: 0x7
       LDO0TB_En: True
       LDO0rTB_En: True
@@ -97,7 +97,7 @@ cryoAsicGen1:
       FE_Amp_B0_1v2: 0x2
       bifb: 0x3
       bbaseref: 0x2
-      blcoarse: 0x6
+      blcoarse: 0x7
       ctrl_pulser: False
       Pulser_Bias_DAC_b0: 0x4
       PP_Pulser_Bias_DAC: True

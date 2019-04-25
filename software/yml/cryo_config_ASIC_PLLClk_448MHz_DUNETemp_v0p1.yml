@@ -5,16 +5,16 @@ cryoAsicGen1:
     enable: True
     CryoAsic0:
       enable: True
-      TPS_DAC: 0x27
+      TPS_DAC: 0x20
       TPS_GR: 0x0
       TPSMux: 0x0
       Bias_TPS_Buffer: 0x5
-      Bias_TPS: 0x7
+      Bias_TPS: 0x0
       Bias_TPS_DAC: 0x4
       Bias_LVDS_Rx: 0x3
       Bias_LVDS_Tx: 0x3
       RbiasEn: False
-      Pulser: 0x0e0
+      Pulser: 0x1e0
       test: False
       atest: False
       hrtest: False
@@ -36,11 +36,11 @@ cryoAsicGen1:
       cs_LVDS_Tx: 0x1
       DCycle_en: False
       DCycle_bypass: False
-      DCycle_polarity: False
+      DCycle_polarity: True
       DCycle_DAC: 0x20
       Bias_DCycle_DAC: 0x4
       PLL_RO_OutDivider: 0x0
-      PLL_DCycle_Bypass_B0: 0x2
+      PLL_DCycle_Bypass_B0: 0x0
       PLL_RO_Reset: False
       PLL_RO_Itune: 0x0
       PLL_RO_KVCO: 0x0
@@ -73,7 +73,7 @@ cryoAsicGen1:
       LDO_VTBias_B0: 0x3
       LDO_VTBias_T0: 0x7
       LDO_VTBias_Br0: 0x3
-      LDO_VTBias_Tr0: 0x4
+      LDO_VTBias_Tr0: 0x3
       TPS_DAC_Gain: 0x7
       LDO0TB_En: True
       LDO0rTB_En: True
@@ -97,7 +97,7 @@ cryoAsicGen1:
       FE_Amp_B0_1v2: 0x2
       bifb: 0x3
       bbaseref: 0x2
-      blcoarse: 0x6
+      blcoarse: 0x4
       ctrl_pulser: False
       Pulser_Bias_DAC_b0: 0x4
       PP_Pulser_Bias_DAC: True
