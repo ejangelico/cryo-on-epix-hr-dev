@@ -44,10 +44,10 @@ PLOT_ADC_VS_N         = True
 ##################################################
 # Dark images
 ##################################################
-#if (len(sys.argv[1])>0):
-#    filename = sys.argv[1]
-#else:
-filename = '/data/cryoData/backend/pulse_pseudoScope.dat'
+if (len(sys.argv[1])>0):
+    filename = sys.argv[1]
+else:
+    filename = '/data/cryoData/backend/pulse_pseudoScope.dat'
 
 f = open(filename, mode = 'rb')
 
@@ -64,13 +64,14 @@ while ((len(file_header)>0) and ((numberOfFrames<MAX_NUMBER_OF_FRAMES_PER_BATCH)
 
         #save only serial data frames
         newPayload = np.fromfile(f, dtype='uint16', count=payloadSize*2) #(frame size splited by four to read 32 bit 
-        if (numberOfFrames == 0):
-            allFrames = [newPayload.copy()]
-        else:
-            newFrame  = [newPayload.copy()]
-            allFrames = np.append(allFrames, newFrame, axis = 0)
-        numberOfFrames = numberOfFrames + 1 
-        previousSize = file_header
+        if ((file_header[1]&0xff000000)>>24)==2: #image packet only, 2 mean scope data
+            if (numberOfFrames == 0):
+                allFrames = [newPayload.copy()]
+            else:
+                newFrame  = [newPayload.copy()]
+                allFrames = np.append(allFrames, newFrame, axis = 0)
+            numberOfFrames = numberOfFrames + 1 
+            previousSize = file_header
         
         if (numberOfFrames%1000==0):
             print("Read %d frames" % numberOfFrames)
@@ -87,7 +88,7 @@ while ((len(file_header)>0) and ((numberOfFrames<MAX_NUMBER_OF_FRAMES_PER_BATCH)
 ##################################################
 #from here on we have a set of traces to work with
 ##################################################
-np.savetxt(os.path.splitext(filename)[0] + "_traces" + ".csv", allFrames, fmt='%d', delimiter=',', newline='\n')
+np.savetxt(os.path.splitext(filename)[0] + "_scope_traces" + ".csv", allFrames, fmt='%d', delimiter=',', newline='\n')
 
 #%%
 if PLOT_ADC_VS_N :
