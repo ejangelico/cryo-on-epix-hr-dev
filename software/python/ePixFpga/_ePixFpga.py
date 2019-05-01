@@ -218,14 +218,15 @@ class EpixHRGen1Cryo(pr.Device):
             DigitalPktRegisters(             name="PacketRegisters",                   offset=0x95000000, expand=False, enabled=False)
             ))
 
-        self.add(pr.LocalCommand(name='SetWaveform',    description='Set test waveform for high speed DAC', function=self.fnSetWaveform))
-        self.add(pr.LocalCommand(name='GetWaveform',    description='Get test waveform for high speed DAC', function=self.fnGetWaveform))
-        self.add(pr.LocalCommand(name='InitCryo',       description='Inicialization routines', function=self.fnInitCryo))
-        self.add(pr.LocalCommand(name='ReSyncCryo',     description='Generates the sequence necessary to resync asic',   function=self.fnReSyncCryo))
-        self.add(pr.LocalCommand(name='EnAllCryoAdcs',  description='Generates the sequence necessary to resync asic',   function=self.fnEnAllCryoAdcs))
-        self.add(pr.LocalCommand(name='BypassDecoder',  description='Generates the sequence necessary to resync asic',   function=self.fnBypassDecoder))
-        self.add(pr.LocalCommand(name='SendAdcData',    description='Generates the sequence necessary to send adc data', function=self.fnSendAdcData))
-        self.add(pr.LocalCommand(name='rampTestToFile', description='Generates the sequence necessary to send adc data', function=self.fnRampTestCryo))
+        self.add(pr.LocalCommand(name='SetWaveform',         description='Set test waveform for high speed DAC', function=self.fnSetWaveform))
+        self.add(pr.LocalCommand(name='GetWaveform',         description='Get test waveform for high speed DAC', function=self.fnGetWaveform))
+        self.add(pr.LocalCommand(name='InitCryo',            description='Inicialization routines', function=self.fnInitCryo))
+        self.add(pr.LocalCommand(name='ReSyncCryo',          description='Generates the sequence necessary to resync asic',   function=self.fnReSyncCryo))
+        self.add(pr.LocalCommand(name='EnAllCryoAdcs',       description='Generates the sequence necessary to resync asic',   function=self.fnEnAllCryoAdcs))
+        self.add(pr.LocalCommand(name='BypassDecoder',       description='Generates the sequence necessary to resync asic',   function=self.fnBypassDecoder))
+        self.add(pr.LocalCommand(name='SendAdcData',         description='Generates the sequence necessary to send adc data', function=self.fnSendAdcData))
+        self.add(pr.LocalCommand(name='rampTestToFile',      description='Generates the sequence necessary to send adc data', function=self.fnRampTestCryo))
+        self.add(pr.LocalCommand(name='linearityTestToFile', description='Pulser used to check linearity via scope and adc' , function=self.fnLinTestCryo))
 
 
     def fnRampTestCryo(self, dev,cmd,arg):
@@ -244,13 +245,34 @@ class EpixHRGen1Cryo(pr.Device):
             self.HSDac.DacValue.set(dacValue-1)
             self.root.dataWriter.dataFile.set(self.currentFilename +"_"+ str(i)+".dat")
             self.root.dataWriter.open.set(True)
-            for i in range(10):
+            for j in range(10):
                 self.root.Trigger()
                 time.sleep(0.001) 
             time.sleep(0.003) 
                 
             self.root.dataWriter.open.set(False)
             dacValue = dacValue + 1
+
+    def fnLinTestCryo(self, dev,cmd,arg):
+        """SetTestBitmap command function"""       
+        print("Rysync cryo started")
+        print(arg)
+        self.root.dataWriter.enable.set(True)
+        self.root.dataWriter.open.set(False)
+        self.currentFilename = self.root.dataWriter.dataFile.get()
+        self.currentFrameCount = self.root.dataWriter.frameCount.get()
+        pulserValue = 1        
+        for i in range(1024):
+            self.CryoAsic0.Pulser.set(pulserValue-1)
+            self.root.dataWriter.dataFile.set(self.currentFilename +"_"+ str(i)+".dat")
+            self.root.dataWriter.open.set(True)
+            for j in range(20):
+                self.root.Trigger()
+                time.sleep(0.001) 
+            time.sleep(0.003) 
+                
+            self.root.dataWriter.open.set(False)
+            pulserValue = pulserValue + 1
             
 
     def fnInitCryo(self, dev,cmd,arg):

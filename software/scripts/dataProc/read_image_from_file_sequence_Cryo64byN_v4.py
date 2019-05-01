@@ -130,13 +130,17 @@ def getData(localFile):
 #filenamepath = '/u1/aldo/EXO_Lab/Board_C00-04/ADC_04/DUNE_04/rampTest5_noFilter/'
 #filenamepath = '/u1/aldo/EXO_Lab/Board_C00-04/ADC_04//Room_04/rampTest6_Room_224MHz_NoFilter/'
 #filenamepath = '/u1/aldo/EXO_Lab/Board_C00-04/ADC_04/Room_04/rampTest6_Room_224MHz_Filter/'
+filenamepath = '/u1/aldo/EXO_Lab/Board_C00-04/ADC_04/DUNE_04/rampTest6_DUNE_224MHz_NoFilter/'
 #filenamepath = '/u1/aldo/EXO_Lab/Board_C00-04/ADC_04/Room_04/rampTest7_Room_448MHz_NoFilter/'
-filenamepath = '/u1/aldo/EXO_Lab/Board_C00-04/ADC_04/DUNE_04/rampTest7_DUNE_448MHz_NoFilter/'
+#filenamepath = '/u1/aldo/EXO_Lab/Board_C00-04/ADC_04/DUNE_04/rampTest7_DUNE_448MHz_NoFilter/'
+#filenamepath = '/u1/aldo/EXO_Lab/Board_C00-04/ADC_04/Room_04/rampTest8_Room_112MHz_NoFilter/'
 #filenameroot = 'RampTest5_HSDAC_noFilter_448MHz'
 #filenameroot = 'RampTest6_CH0_CH63_HSDAC_noFilter_Room_224MHz'
 #filenameroot = 'RampTest6_CH0_CH63_HSDAC_Filter_Room_224MHz'
+filenameroot = 'RampTest6_CH0_CH63_HSDAC_noFilter_DUNE_224MHz' 
 #filenameroot = 'RampTest7_CH0_CH63_HSDAC_noFilter_Room_448MHz'
-filenameroot = 'RampTest7_CH0_CH63_HSDAC_noFilter_DUNE_448MHz'
+#filenameroot = 'RampTest8_CH0_CH63_HSDAC_noFilter_Room_112MHz'
+
 for j in range(0, 16):
     for i in range(j*int(65536/16), (j+1)*int(65536/16), 1):
         filename = filenamepath + filenameroot+"_"+ str(i)+".dat"
