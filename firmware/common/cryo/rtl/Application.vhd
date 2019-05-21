@@ -2,7 +2,7 @@
 -- File       : Application.vhd
 -- Company    : SLAC National Accelerator Laboratory
 -- Created    : 2017-04-21
--- Last update: 2019-04-23
+-- Last update: 2019-05-21
 -------------------------------------------------------------------------------
 -- Description: Application Core's Top Level
 -------------------------------------------------------------------------------
@@ -160,6 +160,7 @@ architecture mapping of Application is
 
    -- ASIC signals
    constant STREAMS_PER_ASIC_C : natural := 2;
+   constant INTERNAL_DAC_C     : boolean := false;
 
    --heart beat signal
    signal heartBeat      : sl;
@@ -244,6 +245,11 @@ architecture mapping of Application is
    signal WFDacCsL_i    : sl;
    signal WFDacLdacL_i  : sl;
    signal WFDacClrL_i   : sl;
+   signal WFDac20bitDin_i   : sl;
+   signal WFDac20bitSclk_i  : sl;
+   signal WFDac20bitSyncL_i : sl; 
+   signal WFDac20bitLdacL_i : sl;
+   signal WFDac20bitClrL_i  : sl;
 
    -- ADC signals
    signal adcValid         : slv(3 downto 0);
@@ -375,6 +381,20 @@ begin
   IOBUF_DATAN_13: IOBUF port map (O => cjcLol, I => '0',          IO => asicDataN(13), T => '1');
 
   OBUFDS_CLK     : OBUFDS port map (I  => asicRdClk,    O  => asicRoClkP(0),OB => asicRoClkN(0));
+
+
+  -----------------------------------------------------------------------------
+  -- External 20 bit DAC IOBUF & MAPPING
+  -----------------------------------------------------------------------------
+  IOBUF_DATAP_20 : IOBUF port map (O => open,   I => WFDac20bitSclk_i,  IO => asicDataP(20),  T => '0');
+  IOBUF_DATAP_21 : IOBUF port map (O => open,   I => WFDac20bitLdacL_i, IO => asicDataP(21),  T => '0');
+  --IOBUF_DATAP_22 : IOBUF port map (O => WFDac20bitSDO,   I => '0', IO => asicDataP(22),  T => '1');
+  IOBUF_DATAP_23 : IOBUF port map (O => open,   I => '1',               IO => asicDataP(23),  T => '0');
+  --
+  IOBUF_DATAN_20 : IOBUF port map (O => open,   I => WFDac20bitClrL_i,  IO => asicDataN(20),  T => '0');
+  IOBUF_DATAN_21 : IOBUF port map (O => open,   I => WFDac20bitClrL_i,  IO => asicDataN(21),  T => '0');
+  IOBUF_DATAN_22 : IOBUF port map (O => open,   I => WFDac20bitDin_i,   IO => asicDataN(22),  T => '0');
+  IOBUF_DATAN_23 : IOBUF port map (O => open,   I => WFDac20bitSyncL_i, IO => asicDataN(23),  T => '0');
   
    ---------------------
    -- Heart beat LED  --
@@ -1052,28 +1072,67 @@ begin
   --------------------------------------------
   -- High speed DAC (DAC8812)               --
   --------------------------------------------
-  U_HSDAC: entity work.DacWaveformGenAxi
-    generic map (
-      TPD_G => TPD_G,
-      NUM_SLAVE_SLOTS_G  => HR_FD_NUM_AXI_SLAVE_SLOTS_C,
-      NUM_MASTER_SLOTS_G => HR_FD_NUM_AXI_MASTER_SLOTS_C,
-      MASTERS_CONFIG_G   => ssiAxiStreamConfig(4, TKEEP_COMP_C)
-   )
-    port map (
-      sysClk            => appClk,
-      sysClkRst         => appRst,
-      dacDin            => WFDacDin_i,
-      dacSclk           => WFDacSclk_i,
-      dacCsL            => WFDacCsL_i,
-      dacLdacL          => WFDacLdacL_i,
-      dacClrL           => WFDacClrL_i,
-      externalTrigger   => acqStart,
-      axilClk           => appClk,
-      axilRst           => appRst,
-      sAxilWriteMaster  => mAxiWriteMasters(DACWFMEM_REG_AXI_INDEX_C downto DAC8812_REG_AXI_INDEX_C),
-      sAxilWriteSlave   => mAxiWriteSlaves(DACWFMEM_REG_AXI_INDEX_C downto DAC8812_REG_AXI_INDEX_C),
-      sAxilReadMaster   => mAxiReadMasters(DACWFMEM_REG_AXI_INDEX_C downto DAC8812_REG_AXI_INDEX_C),
-      sAxilReadSlave    => mAxiReadSlaves(DACWFMEM_REG_AXI_INDEX_C downto DAC8812_REG_AXI_INDEX_C));
+  U_INTDAC : if (INTERNAL_DAC_C) generate 
+    U_HSDAC: entity work.DacWaveformGenAxi
+      generic map (
+        TPD_G => TPD_G,
+        NUM_SLAVE_SLOTS_G  => HR_FD_NUM_AXI_SLAVE_SLOTS_C,
+        NUM_MASTER_SLOTS_G => HR_FD_NUM_AXI_MASTER_SLOTS_C,
+        MASTERS_CONFIG_G   => ssiAxiStreamConfig(4, TKEEP_COMP_C)
+        )
+      port map (
+        sysClk            => appClk,
+        sysClkRst         => appRst,
+        dacDin            => WFDacDin_i,
+        dacSclk           => WFDacSclk_i,
+        dacCsL            => WFDacCsL_i,
+        dacLdacL          => WFDacLdacL_i,
+        dacClrL           => WFDacClrL_i,
+        externalTrigger   => acqStart,
+        axilClk           => appClk,
+        axilRst           => appRst,
+        sAxilWriteMaster  => mAxiWriteMasters(DACWFMEM_REG_AXI_INDEX_C downto DAC8812_REG_AXI_INDEX_C),
+        sAxilWriteSlave   => mAxiWriteSlaves(DACWFMEM_REG_AXI_INDEX_C downto DAC8812_REG_AXI_INDEX_C),
+        sAxilReadMaster   => mAxiReadMasters(DACWFMEM_REG_AXI_INDEX_C downto DAC8812_REG_AXI_INDEX_C),
+        sAxilReadSlave    => mAxiReadSlaves(DACWFMEM_REG_AXI_INDEX_C downto DAC8812_REG_AXI_INDEX_C));
+
+        WFDac20bitDin_i   <= '0';
+        WFDac20bitSclk_i  <= '0';
+        WFDac20bitSyncL_i <= '0';
+        WFDac20bitLdacL_i <= '0';
+        WFDac20bitClrL_i  <= '0';
+  end generate;
+
+  U_EXTDAC : if (not INTERNAL_DAC_C) generate 
+    U_HSDAC: entity work.Dac20bitWaveformGenAxi
+      generic map (
+        TPD_G => TPD_G,
+        NUM_SLAVE_SLOTS_G  => HR_FD_NUM_AXI_SLAVE_SLOTS_C,
+        NUM_MASTER_SLOTS_G => HR_FD_NUM_AXI_MASTER_SLOTS_C,
+        MASTERS_CONFIG_G   => ssiAxiStreamConfig(4, TKEEP_COMP_C)
+        )
+      port map (
+        sysClk            => appClk,
+        sysClkRst         => appRst,
+        dacDin            => WFDac20bitDin_i,
+        dacSclk           => WFDac20bitSclk_i,
+        dacSyncL          => WFDac20bitSyncL_i,
+        dacLdacL          => WFDac20bitLdacL_i,
+        dacClrL           => WFDac20bitClrL_i,
+        externalTrigger   => acqStart,
+        axilClk           => appClk,
+        axilRst           => appRst,
+        sAxilWriteMaster  => mAxiWriteMasters(DACWFMEM_REG_AXI_INDEX_C downto DAC8812_REG_AXI_INDEX_C),
+        sAxilWriteSlave   => mAxiWriteSlaves(DACWFMEM_REG_AXI_INDEX_C downto DAC8812_REG_AXI_INDEX_C),
+        sAxilReadMaster   => mAxiReadMasters(DACWFMEM_REG_AXI_INDEX_C downto DAC8812_REG_AXI_INDEX_C),
+        sAxilReadSlave    => mAxiReadSlaves(DACWFMEM_REG_AXI_INDEX_C downto DAC8812_REG_AXI_INDEX_C));
+
+        WFDacDin_i   <= '0';
+        WFDacSclk_i  <= '0';
+        WFDacCsL_i   <= '0';
+        WFDacLdacL_i <= '0';
+        WFDacClrL_i  <= '0';
+  end generate;
 
   --------------------------------------------
   -- ePix HR analog board SPI DACs          --
