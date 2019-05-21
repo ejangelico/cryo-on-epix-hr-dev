@@ -214,6 +214,8 @@ begin
 
            if intClkEn = '1'  then
              nxtState <= ST_LOAD;
+           else 
+             nxtState <= curState;
            end if;
                         
          -- Async load data
@@ -225,6 +227,8 @@ begin
            intdacLdacL <= '0';
            if intClkEn = '1' then
              nxtState <= ST_IDLE;
+           else 
+             nxtState <= curState;
            end if;
             
          when others =>

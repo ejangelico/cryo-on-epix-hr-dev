@@ -476,11 +476,11 @@ begin
       asicRdClk         when boardConfig.epixhrDbgSel1 = "01011" else
       --bitClk            when boardConfig.epixhrDbgSel1 = "01100" else 
       byteClk           when boardConfig.epixhrDbgSel1 = "01101" else
-      WFdacDin_i        when boardConfig.epixhrDbgSel1 = "01110" else
-      WFdacSclk_i       when boardConfig.epixhrDbgSel1 = "01111" else
-      WFdacCsL_i        when boardConfig.epixhrDbgSel1 = "10000" else
-      WFdacLdacL_i      when boardConfig.epixhrDbgSel1 = "10001" else
-      WFdacClrL_i       when boardConfig.epixhrDbgSel1 = "10010" else
+      WFDac20bitDin_i   when boardConfig.epixhrDbgSel1 = "01110" else
+      WFDac20bitSclk_i  when boardConfig.epixhrDbgSel1 = "01111" else
+      WFDac20bitSyncL_i when boardConfig.epixhrDbgSel1 = "10000" else
+      WFDac20bitLdacL_i when boardConfig.epixhrDbgSel1 = "10001" else
+      WFDac20bitClrL_i  when boardConfig.epixhrDbgSel1 = "10010" else
       iAsicGrst         when boardConfig.epixhrDbgSel1 = "10011" else
       '0';   
    
@@ -499,11 +499,16 @@ begin
       asicRdClk         when boardConfig.epixhrDbgSel2 = "01011" else
       --bitClk            when boardConfig.epixhrDbgSel2 = "01100" else
       byteClk           when boardConfig.epixhrDbgSel2 = "01101" else
-      WFdacDin_i        when boardConfig.epixhrDbgSel2 = "01110" else
-      WFdacSclk_i       when boardConfig.epixhrDbgSel2 = "01111" else
-      WFdacCsL_i        when boardConfig.epixhrDbgSel2 = "10000" else
-      WFdacLdacL_i      when boardConfig.epixhrDbgSel2 = "10001" else
-      WFdacClrL_i       when boardConfig.epixhrDbgSel2 = "10010" else
+      WFDac20bitDin_i   when boardConfig.epixhrDbgSel1 = "01110" else
+      WFDac20bitSclk_i  when boardConfig.epixhrDbgSel1 = "01111" else
+      WFDac20bitSyncL_i when boardConfig.epixhrDbgSel1 = "10000" else
+      WFDac20bitLdacL_i when boardConfig.epixhrDbgSel1 = "10001" else
+      WFDac20bitClrL_i  when boardConfig.epixhrDbgSel1 = "10010" else
+--      WFdacDin_i        when boardConfig.epixhrDbgSel2 = "01110" else
+--      WFdacSclk_i       when boardConfig.epixhrDbgSel2 = "01111" else
+--      WFdacCsL_i        when boardConfig.epixhrDbgSel2 = "10000" else
+--      WFdacLdacL_i      when boardConfig.epixhrDbgSel2 = "10001" else
+--      WFdacClrL_i       when boardConfig.epixhrDbgSel2 = "10010" else
       iAsicGrst         when boardConfig.epixhrDbgSel1 = "10011" else
       '0';
 
@@ -529,11 +534,11 @@ begin
    asicDataN(4)    <= '0';
    asicDataN(6)    <= '0';
    asicDataN(15 downto 14)  <= (others => '0');
-   asicDataN(23 downto 20)  <= (others => '0');
+   --asicDataN(23 downto 20)  <= (others => '0');
    asicDataP(4)    <= '0';
    asicDataP(6)    <= '0';
    asicDataP(15 downto 14)  <= (others => '0');
-   asicDataP(23 downto 20)  <= (others => '0');
+   --asicDataP(23 downto 20)  <= (others => '0');
 
    ------------------------------------------
    -- Generate clocks from 156.25 MHz PGP  --
