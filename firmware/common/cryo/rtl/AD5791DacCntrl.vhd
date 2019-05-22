@@ -37,7 +37,7 @@ entity AD5791DacCntrl is
 
       -- DAC Data
       dacData         : in  std_logic_vector(19 downto 0);
-      dacCh           : in  std_logic_vector( 2 downto 0) := "001";
+      dacCh           : in  std_logic_vector( 3 downto 0) := "0001";
       -- DAC Control Signals
       dacDin          : out std_logic;
       dacSclk         : out std_logic;
@@ -88,11 +88,11 @@ begin
    process ( sysClk ) begin
       if rising_edge(sysClk) then
          if (sysClkRst = '1') then
-            intData   <= '1' & dacCh & dacData after TPD_G;
+            intData   <= dacCh & dacData after TPD_G;
             dacStrobe <= '0' after TPD_G;
          elsif (intData(19 downto 0) /= dacData) then
             dacStrobe <= '1' after TPD_G;
-            intData   <= '1' & dacCh & dacData after TPD_G;  -- sets intData to
+            intData   <= dacCh & dacData after TPD_G;  -- sets intData to
                                                              -- write operation
          else
             dacStrobe <= '0' after TPD_G;

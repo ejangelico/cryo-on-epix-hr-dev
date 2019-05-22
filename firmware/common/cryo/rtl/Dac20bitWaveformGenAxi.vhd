@@ -95,7 +95,7 @@ architecture DacWaveformGenAxi_arch of Dac20bitWaveformGenAxi is
 
     -- Local Signals
     signal dacData            : slv(DATA_WIDTH_G-1 downto 0);
-    signal dacCh              : slv(2 downto 0);
+    signal dacCh              : slv(3 downto 0);
     signal waveform_en        : sl := '1';
     signal waveform_we        : sl := '0';
     signal waveform_weByte    : slv(wordCount(DATA_WIDTH_G, 8)-1 downto 0) := (others => '0');
@@ -107,7 +107,7 @@ architecture DacWaveformGenAxi_arch of Dac20bitWaveformGenAxi is
     signal axiWrAddr          : slv(ADDR_WIDTH_G-1 downto 0);
     signal axiWrData          : slv(DATA_WIDTH_G-1 downto 0);
     signal dacDataSync        : slv(DATA_WIDTH_G-1 downto 0);
-    signal dacChSync          : slv(2 downto 0);
+    signal dacChSync          : slv(3 downto 0);
     signal WaveformSync       : DacWaveformConfigType;
     signal counter, nextCounter                 : std_logic_vector(ADDR_WIDTH_G-1 downto 0);
     signal rampCounter, nextRampCounter         : std_logic_vector(DATA_WIDTH_G-1 downto 0);
@@ -118,7 +118,7 @@ architecture DacWaveformGenAxi_arch of Dac20bitWaveformGenAxi is
     
     type RegType is record
       dacData           : slv(DATA_WIDTH_G-1 downto 0);
-      dacCh             : slv(2 downto 0);
+      dacCh             : slv(3 downto 0);
       waveform          : DacWaveformConfigType;
       rCStartValue      : slv(DATA_WIDTH_G-1 downto 0);
       rCStopValue       : slv(DATA_WIDTH_G-1 downto 0);
@@ -129,7 +129,7 @@ architecture DacWaveformGenAxi_arch of Dac20bitWaveformGenAxi is
 
     constant REG_INIT_C : RegType := (
       dacData           => (others=>'0'),
-      dacCh             => "001",
+      dacCh             => "0001",
       waveform          => DACWAVEFORM_CONFIG_INIT_C,
       rCStartValue      => (others=>'0'),
       rCStopValue       => (others=>'0'),
