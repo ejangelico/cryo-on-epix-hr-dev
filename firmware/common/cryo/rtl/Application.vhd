@@ -2,7 +2,7 @@
 -- File       : Application.vhd
 -- Company    : SLAC National Accelerator Laboratory
 -- Created    : 2017-04-21
--- Last update: 2019-05-21
+-- Last update: 2019-05-22
 -------------------------------------------------------------------------------
 -- Description: Application Core's Top Level
 -------------------------------------------------------------------------------
@@ -245,11 +245,12 @@ architecture mapping of Application is
    signal WFDacCsL_i    : sl;
    signal WFDacLdacL_i  : sl;
    signal WFDacClrL_i   : sl;
-   signal WFDac20bitDin_i   : sl;
-   signal WFDac20bitSclk_i  : sl;
-   signal WFDac20bitSyncL_i : sl; 
-   signal WFDac20bitLdacL_i : sl;
-   signal WFDac20bitClrL_i  : sl;
+   signal WFDac20bitDin_i     : sl;
+   signal WFDac20bitSclk_i    : sl;
+   signal WFDac20bitSyncL_i   : sl; 
+   signal WFDac20bitLdacL_i   : sl;
+   signal WFDac20bitLdacLSync : sl;
+   signal WFDac20bitClrL_i    : sl;
 
    -- ADC signals
    signal adcValid         : slv(3 downto 0);
@@ -387,7 +388,7 @@ begin
   -- External 20 bit DAC IOBUF & MAPPING
   -----------------------------------------------------------------------------
   IOBUF_DATAP_20 : IOBUF port map (O => open,   I => WFDac20bitSclk_i,  IO => asicDataP(20),  T => '0');
-  IOBUF_DATAP_21 : IOBUF port map (O => open,   I => WFDac20bitLdacL_i, IO => asicDataP(21),  T => '0');
+  IOBUF_DATAP_21 : IOBUF port map (O => open,   I => WFDac20bitLdacLSync, IO => asicDataP(21),  T => '0');
   --IOBUF_DATAP_22 : IOBUF port map (O => WFDac20bitSDO,   I => '0', IO => asicDataP(22),  T => '1');
   IOBUF_DATAP_23 : IOBUF port map (O => open,   I => '1',               IO => asicDataP(23),  T => '0');
   --
@@ -462,54 +463,54 @@ begin
    -- Monitoring signals
    ----------------------------------------------------------------------------
    connTgOut <= 
-      iAsic01DM1        when boardConfig.epixhrDbgSel1 = "00000" else
-      iAsicSync         when boardConfig.epixhrDbgSel1 = "00001" else
-      monitoringSig(0)  when boardConfig.epixhrDbgSel1 = "00010" else
-      iAsicAcq          when boardConfig.epixhrDbgSel1 = "00011" else
-      iAsicSR0RefClk    when boardConfig.epixhrDbgSel1 = "00100" else
-      iAsicSR0          when boardConfig.epixhrDbgSel1 = "00101" else
-      iSaciClk          when boardConfig.epixhrDbgSel1 = "00110" else
-      iSaciCmd          when boardConfig.epixhrDbgSel1 = "00111" else
-      asicSaciRsp       when boardConfig.epixhrDbgSel1 = "01000" else
-      iSaciSelL(0)      when boardConfig.epixhrDbgSel1 = "01001" else
-      iSaciSelL(1)      when boardConfig.epixhrDbgSel1 = "01010" else
-      asicRdClk         when boardConfig.epixhrDbgSel1 = "01011" else
+      iAsic01DM1          when boardConfig.epixhrDbgSel1 = "00000" else
+      iAsicSync           when boardConfig.epixhrDbgSel1 = "00001" else
+      monitoringSig(0)    when boardConfig.epixhrDbgSel1 = "00010" else
+      iAsicAcq            when boardConfig.epixhrDbgSel1 = "00011" else
+      iAsicSR0RefClk      when boardConfig.epixhrDbgSel1 = "00100" else
+      iAsicSR0            when boardConfig.epixhrDbgSel1 = "00101" else
+      iSaciClk            when boardConfig.epixhrDbgSel1 = "00110" else
+      iSaciCmd            when boardConfig.epixhrDbgSel1 = "00111" else
+      asicSaciRsp         when boardConfig.epixhrDbgSel1 = "01000" else
+      iSaciSelL(0)        when boardConfig.epixhrDbgSel1 = "01001" else
+      iSaciSelL(1)        when boardConfig.epixhrDbgSel1 = "01010" else
+      asicRdClk           when boardConfig.epixhrDbgSel1 = "01011" else
       --bitClk            when boardConfig.epixhrDbgSel1 = "01100" else 
-      byteClk           when boardConfig.epixhrDbgSel1 = "01101" else
-      WFDac20bitDin_i   when boardConfig.epixhrDbgSel1 = "01110" else
-      WFDac20bitSclk_i  when boardConfig.epixhrDbgSel1 = "01111" else
-      WFDac20bitSyncL_i when boardConfig.epixhrDbgSel1 = "10000" else
-      WFDac20bitLdacL_i when boardConfig.epixhrDbgSel1 = "10001" else
-      WFDac20bitClrL_i  when boardConfig.epixhrDbgSel1 = "10010" else
-      iAsicGrst         when boardConfig.epixhrDbgSel1 = "10011" else
+      byteClk             when boardConfig.epixhrDbgSel1 = "01101" else
+      WFDac20bitDin_i     when boardConfig.epixhrDbgSel1 = "01110" else
+      WFDac20bitSclk_i    when boardConfig.epixhrDbgSel1 = "01111" else
+      WFDac20bitSyncL_i   when boardConfig.epixhrDbgSel1 = "10000" else
+      WFDac20bitLdacLSync when boardConfig.epixhrDbgSel1 = "10001" else
+      WFDac20bitClrL_i    when boardConfig.epixhrDbgSel1 = "10010" else
+      iAsicGrst           when boardConfig.epixhrDbgSel1 = "10011" else
       '0';   
    
    connMps <=
-      iAsic01DM2        when boardConfig.epixhrDbgSel2 = "00000" else
-      iAsicSync         when boardConfig.epixhrDbgSel2 = "00001" else
-      monitoringSig(1)  when boardConfig.epixhrDbgSel2 = "00010" else
-      iAsicAcq          when boardConfig.epixhrDbgSel2 = "00011" else
-      iAsicSR0RefClk    when boardConfig.epixhrDbgSel2 = "00100" else
-      iAsicSR0          when boardConfig.epixhrDbgSel2 = "00101" else
-      iSaciClk          when boardConfig.epixhrDbgSel2 = "00110" else
-      iSaciCmd          when boardConfig.epixhrDbgSel2 = "00111" else
-      asicSaciRsp       when boardConfig.epixhrDbgSel2 = "01000" else
-      iSaciSelL(0)      when boardConfig.epixhrDbgSel2 = "01001" else
-      iSaciSelL(1)      when boardConfig.epixhrDbgSel2 = "01010" else
-      asicRdClk         when boardConfig.epixhrDbgSel2 = "01011" else
+      iAsic01DM2          when boardConfig.epixhrDbgSel2 = "00000" else
+      iAsicSync           when boardConfig.epixhrDbgSel2 = "00001" else
+      monitoringSig(1)    when boardConfig.epixhrDbgSel2 = "00010" else
+      iAsicAcq            when boardConfig.epixhrDbgSel2 = "00011" else
+      iAsicSR0RefClk      when boardConfig.epixhrDbgSel2 = "00100" else
+      iAsicSR0            when boardConfig.epixhrDbgSel2 = "00101" else
+      iSaciClk            when boardConfig.epixhrDbgSel2 = "00110" else
+      iSaciCmd            when boardConfig.epixhrDbgSel2 = "00111" else
+      asicSaciRsp         when boardConfig.epixhrDbgSel2 = "01000" else
+      iSaciSelL(0)        when boardConfig.epixhrDbgSel2 = "01001" else
+      iSaciSelL(1)        when boardConfig.epixhrDbgSel2 = "01010" else
+      asicRdClk           when boardConfig.epixhrDbgSel2 = "01011" else
       --bitClk            when boardConfig.epixhrDbgSel2 = "01100" else
-      byteClk           when boardConfig.epixhrDbgSel2 = "01101" else
-      WFDac20bitDin_i   when boardConfig.epixhrDbgSel1 = "01110" else
-      WFDac20bitSclk_i  when boardConfig.epixhrDbgSel1 = "01111" else
-      WFDac20bitSyncL_i when boardConfig.epixhrDbgSel1 = "10000" else
-      WFDac20bitLdacL_i when boardConfig.epixhrDbgSel1 = "10001" else
-      WFDac20bitClrL_i  when boardConfig.epixhrDbgSel1 = "10010" else
+      byteClk             when boardConfig.epixhrDbgSel2 = "01101" else
+      WFDac20bitDin_i     when boardConfig.epixhrDbgSel1 = "01110" else
+      WFDac20bitSclk_i    when boardConfig.epixhrDbgSel1 = "01111" else
+      WFDac20bitSyncL_i   when boardConfig.epixhrDbgSel1 = "10000" else
+      WFDac20bitLdacLSync when boardConfig.epixhrDbgSel1 = "10001" else
+      WFDac20bitClrL_i    when boardConfig.epixhrDbgSel1 = "10010" else
 --      WFdacDin_i        when boardConfig.epixhrDbgSel2 = "01110" else
 --      WFdacSclk_i       when boardConfig.epixhrDbgSel2 = "01111" else
 --      WFdacCsL_i        when boardConfig.epixhrDbgSel2 = "10000" else
 --      WFdacLdacL_i      when boardConfig.epixhrDbgSel2 = "10001" else
 --      WFdacClrL_i       when boardConfig.epixhrDbgSel2 = "10010" else
-      iAsicGrst         when boardConfig.epixhrDbgSel1 = "10011" else
+      iAsicGrst           when boardConfig.epixhrDbgSel1 = "10011" else
       '0';
 
    -----------------------------------------------------------------------------
@@ -800,6 +801,15 @@ begin
       -- DAC Control Signals
       refClk       => iAsicSR0RefClk,
       SR0Out       => iAsicSR0
+   );
+
+   -- synchronizers
+   U_Sync_WFDac20bitLdacL : entity work.Synchronizer     
+   port map (
+      clk     => asicRdClk,
+      rst     => asicRdClkRst,
+      dataIn  => WFDac20bitLdacL_i,
+      dataOut => WFDac20bitLdacLSync
    );
 
    ---------------------
