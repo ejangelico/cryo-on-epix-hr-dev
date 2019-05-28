@@ -671,7 +671,10 @@ class EventReader(rogue.interfaces.stream.Slave):
         self.numProcessFrames += 1
         if (self.enable):        
             # Get the channel number
-            chNum = (self.lastFrame.getFlags() >> 24)
+            try:
+                chNum = (self.lastFrame.getFlags() >> 24)
+            except ValueError:
+                chNum = -1
             # reads payload only
             p = self.frameDataArray[index] 
             # reads entire frame

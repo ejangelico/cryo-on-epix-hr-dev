@@ -1292,10 +1292,12 @@ class HighSpeedExtDacRegisters(pr.Device):
       self.add((pr.LinkVariable  (name='DacValueV' ,      linkedGet=self.convtFloat,        dependencies=[self.DacValue])));
       
       self.add((         
-         pr.RemoteVariable(name='rCStartValue',    description='Internal ramp generator start value',               offset=0x00000010, bitSize=16,  bitOffset=0,   base=pr.UInt, disp = '{}', mode='RW'),
-         pr.RemoteVariable(name='rCStopValue',     description='Internal ramp generator stop value',                offset=0x00000014, bitSize=16,  bitOffset=0,   base=pr.UInt, disp = '{}', mode='RW'),
-         pr.RemoteVariable(name='rCStep',          description='Internal ramp generator step value',                offset=0x00000018, bitSize=16,  bitOffset=0,   base=pr.UInt, disp = '{}', mode='RW')
+         pr.RemoteVariable(name='rCStartValue',    description='Internal ramp generator start value',               offset=0x00000010, bitSize=20,  bitOffset=0,   base=pr.UInt, disp = '{}', mode='RW'),
+         pr.RemoteVariable(name='rCStopValue',     description='Internal ramp generator stop value',                offset=0x00000014, bitSize=20,  bitOffset=0,   base=pr.UInt, disp = '{}', mode='RW'),
+         pr.RemoteVariable(name='rCStep',          description='Internal ramp generator step value',                offset=0x00000018, bitSize=20,  bitOffset=0,   base=pr.UInt, disp = '{}', mode='RW')
          ))
+      
+      self.add(pr.LocalCommand(name='InitDac',description='Enable high speed DAC to drive its output', function=self.fnInitDac))
       #####################################
       # Create commands
       #####################################
@@ -1305,6 +1307,14 @@ class HighSpeedExtDacRegisters(pr.Device):
       # the passed arg is available as 'arg'. Use 'dev' to get to device scope.
       # A command can also be a call to a local function with local scope.
       # The command object and the arg are passed
+
+   def fnInitDac(self, dev,cmd,arg):
+        """SetTestBitmap command function"""
+        self.DacCh.set(2)
+        self.DacValue.set(0x00012)
+        self.DacCh.set(1)
+        
+
    @staticmethod
    def convtFloat(dev, var):
        value   = var.dependencies[0].get(read=False)
