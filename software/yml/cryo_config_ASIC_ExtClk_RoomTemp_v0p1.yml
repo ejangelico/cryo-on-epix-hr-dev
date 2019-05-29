@@ -5,8 +5,8 @@ cryoAsicGen1:
     enable: True
     CryoAsic0:
       enable: True
-      TPS_DAC: 0x20
-      TPS_GR: 0x0
+      TPS_DAC: 0x1f
+      TPS_GR: 0x1
       TPSMux: 0x0
       Bias_TPS_Buffer: 0x5
       Bias_TPS: 0x7
