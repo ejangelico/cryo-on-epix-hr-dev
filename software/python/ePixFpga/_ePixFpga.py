@@ -233,6 +233,13 @@ class EpixHRGen1Cryo(pr.Device):
         """SetTestBitmap command function"""       
         print("Rysync cryo started")
         print(arg)
+        DAC_TYPE = "20bitDAC"
+        if DAC_TYPE == "20bitDAC":
+            dacRangeValue = 524288
+            dacStep = 8
+        else:
+            dacRangeValue = 65536
+            dacStep = 1
         self.root.dataWriter.enable.set(True)
         self.root.dataWriter.open.set(False)
         self.currentFilename = self.root.dataWriter.dataFile.get()
@@ -241,7 +248,7 @@ class EpixHRGen1Cryo(pr.Device):
         self.HSDac.enable.set(True)
 #        for i in range(64):
 #            self.HSDac.DacValue.set(dacValue*1024-1)
-        for i in range(65536):
+        for i in range(dacRangeValue):
             self.HSDac.DacValue.set(dacValue-1)
             self.root.dataWriter.dataFile.set(self.currentFilename +"_"+ str(i)+".dat")
             self.root.dataWriter.open.set(True)
@@ -251,7 +258,7 @@ class EpixHRGen1Cryo(pr.Device):
             time.sleep(0.003) 
                 
             self.root.dataWriter.open.set(False)
-            dacValue = dacValue + 1
+            dacValue = dacValue + dacStep
 
     def fnLinTestCryo(self, dev,cmd,arg):
         """SetTestBitmap command function"""       
