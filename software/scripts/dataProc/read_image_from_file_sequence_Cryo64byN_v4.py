@@ -130,16 +130,39 @@ def getData(localFile):
 #filenamepath = '/u1/aldo/EXO_Lab/Board_C00-04/ADC_04/DUNE_04/rampTest5_noFilter/'
 #filenamepath = '/u1/aldo/EXO_Lab/Board_C00-04/ADC_04//Room_04/rampTest6_Room_224MHz_NoFilter/'
 #filenamepath = '/u1/aldo/EXO_Lab/Board_C00-04/ADC_04/Room_04/rampTest6_Room_224MHz_Filter/'
-filenamepath = '/u1/aldo/EXO_Lab/Board_C00-04/ADC_04/DUNE_04/rampTest6_DUNE_224MHz_NoFilter/'
+#filenamepath = '/u1/aldo/EXO_Lab/Board_C00-04/ADC_04/DUNE_04/rampTest6_DUNE_224MHz_NoFilter/'
 #filenamepath = '/u1/aldo/EXO_Lab/Board_C00-04/ADC_04/Room_04/rampTest7_Room_448MHz_NoFilter/'
 #filenamepath = '/u1/aldo/EXO_Lab/Board_C00-04/ADC_04/DUNE_04/rampTest7_DUNE_448MHz_NoFilter/'
 #filenamepath = '/u1/aldo/EXO_Lab/Board_C00-04/ADC_04/Room_04/rampTest8_Room_112MHz_NoFilter/'
+filenamepath = '/u1/aldo/EXO_Lab/Board_C00-04/ADC_04/Room_04/rampTest2_20bitDAC_Room_Ch60toCh63/'
+filenamepath = '/u1/aldo/EXO_Lab/Board_C00-04/ADC_04/DUNE_04/rampTest2_20bitDAC_DUNE_Ch60toCh63/'
+filenamepath = '/u1/aldo/EXO_Lab/Board_C00-04/ADC_04/DUNE_04/rampTest3_20bitDAC_DUNE_Ch60/'
+filenamepath = '/u1/aldo/EXO_Lab/Board_C00-04/ADC_04/DUNE_04/rampTest4_20bitDAC_DUNE_Ch61/'
+filenamepath = '/u1/aldo/EXO_Lab/Board_C00-04/ADC_04/DUNE_04/rampTest5_20bitDAC_DUNE_Ch63/'
+filenamepath = '/u1/aldo/EXO_Lab/Board_C00-04/ADC_04/DUNE_04/rampTest6_20bitDAC_DUNE_Ch61/'
+filenamepath = '/u1/aldo/EXO_Lab/Board_C00-04/ADC_04/DUNE_04/rampTest7_20bitDAC_DUNE_Ch61/'
+filenamepath = '/u1/aldo/EXO_Lab/Board_C00-04/ADC_04/DUNE_04/rampTest8_20bitDAC_DUNE_Ch61/'
+filenamepath = '/u1/aldo/EXO_Lab/Board_C00-04/ADC_04/DUNE_04/rampTest9_20bitDAC_DUNE_Ch61/'
+filenamepath = '/u1/aldo/EXO_Lab/Board_C00-04/ADC_04/DUNE_04/rampTest10_20bitDAC_DUNE_Ch61/'
+filenamepath = '/u1/aldo/EXO_Lab/Board_C00-04/ADC_04/DUNE_04/rampTest11_20bitDAC_DUNE_Ch60toCh63/'
+filenamepath = '/u1/aldo/EXO_Lab/Board_C00-04/ADC_04/DUNE_04/rampTest12_20bitDAC_DUNE_Ch61/'
 #filenameroot = 'RampTest5_HSDAC_noFilter_448MHz'
 #filenameroot = 'RampTest6_CH0_CH63_HSDAC_noFilter_Room_224MHz'
 #filenameroot = 'RampTest6_CH0_CH63_HSDAC_Filter_Room_224MHz'
-filenameroot = 'RampTest6_CH0_CH63_HSDAC_noFilter_DUNE_224MHz' 
+#filenameroot = 'RampTest6_CH0_CH63_HSDAC_noFilter_DUNE_224MHz' 
 #filenameroot = 'RampTest7_CH0_CH63_HSDAC_noFilter_Room_448MHz'
 #filenameroot = 'RampTest8_CH0_CH63_HSDAC_noFilter_Room_112MHz'
+filenameroot = 'rampTest2_20bitDAC_Room_Ch60to63' 
+filenameroot = 'rampTest2_20bitDAC_DUNE_Ch60to63' 
+filenameroot = 'rampTest3_20bitDAC_DUNE_Ch60'
+filenameroot = 'rampTest4_20bitDAC_DUNE_Ch61'
+filenameroot = 'rampTest5_20bitDAC_DUNE_Ch63'
+filenameroot = 'rampTest6_20bitDAC_DUNE_Ch61'
+filenameroot = 'rampTest7_20bitDAC_DUNE_Ch61'
+filenameroot = 'rampTest8_20bitDAC_DUNE_Ch61'
+filenameroot = 'rampTest10_20bitDAC_DUNE_Ch61'
+filenameroot = 'rampTest11_20bitDAC_DUNE_Ch60toCh63'
+filenameroot = 'rampTest12_20bitDAC_DUNE_Ch61'
 
 for j in range(0, 16):
     for i in range(j*int(65536/16), (j+1)*int(65536/16), 1):
@@ -154,7 +177,9 @@ for j in range(0, 16):
                 imgList = np.concatenate((imgList, newImage[0]),0)
 
 
-    imgDesc = imgList.reshape(-1,64,128)
+    #LAST PARAMETER DEPENDS ON NUMBER OF SAMPLES ACQUIRED
+    imgDesc = imgList.reshape(-1,64,128) # when setting packet size to 4096
+    #imgDesc = imgList.reshape(-1,64,256) # when setting packet size to 8192 
     #avgImgDesc = np.average(imgDesc,2)
     if(SAVEHDF5):
         print("Saving Hdf5")

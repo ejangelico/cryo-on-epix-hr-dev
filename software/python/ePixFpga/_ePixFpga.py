@@ -540,21 +540,23 @@ class EpixHRGen1Cryo(pr.Device):
         """SetTestBitmap command function"""       
         self.filename = QFileDialog.getOpenFileName(self.root.guiTop, 'Open File', '', 'csv file (*.csv);; Any (*.*)')
         if os.path.splitext(self.filename[0])[1] == '.csv':
-            waveform = np.genfromtxt(self.filename[0], delimiter=',', dtype='uint16')
+            waveform = np.genfromtxt(self.filename[0], delimiter=',', dtype='uint32')
             if waveform.shape == (1024,):
                 for x in range (0, 1024):
                     self.waveformMem._rawWrite(offset = (x * 4),data =  int(waveform[x]))
+                    #self.waveformMem._rawWrite(offset = (x * 4),data =  int(waveform[x]))
             else:
                 print('wrong csv file format')
 
     def fnGetWaveform(self, dev,cmd,arg):
         """GetTestBitmap command function"""
         self.filename = QFileDialog.getSaveFileName(self.root.guiTop, 'Open File', '', 'csv file (*.csv);; Any (*.*)')
-        if os.path.splitext(self.filename)[1] == '.csv':
-            readBack = np.zeros((1024),dtype='uint16')
+        if os.path.splitext(self.filename[0])[1] == '.csv':
+            readBack = np.zeros((1024),dtype='uint32')
             for x in range (0, 1024):
-                readBack[x] = self._rawRead(offset = (0x86100000 + x * 4))
-            np.savetxt(self.filename, readBack, fmt='%d', delimiter=',', newline='\n')
+                readBack[x] = self.waveformMem._rawRead(offset = (x * 4))
+                #readBack[x] = self.waveformMem.Mem[x].get()
+            np.savetxt(self.filename[0], readBack, fmt='%d', delimiter=',', newline='\n')
 
 
 
