@@ -206,7 +206,7 @@ class EpixHRGen1Cryo(pr.Device):
             CryoAppCoreFpgaRegisters(        name="AppFpgaRegisters",                  offset=0x96000000, expand=False, enabled=False),
             powerSupplyRegisters(            name='PowerSupply',                       offset=0x89000000, expand=False, enabled=False),            
             HighSpeedExtDacRegisters(        name='HSDac',                             offset=0x8A000000, expand=False, enabled=False, HsDacEnum=HsDacEnum),
-            pr.MemoryDevice(                 name='waveformMem',                       offset=0x8B000000, wordBitSize=16, stride=4, size=1024*4),
+            pr.MemoryDevice(                 name='waveformMem',                       offset=0x8B000000, wordBitSize=16, stride=4, size=4096*4),
             sDacRegisters(                   name='SlowDacs'    ,                      offset=0x8C000000, expand=False, enabled=False),
             OscilloscopeRegisters(           name='Oscilloscope',                      offset=0x8D000000, expand=False, enabled=False, trigChEnum=trigChEnum, inChaEnum=inChaEnum, inChbEnum=inChbEnum),
             MonAdcRegisters(                 name='FastADCsDebug',                     offset=0x8E000000, expand=False, enabled=False),
@@ -541,8 +541,8 @@ class EpixHRGen1Cryo(pr.Device):
         self.filename = QFileDialog.getOpenFileName(self.root.guiTop, 'Open File', '', 'csv file (*.csv);; Any (*.*)')
         if os.path.splitext(self.filename[0])[1] == '.csv':
             waveform = np.genfromtxt(self.filename[0], delimiter=',', dtype='uint32')
-            if waveform.shape == (1024,):
-                for x in range (0, 1024):
+            if waveform.shape == (4096,):
+                for x in range (0, 4096):
                     self.waveformMem._rawWrite(offset = (x * 4),data =  int(waveform[x]))
                     #self.waveformMem._rawWrite(offset = (x * 4),data =  int(waveform[x]))
             else:
@@ -552,8 +552,8 @@ class EpixHRGen1Cryo(pr.Device):
         """GetTestBitmap command function"""
         self.filename = QFileDialog.getSaveFileName(self.root.guiTop, 'Open File', '', 'csv file (*.csv);; Any (*.*)')
         if os.path.splitext(self.filename[0])[1] == '.csv':
-            readBack = np.zeros((1024),dtype='uint32')
-            for x in range (0, 1024):
+            readBack = np.zeros((4096),dtype='uint32')
+            for x in range (0, 4096):
                 readBack[x] = self.waveformMem._rawRead(offset = (x * 4))
                 #readBack[x] = self.waveformMem.Mem[x].get()
             np.savetxt(self.filename[0], readBack, fmt='%d', delimiter=',', newline='\n')
