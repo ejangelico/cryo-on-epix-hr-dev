@@ -47,14 +47,14 @@ cryoAsicGen1:
       PLL_RO_filter1: 0x4
       PLL_RO_filter2: 0x0
       Dcycle_DAC_gain: 0x3
-      VTBias_B0: 0x2
-      VTBias_T0: 0xe
+      VTBias_B0: 0x3
+      VTBias_T0: 0xf
       SAH_B0: 0x0
       SAH_VcmBuf_B0: 0x2
       SigBuf_B0: 0x0
       ADC_VrefBuf_B0: 0x0
-      ADC_B0: 0x0
-      ADC_VcmBuf_B0: 0x0
+      ADC_B0: 0x3
+      ADC_VcmBuf_B0: 0x3
       bamp: 0x5
       bleak: 0x5
       brstVref: 0x4
@@ -83,18 +83,18 @@ cryoAsicGen1:
       encoder_mode_dft: 0x0
       En_BankClk_Bk0_LVDS: False
       En_BankClk_Bk1_LVDS: False
-      En_SerClk_out_Bk0_LVDS: True
+      En_SerClk_out_Bk0_LVDS: True98
       En_SerClk_out_Bk1_LVDS: True
       rtrimLVDS_b0: 0x2
       SACItristateLVDS_bit: False
       VrefGen_B0_1v2: 0x3
       VrefGen_Br0_1v2: 0x0
       VrefGen_T0_1v2: 0x8
-      VrefGen_Tc0_1v2: 0x4
+      VrefGen_Tc0_1v2: 0x9
       VrefGen_Tr0_1v2: 0xa
       VrefBuf_Ext_B0_1v2: 0x2
       VcmBuf_Ext_B0_1v2: 0x2
-      FE_Amp_B0_1v2: 0x2
+      FE_Amp_B0_1v2: 0x3
       bifb: 0x5
       bbaseref: 0x4
       blcoarse: 0x5
