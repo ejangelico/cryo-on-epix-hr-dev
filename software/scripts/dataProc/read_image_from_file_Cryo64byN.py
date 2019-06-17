@@ -133,7 +133,7 @@ if(SAVEHDF5):
     f['adcData'] = imgDesc.astype('uint16')
     f.close()
     
-    for runNum = 0 in range(imgDesc.shape[0]):
+    for runNum in range(imgDesc.shape[0]):
         np.savetxt(os.path.splitext(filename)[0] + "_runNum" + str(runNum) + "_traces" + ".csv", imgDesc[runNum,:,:], fmt='%d', delimiter=',', newline='\n')
 
 ##################################################
