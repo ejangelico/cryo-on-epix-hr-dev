@@ -81,9 +81,9 @@ cryoAsicGen1:
       LDO2TB_En: True
       LDO46_En: True
       encoder_mode_dft: 0x0
-      En_BankClk_Bk0_LVDS: False
-      En_BankClk_Bk1_LVDS: False
-      En_SerClk_out_Bk0_LVDS: True98
+      En_BankClk_Bk0_LVDS: True
+      En_BankClk_Bk1_LVDS: True
+      En_SerClk_out_Bk0_LVDS: True
       En_SerClk_out_Bk1_LVDS: True
       rtrimLVDS_b0: 0x2
       SACItristateLVDS_bit: False
