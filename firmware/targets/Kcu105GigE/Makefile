@@ -17,7 +17,7 @@ export USE_RJ45_ETH = 1
 
 # Using a non-standard target directory structure, 
 # which requires me to define the TOP_DIR path
-export TOP_DIR = $(abspath $(PWD)/../../..)
+export TOP_DIR = $(abspath $(PWD)/../..)
 
 # Use top level makefile
 include $(TOP_DIR)/submodules/ruckus/system_vivado.mk
