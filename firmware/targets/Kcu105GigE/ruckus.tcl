@@ -1,8 +1,14 @@
 # Load RUCKUS environment and library
 source -quiet $::env(RUCKUS_DIR)/vivado_proc.tcl
 
-# Load common and sub-module ruckus.tcl files
-loadRuckusTcl $::env(PROJ_DIR)/../../
+# Check for version 2016.4 of Vivado
+if { [VersionCheck 2016.4] < 0 } {
+    close_project
+    exit -1
+}
+
+# Load submodules' code and constraints
+loadRuckusTcl $::env(TOP_DIR)/submodules
 
 # Load local source Code and constraints
 loadSource      -dir "$::DIR_PATH/hdl/"

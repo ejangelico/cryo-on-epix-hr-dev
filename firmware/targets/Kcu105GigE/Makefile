@@ -7,6 +7,24 @@ export PRJ_VERSION = 0x00000008
 # Define target part
 export PRJ_PART = XCKU040-FFVA1156-2-E
 
+# COMM_TYPE is defined by application
+export COMM_TYPE = pgp3
+
+# COMMON_NAME is defined by application
+export COMMON_NAME = cryo
+
+# Define if you want to build the user Microblaze core
+export BUILD_MB_CORE = 0
+
+# Define if you want to build the DDR MIG core
+export BUILD_MIG_CORE = 0
+
+# Define if this is FSBL PROM address
+export PROM_FSBL = 0
+
+# Define if you want to remove unused source code
+export REMOVE_UNUSED_CODE = 0
+
 # # Define the Microblaze source path
 # export SDK_SRC_PATH = $(PROJ_DIR)/../../../common/core/src
 
