@@ -2,7 +2,7 @@
 -- File       : Kcu105GigE.vhd
 -- Company    : SLAC National Accelerator Laboratory
 -- Created    : 2015-04-08
--- Last update: 2019-06-27
+-- Last update: 2019-06-28
 -------------------------------------------------------------------------------
 -- Description: Example using 1000BASE-SX Protocol
 -------------------------------------------------------------------------------
@@ -200,7 +200,7 @@ begin
    -- Application Core
    -------------------
    U_App : entity work.AppCore
-      generic map (
+     generic map (
          TPD_G           => TPD_G,
          BUILD_INFO_G    => BUILD_INFO_G,
          CLK_FREQUENCY_G => 125.0E+6,
@@ -209,7 +209,6 @@ begin
          AXIS_SIZE_G     => AXIS_SIZE_C,
          DHCP_G          => false,
          IP_ADDR_G       => x"0A_02_A8_C0",  -- 192.168.2.10
-         -- IP_ADDR_G       => x"05_55_DE_23",  -- 35.222.85.5
          MAC_ADDR_G      => MAC_ADDR_INIT_C)
       port map (
          -- Clock and Reset

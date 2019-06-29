@@ -10,6 +10,9 @@ if { [VersionCheck 2016.4] < 0 } {
 # Load submodules' code and constraints
 loadRuckusTcl $::env(TOP_DIR)/submodules
 
+# Load common code and constraints
+loadRuckusTcl $::env(TOP_DIR)/common
+
 # Load local source Code and constraints
 loadSource      -dir "$::DIR_PATH/hdl/"
 
