@@ -2,7 +2,7 @@
 -- File       : EpixHr: PowerControlModule.vhd
 -- Company    : SLAC National Accelerator Laboratory
 -- Created    : 04/07/2017
--- Last update: 2019-07-01
+-- Last update: 2019-07-05
 -------------------------------------------------------------------------------
 -- Description: This module enable the voltage regulators on the epix boards
 -- based on saci register values. If needed syncronization modules should be
@@ -93,12 +93,21 @@ architecture rtl of CryoAsicTopLevelModel is
     adcSampCounter   => x"00"
     );
 
-  signal r, rin      : CryoAsicRegType :=  CRYO_ASIC_REG_INIT_C;
-  
-  signal asicRstL : sl := '0';
-  signal clk2x    : sl;
-  signal adcClk   : sl;
-  signal rstInt   : sl := '1';
+  signal r, rin        : CryoAsicRegType :=  CRYO_ASIC_REG_INIT_C;  
+  signal asicRstL      : sl := '0';
+  signal clk2x         : sl;
+  signal adcClk        : sl;
+  signal rstInt        : sl := '1';
+  signal s_enc_valid_i : sl := '0';
+  signal s_mode_i      : slv(2  downto 0) := "001";
+  signal data_i        : slv(11 downto 0) := (others => '0');
+  signal data_o        : slv(11 downto 0);
+  signal dClk          : sl;
+  signal fClk          : sl;
+  signal samClk        : sl;
+  signal dummyRst      : slv(2  downto 0);
+  signal s_enc_data_o  : slv(13 downto 0);
+  signal s_enc_data_i  : slv(11 downto 0);
    
 begin
 
@@ -122,7 +131,7 @@ begin
       INPUT_BUFG_G           => true,
       FB_BUFG_G              => true,
       RST_IN_POLARITY_G      => '1',     -- '0' for active low
-      NUM_CLOCKS_G           => 1,
+      NUM_CLOCKS_G           => 4,
       -- MMCM attributes
       BANDWIDTH_G            => "OPTIMIZED",
       CLKIN_PERIOD_G         => 17.8571,    -- Input period in ns );
@@ -134,14 +143,69 @@ begin
       CLKOUT0_PHASE_G        => 0.0,
       CLKOUT0_DUTY_CYCLE_G   => 0.5,
       CLKOUT0_RST_HOLD_G     => 3,
-      CLKOUT0_RST_POLARITY_G => '1')
+      CLKOUT0_RST_POLARITY_G => '1',
+      CLKOUT1_DIVIDE_G       => 2,
+      CLKOUT1_PHASE_G        => 0.0,
+      CLKOUT1_DUTY_CYCLE_G   => 0.5,
+      CLKOUT1_RST_HOLD_G     => 3,
+      CLKOUT1_RST_POLARITY_G => '1',
+      CLKOUT2_DIVIDE_G       => 14,
+      CLKOUT2_PHASE_G        => 0.0,
+      CLKOUT2_DUTY_CYCLE_G   => 0.5,
+      CLKOUT2_RST_HOLD_G     => 4,
+      CLKOUT2_RST_POLARITY_G => '1',
+      CLKOUT3_DIVIDE_G       => 112,
+      CLKOUT3_PHASE_G        => 0.0,
+      CLKOUT3_DUTY_CYCLE_G   => 0.5,
+      CLKOUT3_RST_HOLD_G     => 4,
+      CLKOUT3_RST_POLARITY_G => '1')
    port map(
-      clkIn           => clk,
+      clkIn           => clk,           -- 56
       rstIn           => gRst,
-      clkOut(0)       => clk2x,
+      clkOut(0)       => clk2x,         -- 112
+      clkOut(1)       => dClk,          -- 448
+      clkOut(2)       => fClk,          -- 64MHz
+      clkOut(3)       => samClk,        -- 8
       rstOut(0)       => rstInt,
+      rstOut(1)       => dummyRst(0),
+      rstOut(2)       => dummyRst(1),
+      rstOut(3)       => dummyRst(2),
       locked          => open
    );
+
+  U_synchronizer_s_enc_valid_i : entity work.Synchronizer
+   generic map (
+      TPD_G          => TPD_G,
+      STAGES_G       => 2
+     )
+      port map (
+      clk     => samClk,
+      rst     => rstInt,
+      dataIn  => SRO,
+      dataOut => s_enc_valid_i
+   ); 
+
+  u_ssp_enc12b14b_ext : entity work.ssp_enc12b14b_ext
+    port map(
+      start_ro  => SRO,
+      clk_i     => fClk,                -- needs updating
+      rst_n_i   => asicRstL,
+      valid_i   => s_enc_valid_i,       -- needs updating
+      mode_i    => s_mode_i,            
+      data_i    => s_enc_data_i,
+      data_o    => s_enc_data_o
+    );
+
+  U_serializer :  entity work.serializerSim 
+    generic map(
+        g_dwidth => 14 
+    )
+    port map(
+        clk_i     => dClk,             
+        reset_n_i => asicRstL,
+        data_i    => s_enc_data_o,        -- "00"&EncDataIn, --
+        data_o    => sData0
+    );
 
   -- gated clock to simulate adcClk at 112MHz
   adcClk <= clk2x when SRO = '1'
