@@ -2,7 +2,7 @@
 -- File       : Application.vhd
 -- Company    : SLAC National Accelerator Laboratory
 -- Created    : 2017-04-21
--- Last update: 2019-05-22
+-- Last update: 2019-07-09
 -------------------------------------------------------------------------------
 -- Description: Application Core's Top Level
 -------------------------------------------------------------------------------
@@ -632,11 +632,15 @@ begin
    ------------------------------------------
    -- Generate clocks from 156.25 MHz PGP  --
    ------------------------------------------
-   -- clkIn     : 156.25 MHz PGP
-   -- clkOut(0) : 448.00 MHz -- 8x cryo clock (default  56MHz)
-   -- clkOut(1) : 112.00 MHz -- 448 clock div 4
-   -- clkOut(2) : 64.00 MHz  -- 448 clock div 7
-   -- clkOut(3) : 56.00 MHz  -- cryo input clock default is 56MHz
+   -- variation to run at 62.5MHz
+   ------------------------------------------
+   -- sig                : at 56      : at 62.5
+   -- CLKFBOUT_MULT_F_G  : 45.875     : 51.2
+   -- clkIn              : 156.25 MHz : 156.25 MHz   -- PGP
+   -- clkOut(0)          : 448.00 MHz : 500.00 MHz   -- 8x cryo clock (default  56MHz)
+   -- clkOut(1)          : 112.00 MHz : 125.00 MHz   -- 448 clock div 4
+   -- clkOut(2)          : 64.00  MHz :  71.43 MHz   -- 448 clock div 7
+   -- clkOut(3)          : 56.00  MHz :  62.50 MHz   -- cryo input clock default is 56MHz
 
    U_iserdesClockGen : entity work.ClockManagerUltraScale 
    generic map(
@@ -650,7 +654,7 @@ begin
       BANDWIDTH_G            => "OPTIMIZED",
       CLKIN_PERIOD_G         => 6.4,    -- Input period in ns );
       DIVCLK_DIVIDE_G        => 8,
-      CLKFBOUT_MULT_F_G      => 45.875,
+      CLKFBOUT_MULT_F_G      => 51.2,
       CLKFBOUT_MULT_G        => 5,
       CLKOUT0_DIVIDE_F_G     => 1.0,
       CLKOUT0_DIVIDE_G       => 2,
