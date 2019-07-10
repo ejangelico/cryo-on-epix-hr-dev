@@ -43,6 +43,7 @@ set_clock_groups -asynchronous -group [get_clocks appClk] -group [get_clocks adc
 set_clock_groups -asynchronous -group [get_clocks appClk] -group [get_clocks adcBitClkRD4]
 set_clock_groups -asynchronous -group [get_clocks appClk] -group [get_clocks adcMonDoClkP]
 set_clock_groups -asynchronous -group [get_clocks appClk] -group [get_clocks bitClk]
+set_clock_groups -asynchronous -group [get_clocks appClk] -group [get_clocks asicRdClk]
 set_clock_groups -asynchronous -group [get_clocks byteClk] -group [get_clocks adcBitClkR]
 set_clock_groups -asynchronous -group [get_clocks byteClk] -group [get_clocks adcBitClkRD4]
 
