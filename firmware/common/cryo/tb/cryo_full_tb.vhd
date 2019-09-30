@@ -6,7 +6,7 @@
 -- Author     : Dionisio Doering  <ddoering@tid-pc94280.slac.stanford.edu>
 -- Company    : 
 -- Created    : 2017-05-22
--- Last update: 2019-04-03
+-- Last update: 2019-09-30
 -- Platform   : 
 -- Standard   : VHDL'87
 -------------------------------------------------------------------------------
@@ -63,14 +63,24 @@ architecture arch of cryo_full_tb is
   
 
   --file definitions
-  constant DATA_BITS   : natural := 12;
-  constant DEPTH_C     : natural := 1024;
-  constant FILENAME_C  : string  := "/afs/slac.stanford.edu/u/re/ddoering/localGit/epix-hr-dev/firmware/simulations/CryoEncDec/sin.csv";
+  constant DATA_BITS       : natural := 12;
+  constant DEPTH_C         : natural := 1024;
+  --constant DEPTH_SER_C     : natural := 1253;
+  constant DEPTH_SER_C     : natural := 3927;
+  constant FILENAME_C      : string  := "/afs/slac.stanford.edu/u/re/ddoering/localGit/cryo-on-epix-hr-dev/firmware/common/cryo/tb/sin.csv";
+  --constant FILENAME_SER_C  : string  := "/afs/slac.stanford.edu/u/re/ddoering/localGit/cryo-on-epix-hr-dev/firmware/common/cryo/tb/ser_out_PEX_NEW_FF.csv";
+  --constant FILENAME_SER_C  : string  := "/afs/slac.stanford.edu/u/re/ddoering/localGit/cryo-on-epix-hr-dev/firmware/common/cryo/tb/ser_out_PEX_NEW2_FF.csv";
+  constant FILENAME_SER_C  : string  := "/afs/slac.stanford.edu/u/re/ddoering/localGit/cryo-on-epix-hr-dev/firmware/common/cryo/tb/ser_out.csv";
   --simulation constants to select data type
-  constant CH_ID       : natural := 0;
-  constant CH_WF       : natural := 1;
-  constant DATA_TYPE_C : natural := CH_ID;
+  constant CH_ID           : natural := 0;
+  constant CH_WF           : natural := 1;
+  constant DATA_TYPE_C     : natural := CH_ID;
   
+  -------------------------------------------------------------------------------
+  -- Functions to read files
+  -------------------------------------------------------------------------------
+  -- parallel data
+  --
   subtype word_t  is slv(DATA_BITS - 1 downto 0);
   type    ram_t   is array(0 to DEPTH_C - 1) of word_t;
 
@@ -91,9 +101,38 @@ architecture arch of cryo_full_tb is
     return Result;
   end function;
 
+
+  --serial
+  subtype word_t_ser  is slv(0 downto 0);
+  type    ram_t_ser   is array(0 to DEPTH_SER_C - 1) of word_t_ser;
+
+  impure function readSerWaveFile(FileName : STRING) return ram_t_ser is
+    file     FileHandle   : TEXT open READ_MODE is FileName;
+    variable CurrentLine  : LINE;
+    variable TempWord     : real; --slv(DATA_BITS - 1 downto 0);
+    variable TempWordInt  : integer; --slv(DATA_BITS - 1 downto 0);
+    variable TempWordSlv  : slv(16 - 1 downto 0);
+    variable Result       : ram_t_ser    := (others => (others => '0'));
+  begin
+    for i in 0 to DEPTH_SER_C - 1 loop
+      exit when endfile(FileHandle);
+      readline(FileHandle, CurrentLine);
+      read(CurrentLine, TempWord);
+      read(CurrentLine, TempWordInt);
+      TempWordSlv  := toSlv(TempWordInt, 16);
+      Result(i)    := TempWordSlv(0 downto 0);
+    end loop;
+    return Result;
+  end function;
+
+
+  
   -- waveform signal
-  signal ramWaveform      : ram_t    := readWaveFile(FILENAME_C);
-  signal ramTestWaveform  : ram_t    := readWaveFile(FILENAME_C);
+  signal ramWaveform         : ram_t      := readWaveFile(FILENAME_C);
+  signal ramTestWaveform     : ram_t      := readWaveFile(FILENAME_C);
+  signal ramTestSerWaveform  : ram_t_ser  := readSerWaveFile(FILENAME_SER_C);
+  signal serDataIndex        : slv(15 downto 0);
+  
 
 
   -----------------------------------------------------------------------------
@@ -263,6 +302,7 @@ architecture arch of cryo_full_tb is
   signal fClkN : sl := '1';
   signal serialDataOut1 : sl;
   signal serialDataOut2 : sl;
+  signal serDataFromFile: sl;
   signal chId           : slv(11 downto 0);
 
 signal dummy : slv(1 downto 0);
@@ -366,7 +406,32 @@ begin  --
       chIdCounter := 0;
     end if;
     chId <= toSlv(chIdCounter, 12);
-  end process;  
+  end process;
+
+  -------------------------------------------------------------------------------
+--  
+-------------------------------------------------------------------------------
+-------------------------------------------------------------------------------
+  serDataFromFile_Proc: process
+    variable dataIndex : integer := 49;
+  begin
+    wait until dClkP'event;
+    serDataIndex <= toSlv(dataIndex, 16);
+    serDataFromFile <= ramTestSerWaveform(dataIndex)(0);
+    if asicR0 = '1' then      
+      dataIndex := dataIndex + 1;
+      if dataIndex = DEPTH_SER_C then
+        dataIndex := 49+((54)*14);
+      end if;
+    else
+      dataIndex := dataIndex + 1;
+      if dataIndex = 49+(53*14) then
+        dataIndex := 49;
+      elsif dataIndex = DEPTH_SER_C then
+        dataIndex := 49;
+      end if;
+    end if;
+  end process;
 -------------------------------------------------------------------------------
 --  
 -------------------------------------------------------------------------------
@@ -438,13 +503,18 @@ begin  --
 
 
   sysRst_n   <= not sysRst;
-    
-  asicDataP(0) <=     serialDataOut1;
-  asicDataN(0) <= not serialDataOut1;
+
+  asicDataP(0) <=     serDataFromFile;
+  asicDataN(0) <= not serDataFromFile;
+--  asicDataP(0) <=     serialDataOut1;
+--  asicDataN(0) <= not serialDataOut1;
 --  asicDataP(0) <= fClkP;
---  asicDataN(0) <= fClkN;  
-  asicDataP(3) <=     serialDataOut2;
-  asicDataN(3) <= not serialDataOut2;
+--  asicDataN(0) <= fClkN;
+--  
+  asicDataP(3) <=     serDataFromFile;
+  asicDataN(3) <= not serDataFromFile;
+--  asicDataP(3) <=     serialDataOut2;
+--  asicDataN(3) <= not serialDataOut2;
 
   asicDataP(2) <= fClkP;
   asicDataN(2) <= fClkN;
