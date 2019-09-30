@@ -1,0 +1,473 @@
+cryoAsicGen1:
+  enable: True
+  ForceWrite: False
+  dataWriter:
+    enable: True
+    dataFile: ''
+    open: False
+    bufferSize: 0
+    maxFileSize: 0
+  XilinxKcu1500Pgp3:
+    enable: True
+    AxiPcieCore:
+      enable: True
+      AxiPciePhy:
+        enable: True
+      AxiVersion:
+        enable: True
+        ScratchPad: 0x000000
+        FpgaReloadHalt: 0x0
+        FpgaReloadAddress: 0x0
+        UserReset: 0x0
+      DmaIbAxisMon:
+        enable: True
+      DmaObAxisMon:
+        enable: True
+    Lane[0]:
+      enable: True
+      AutoStatus: False
+      Loopback: 0x0
+      SkipInterval: 65520
+      FlowControlDisable: False
+      TxDisable: False
+    Lane[1]:
+      enable: True
+      AutoStatus: False
+      Loopback: 0x0
+      SkipInterval: 65520
+      FlowControlDisable: False
+      TxDisable: False
+    Lane[2]:
+      enable: True
+      AutoStatus: False
+      Loopback: 0x0
+      SkipInterval: 65520
+      FlowControlDisable: False
+      TxDisable: False
+    Lane[3]:
+      enable: True
+      AutoStatus: False
+      Loopback: 0x0
+      SkipInterval: 65520
+      FlowControlDisable: False
+      TxDisable: False
+    Lane[4]:
+      enable: True
+      AutoStatus: False
+      Loopback: 0x0
+      SkipInterval: 65520
+      FlowControlDisable: False
+      TxDisable: False
+    Lane[5]:
+      enable: True
+      AutoStatus: False
+      Loopback: 0x0
+      SkipInterval: 65520
+      FlowControlDisable: False
+      TxDisable: False
+    Lane[6]:
+      enable: True
+      AutoStatus: False
+      Loopback: 0x0
+      SkipInterval: 65520
+      FlowControlDisable: False
+      TxDisable: False
+    Lane[7]:
+      enable: True
+      AutoStatus: False
+      Loopback: 0x0
+      SkipInterval: 65520
+      FlowControlDisable: False
+      TxDisable: False
+  EpixHRGen1Cryo:
+    enable: True
+    AxiVersion:
+      enable: True
+      ScratchPad: 0x000000
+      FpgaReloadHalt: 0x0
+      FpgaReloadAddress: 0x0
+      UserReset: 0x0
+    MMCM7Registers:
+      enable: False
+      CLKOUT0PhaseMux: 0
+      CLKOUT0HighTime: 0
+      CLKOUT0LowTime: 0
+      CLKOUT0Frac: 0
+      CLKOUT0FracEn: 0
+      CLKOUT0Edge: 0
+      CLKOUT0NoCount: 0
+      CLKOUT0DelayTime: 0
+      CLKOUT1PhaseMux: 0
+      CLKOUT1HighTime: 0
+      CLKOUT1LowTime: 0
+      CLKOUT1Edge: 0
+      CLKOUT1NoCount: 0
+      CLKOUT1DelayTime: 0
+      CLKOUT2PhaseMux: 0
+      CLKOUT2HighTime: 0
+      CLKOUT2LowTime: 0
+      CLKOUT2Edge: 0
+      CLKOUT2NoCount: 0
+      CLKOUT2DelayTime: 0
+      CLKOUT3PhaseMux: 0
+      CLKOUT3HighTime: 0
+      CLKOUT3LowTime: 0
+      CLKOUT3Edge: 0
+      CLKOUT3NoCount: 0
+      CLKOUT3DelayTime: 0
+      CLKOUT4PhaseMux: 0
+      CLKOUT4HighTime: 0
+      CLKOUT4LowTime: 0
+      CLKOUT4Edge: 0
+      CLKOUT4NoCount: 0
+      CLKOUT4DelayTime: 0
+      CLKOUT5PhaseMux: 0
+      CLKOUT5HighTime: 0
+      CLKOUT5LowTime: 0
+      CLKOUT5Edge: 0
+      CLKOUT5NoCount: 0
+      CLKOUT5DelayTime: 0
+      CLKOUT6PhaseMux: 0
+      CLKOUT6HighTime: 0
+      CLKOUT6LowTime: 0
+      CLKOUT6Edge: 0
+      CLKOUT6NoCount: 0
+      CLKOUT6DelayTime: 0
+    MMCMSerdesRegisters:
+      enable: False
+      CLKOUT0PhaseMux: 0
+      CLKOUT0HighTime: 2
+      CLKOUT0LowTime: 2
+      CLKOUT0Frac: 0
+      CLKOUT0FracEn: 0
+      CLKOUT0Edge: 0
+      CLKOUT0NoCount: 0
+      CLKOUT0DelayTime: 0
+      CLKOUT1PhaseMux: 0
+      CLKOUT1HighTime: 8
+      CLKOUT1LowTime: 8
+      CLKOUT1Edge: 0
+      CLKOUT1NoCount: 0
+      CLKOUT1DelayTime: 0
+      CLKOUT2PhaseMux: 0
+      CLKOUT2HighTime: 14
+      CLKOUT2LowTime: 14
+      CLKOUT2Edge: 0
+      CLKOUT2NoCount: 0
+      CLKOUT2DelayTime: 0
+      CLKOUT3PhaseMux: 0
+      CLKOUT3HighTime: 2
+      CLKOUT3LowTime: 2
+      CLKOUT3Edge: 0
+      CLKOUT3NoCount: 0
+      CLKOUT3DelayTime: 0
+      CLKOUT4PhaseMux: 0
+      CLKOUT4HighTime: 1
+      CLKOUT4LowTime: 1
+      CLKOUT4Edge: 0
+      CLKOUT4NoCount: 1
+      CLKOUT4DelayTime: 0
+      CLKOUT5PhaseMux: 0
+      CLKOUT5HighTime: 1
+      CLKOUT5LowTime: 1
+      CLKOUT5Edge: 0
+      CLKOUT5NoCount: 1
+      CLKOUT5DelayTime: 0
+      CLKOUT6PhaseMux: 0
+      CLKOUT6HighTime: 1
+      CLKOUT6LowTime: 1
+      CLKOUT6Edge: 0
+      CLKOUT6NoCount: 1
+      CLKOUT6DelayTime: 0
+    TriggerRegisters:
+      enable: False
+      RunTriggerEnable: False
+      RunTriggerDelay: 0
+      DaqTriggerEnable: False
+      DaqTriggerDelay: 0
+      AutoRunEn: False
+      AutoDaqEn: False
+      AutoTrigPeriod: 0
+      PgpTrigEn: False
+      AcqCountReset: False
+    ssiPrbs0PktRegisters:
+      enable: False
+      axiEn: False
+      trig: False
+      oneShot: False
+      cntData: False
+      packetLength: 0
+      tDest: 0
+      tId: 0
+    ssiPrbs1PktRegisters:
+      enable: False
+      axiEn: False
+      trig: False
+      oneShot: False
+      cntData: False
+      packetLength: 0
+      tDest: 0
+      tId: 0
+    ssiPrbs2PktRegisters:
+      enable: False
+      axiEn: False
+      trig: False
+      oneShot: False
+      cntData: False
+      packetLength: 0
+      tDest: 0
+      tId: 0
+    ssiPrbs3PktRegisters:
+      enable: False
+      axiEn: False
+      trig: False
+      oneShot: False
+      cntData: False
+      packetLength: 0
+      tDest: 0
+      tId: 0
+    AxiStreamMon:
+      enable: False
+    AxiMemTester:
+      enable: False
+    CryoAsic0:
+      enable: False
+      TPS_DAC: 0x22
+      TPS_GR: 0xc
+      TPSMux: 0x0
+      Bias_TPS_Buffer: 0x5
+      Bias_TPS: 0x4
+      Bias_TPS_DAC: 0x4
+      Bias_LVDS_Rx: 0x3
+      Bias_LVDS_Tx: 0x3
+      RbiasEn: False
+      Pulser: 0x0
+      test: False
+      atest: False
+      hrtest: False
+      sbatest: False
+      pbit: False
+      Pulser_Reset: False
+      PPbit: True
+      test_BE: False
+      DelEXEC: False
+      DelCCKreg: False
+      sync_exten: False
+      sync_role_sel: True
+      RO_Bk0_disable: False
+      RO_Bk1_disable: False
+      DM1en: False
+      DM2en: False
+      Pulser_Monost: 0x0
+      Pulser_SyncEn: False
+      cs_LVDS_Tx: 0x1
+      DCycle_en: False
+      DCycle_bypass: False
+      DCycle_polarity: False
+      DCycle_DAC: 0x20
+      Bias_DCycle_DAC: 0x4
+      PLL_RO_OutDivider: 0x0
+      PLL_DCycle_Bypass_B0: 0x3
+      PLL_RO_Reset: True
+      PLL_RO_Itune: 0x3
+      PLL_RO_KVCO: 0x1
+      PLL_RO_filter1: 0x5
+      PLL_RO_filter2: 0x4
+      Dcycle_DAC_gain: 0x3
+      VTBias_B0: 0x0
+      VTBias_T0: 0x0
+      SAH_B0: 0x0
+      SAH_VcmBuf_B0: 0x0
+      SigBuf_B0: 0x0
+      ADC_VrefBuf_B0: 0x0
+      ADC_B0: 0x0
+      ADC_VcmBuf_B0: 0x0
+      bamp: 0x4
+      bleak: 0x2
+      brstVref: 0x4
+      SAH_Ctrl_Visel: True
+      ADC_Ocen_Bk0: True
+      ADC_Ocen_Bk1: True
+      VrefBuffExt_En_Bk0: True
+      VrefBuffExt_En_Bk1: True
+      ROsLVDS_bit: True
+      SACIsLVDS_bit: True
+      emph_bc: 0x0
+      emph_bd: 0x0
+      DM1sel: 0x0
+      DM2sel: 0x0
+      SubBnkEn: 0x0808
+      LDO_VTBias_B0: 0x3
+      LDO_VTBias_T0: 0xc
+      LDO_VTBias_Br0: 0x0
+      LDO_VTBias_Tr0: 0x9
+      TPS_DAC_Gain: 0x1
+      LDO0TB_En: True
+      LDO0rTB_En: True
+      LDO1TB_En: True
+      LDO2TB_En: True
+      LDO46_En: True
+      encoder_mode_dft: 0x0
+      En_BankClk_Bk0_LVDS: False
+      En_BankClk_Bk1_LVDS: False
+      En_SerClk_out_Bk0_LVDS: True
+      En_SerClk_out_Bk1_LVDS: True
+      rtrimLVDS_b0: 0x3
+      SACItristateLVDS_bit: False
+      VrefGen_B0_1v2: 0x3
+      VrefGen_Br0_1v2: 0x3
+      VrefGen_T0_1v2: 0x7
+      VrefGen_Tc0_1v2: 0x7
+      VrefGen_Tr0_1v2: 0x8
+      VrefBuf_Ext_B0_1v2: 0x3
+      VcmBuf_Ext_B0_1v2: 0x0
+      FE_Amp_B0_1v2: 0x0
+      bifb: 0x3
+      bbaseref: 0x2
+      blcoarse: 0x6
+      ctrl_pulser: False
+      Pulser_Bias_DAC_b0: 0x4
+      PP_Pulser_Bias_DAC: True
+      Pulser_Bias_Monost_b0: 0x3
+      CRYO_ID: 0x0
+    AppFpgaRegisters:
+      enable: False
+      Version: 0x1
+      GlblRstPolarity: False
+      GlblRstDelay: 0
+      GlblRstWidth: 0
+      AcqPolarity: True
+      AcqDelay1: 10
+      AcqWidth1: 100
+      AcqDelay2: 100
+      AcqWidth2: 100
+      TPulsePolarity: False
+      TPulseDelay: 0
+      TPulseWidth: 0
+      StartPolarity: False
+      StartDelay: 0
+      StartWidth: 0
+      PPbePolarity: False
+      PPbeDelay: 0
+      PPbeWidth: 0
+      PpmatPolarity: False
+      PpmatDelay: 0
+      PpmatWidth: 0
+      SyncPolarity: True
+      SyncDelay: 10
+      SyncWidth: 100
+      SaciSyncPolarity: False
+      SaciSyncDelay: 0
+      SaciSyncWidth: 0
+      SR0Polarity: False
+      Vid: 0
+      ResetCounters: False
+      AsicPwrEnable: True
+      AsicPwrManual: False
+      AsicPwrManualDig: False
+      AsicPwrManualAna: False
+      AsicPwrManualIo: False
+      AsicPwrManualFpga: False
+      DebugSel1: 9
+      DebugSel2: 3
+      StartupReq: True
+    PowerSupply:
+      enable: True
+      DigitalEn: True
+      AnalogEn: True
+    HSDac:
+      enable: False
+      WFEnabled: False
+      run: False
+      externalUpdateEn: False
+      samplingCounter: 0x0
+      DacValue: 0x0
+      DacChannel: None
+      DacValueV: '0.000'
+    SlowDacs:
+      enable: False
+      dac_0: 0x0
+      dac_1: 0x0
+      dac_2: 0x0
+      dac_3: 0x0
+      dac_4: 0x0
+      dummy: 0x0
+      Vdac_0: '0.000'
+      Vdac_1: '0.000'
+      Vdac_2: '0.000'
+      Vdac_3: '0.000'
+      Vdac_4: '0.000'
+    Oscilloscope:
+      enable: False
+      ArmReg: False
+      TrigReg: False
+      ScopeEnable: False
+      TriggerEdge: Falling
+      TriggerChannel: TrigReg
+      TriggerMode: Never
+      TriggerAdcThresh: 0
+      TriggerHoldoff: 0
+      TriggerOffset: 0
+      TraceLength: 0
+      SkipSamples: 0
+      InputChannelA: Asic0TpsMux
+      InputChannelB: Asic0TpsMux
+      TriggerDelay: 0
+    Ad9249Config_Adc_0:
+      enable: False
+      ExternalPdwnMode: Full Power Down
+      InternalPdwnMode: Chip Run
+      DutyCycleStabilizer: 'Off'
+      ClockDivide: Divide by 1
+      ChopMode: 'Off'
+      DevIndexMask[7:0]: 0b0
+      DevIndexMask[DCO:FCO]: 0b0
+      UserTestModeCfg: single
+      OutputTestMode: 'Off'
+      OffsetAdjust: 0x0
+      OutputInvert: False
+      OutputFormat: Offset Binary
+    SlowAdcRegisters:
+      enable: False
+      StreamEn: False
+      StreamPeriod: 0
+    ProgPowerSupply:
+      enable: True
+      Vdd1: 0x8000
+      Vdd2: 0x8000
+      Vdd1_V: '2.500'
+      Vdd2_V: '2.500'
+    Clock Jitter Cleaner:
+      enable: False
+      RstL: True
+      Dec: False
+      Inc: False
+      Frqtbl: False
+      FrqtblZ: True
+      Rate: 0x0
+      RateZ: 0x0
+      BwSel: 0x0
+      BwSelZ: 0x2
+      FreqSel: 0xc
+      FreqSelZ: 0x1
+      Sfout: 0x2
+      SfoutZ: 0x1
+    DeserRegisters:
+      enable: False
+      StreamsEn_n: 0x0
+      Resync: False
+      14bData_ser0:
+        enable: True
+      14bData_ser1:
+        enable: True
+    PacketRegisters:
+      enable: False
+      decDataBitOrder: True
+      StreamDataMode: False
+      StopDataTx: False
+      ResetCounters: False
+      asicDataReq: 0
+  runControl:
+    enable: True
+    runState: Stopped
+    runRate: 1 Hz

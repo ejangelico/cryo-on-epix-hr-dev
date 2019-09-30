@@ -1,0 +1,16 @@
+cryoAsicGen1:
+  enable: True
+  ForceWrite: False
+  EpixHRGen1Cryo:
+    enable: True
+    PowerSupply:
+      enable: True
+      DigitalEn: True
+      AnalogEn: True
+    ProgPowerSupply:
+      enable: True
+      Vdd1: 0x8000
+      Vdd2: 0x8000
+      Vdd1_V: '2.500'
+      Vdd2_V: '2.500'
+

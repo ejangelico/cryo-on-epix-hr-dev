@@ -2,7 +2,7 @@
 -- File       : Application.vhd
 -- Company    : SLAC National Accelerator Laboratory
 -- Created    : 2017-04-21
--- Last update: 2019-03-18
+-- Last update: 2019-05-22
 -------------------------------------------------------------------------------
 -- Description: Application Core's Top Level
 -------------------------------------------------------------------------------
@@ -160,6 +160,7 @@ architecture mapping of Application is
 
    -- ASIC signals
    constant STREAMS_PER_ASIC_C : natural := 2;
+   constant INTERNAL_DAC_C     : boolean := false;
 
    --heart beat signal
    signal heartBeat      : sl;
@@ -244,6 +245,12 @@ architecture mapping of Application is
    signal WFDacCsL_i    : sl;
    signal WFDacLdacL_i  : sl;
    signal WFDacClrL_i   : sl;
+   signal WFDac20bitDin_i     : sl;
+   signal WFDac20bitSclk_i    : sl;
+   signal WFDac20bitSyncL_i   : sl; 
+   signal WFDac20bitLdacL_i   : sl;
+   signal WFDac20bitLdacLSync : sl;
+   signal WFDac20bitClrL_i    : sl;
 
    -- ADC signals
    signal adcValid         : slv(3 downto 0);
@@ -375,6 +382,20 @@ begin
   IOBUF_DATAN_13: IOBUF port map (O => cjcLol, I => '0',          IO => asicDataN(13), T => '1');
 
   OBUFDS_CLK     : OBUFDS port map (I  => asicRdClk,    O  => asicRoClkP(0),OB => asicRoClkN(0));
+
+
+  -----------------------------------------------------------------------------
+  -- External 20 bit DAC IOBUF & MAPPING
+  -----------------------------------------------------------------------------
+  IOBUF_DATAP_20 : IOBUF port map (O => open,   I => WFDac20bitSclk_i,  IO => asicDataP(20),  T => '0');
+  IOBUF_DATAP_21 : IOBUF port map (O => open,   I => WFDac20bitLdacLSync, IO => asicDataP(21),  T => '0');
+  --IOBUF_DATAP_22 : IOBUF port map (O => WFDac20bitSDO,   I => '0', IO => asicDataP(22),  T => '1');
+  IOBUF_DATAP_23 : IOBUF port map (O => open,   I => '1',               IO => asicDataP(23),  T => '0');
+  --
+  IOBUF_DATAN_20 : IOBUF port map (O => open,   I => WFDac20bitClrL_i,  IO => asicDataN(20),  T => '0');
+  IOBUF_DATAN_21 : IOBUF port map (O => open,   I => WFDac20bitClrL_i,  IO => asicDataN(21),  T => '0');
+  IOBUF_DATAN_22 : IOBUF port map (O => open,   I => WFDac20bitDin_i,   IO => asicDataN(22),  T => '0');
+  IOBUF_DATAN_23 : IOBUF port map (O => open,   I => WFDac20bitSyncL_i, IO => asicDataN(23),  T => '0');
   
    ---------------------
    -- Heart beat LED  --
@@ -442,49 +463,54 @@ begin
    -- Monitoring signals
    ----------------------------------------------------------------------------
    connTgOut <= 
-      iAsic01DM1        when boardConfig.epixhrDbgSel1 = "00000" else
-      iAsicSync         when boardConfig.epixhrDbgSel1 = "00001" else
-      monitoringSig(0)  when boardConfig.epixhrDbgSel1 = "00010" else
-      iAsicAcq          when boardConfig.epixhrDbgSel1 = "00011" else
-      iAsicSR0RefClk    when boardConfig.epixhrDbgSel1 = "00100" else
-      iAsicSR0          when boardConfig.epixhrDbgSel1 = "00101" else
-      iSaciClk          when boardConfig.epixhrDbgSel1 = "00110" else
-      iSaciCmd          when boardConfig.epixhrDbgSel1 = "00111" else
-      asicSaciRsp       when boardConfig.epixhrDbgSel1 = "01000" else
-      iSaciSelL(0)      when boardConfig.epixhrDbgSel1 = "01001" else
-      iSaciSelL(1)      when boardConfig.epixhrDbgSel1 = "01010" else
-      asicRdClk         when boardConfig.epixhrDbgSel1 = "01011" else
+      iAsic01DM1          when boardConfig.epixhrDbgSel1 = "00000" else
+      iAsicSync           when boardConfig.epixhrDbgSel1 = "00001" else
+      monitoringSig(0)    when boardConfig.epixhrDbgSel1 = "00010" else
+      iAsicAcq            when boardConfig.epixhrDbgSel1 = "00011" else
+      iAsicSR0RefClk      when boardConfig.epixhrDbgSel1 = "00100" else
+      iAsicSR0            when boardConfig.epixhrDbgSel1 = "00101" else
+      iSaciClk            when boardConfig.epixhrDbgSel1 = "00110" else
+      iSaciCmd            when boardConfig.epixhrDbgSel1 = "00111" else
+      asicSaciRsp         when boardConfig.epixhrDbgSel1 = "01000" else
+      iSaciSelL(0)        when boardConfig.epixhrDbgSel1 = "01001" else
+      iSaciSelL(1)        when boardConfig.epixhrDbgSel1 = "01010" else
+      asicRdClk           when boardConfig.epixhrDbgSel1 = "01011" else
       --bitClk            when boardConfig.epixhrDbgSel1 = "01100" else 
-      byteClk           when boardConfig.epixhrDbgSel1 = "01101" else
-      WFdacDin_i        when boardConfig.epixhrDbgSel1 = "01110" else
-      WFdacSclk_i       when boardConfig.epixhrDbgSel1 = "01111" else
-      WFdacCsL_i        when boardConfig.epixhrDbgSel1 = "10000" else
-      WFdacLdacL_i      when boardConfig.epixhrDbgSel1 = "10001" else
-      WFdacClrL_i       when boardConfig.epixhrDbgSel1 = "10010" else
-      iAsicGrst         when boardConfig.epixhrDbgSel1 = "10011" else
+      byteClk             when boardConfig.epixhrDbgSel1 = "01101" else
+      WFDac20bitDin_i     when boardConfig.epixhrDbgSel1 = "01110" else
+      WFDac20bitSclk_i    when boardConfig.epixhrDbgSel1 = "01111" else
+      WFDac20bitSyncL_i   when boardConfig.epixhrDbgSel1 = "10000" else
+      WFDac20bitLdacLSync when boardConfig.epixhrDbgSel1 = "10001" else
+      WFDac20bitClrL_i    when boardConfig.epixhrDbgSel1 = "10010" else
+      iAsicGrst           when boardConfig.epixhrDbgSel1 = "10011" else
       '0';   
    
    connMps <=
-      iAsic01DM2        when boardConfig.epixhrDbgSel2 = "00000" else
-      iAsicSync         when boardConfig.epixhrDbgSel2 = "00001" else
-      monitoringSig(1)  when boardConfig.epixhrDbgSel2 = "00010" else
-      iAsicAcq          when boardConfig.epixhrDbgSel2 = "00011" else
-      iAsicSR0RefClk    when boardConfig.epixhrDbgSel2 = "00100" else
-      iAsicSR0          when boardConfig.epixhrDbgSel2 = "00101" else
-      iSaciClk          when boardConfig.epixhrDbgSel2 = "00110" else
-      iSaciCmd          when boardConfig.epixhrDbgSel2 = "00111" else
-      asicSaciRsp       when boardConfig.epixhrDbgSel2 = "01000" else
-      iSaciSelL(0)      when boardConfig.epixhrDbgSel2 = "01001" else
-      iSaciSelL(1)      when boardConfig.epixhrDbgSel2 = "01010" else
-      asicRdClk         when boardConfig.epixhrDbgSel2 = "01011" else
+      iAsic01DM2          when boardConfig.epixhrDbgSel2 = "00000" else
+      iAsicSync           when boardConfig.epixhrDbgSel2 = "00001" else
+      monitoringSig(1)    when boardConfig.epixhrDbgSel2 = "00010" else
+      iAsicAcq            when boardConfig.epixhrDbgSel2 = "00011" else
+      iAsicSR0RefClk      when boardConfig.epixhrDbgSel2 = "00100" else
+      iAsicSR0            when boardConfig.epixhrDbgSel2 = "00101" else
+      iSaciClk            when boardConfig.epixhrDbgSel2 = "00110" else
+      iSaciCmd            when boardConfig.epixhrDbgSel2 = "00111" else
+      asicSaciRsp         when boardConfig.epixhrDbgSel2 = "01000" else
+      iSaciSelL(0)        when boardConfig.epixhrDbgSel2 = "01001" else
+      iSaciSelL(1)        when boardConfig.epixhrDbgSel2 = "01010" else
+      asicRdClk           when boardConfig.epixhrDbgSel2 = "01011" else
       --bitClk            when boardConfig.epixhrDbgSel2 = "01100" else
-      byteClk           when boardConfig.epixhrDbgSel2 = "01101" else
-      WFdacDin_i        when boardConfig.epixhrDbgSel2 = "01110" else
-      WFdacSclk_i       when boardConfig.epixhrDbgSel2 = "01111" else
-      WFdacCsL_i        when boardConfig.epixhrDbgSel2 = "10000" else
-      WFdacLdacL_i      when boardConfig.epixhrDbgSel2 = "10001" else
-      WFdacClrL_i       when boardConfig.epixhrDbgSel2 = "10010" else
-      iAsicGrst         when boardConfig.epixhrDbgSel1 = "10011" else
+      byteClk             when boardConfig.epixhrDbgSel2 = "01101" else
+      WFDac20bitDin_i     when boardConfig.epixhrDbgSel1 = "01110" else
+      WFDac20bitSclk_i    when boardConfig.epixhrDbgSel1 = "01111" else
+      WFDac20bitSyncL_i   when boardConfig.epixhrDbgSel1 = "10000" else
+      WFDac20bitLdacLSync when boardConfig.epixhrDbgSel1 = "10001" else
+      WFDac20bitClrL_i    when boardConfig.epixhrDbgSel1 = "10010" else
+--      WFdacDin_i        when boardConfig.epixhrDbgSel2 = "01110" else
+--      WFdacSclk_i       when boardConfig.epixhrDbgSel2 = "01111" else
+--      WFdacCsL_i        when boardConfig.epixhrDbgSel2 = "10000" else
+--      WFdacLdacL_i      when boardConfig.epixhrDbgSel2 = "10001" else
+--      WFdacClrL_i       when boardConfig.epixhrDbgSel2 = "10010" else
+      iAsicGrst           when boardConfig.epixhrDbgSel1 = "10011" else
       '0';
 
    -----------------------------------------------------------------------------
@@ -509,11 +535,11 @@ begin
    asicDataN(4)    <= '0';
    asicDataN(6)    <= '0';
    asicDataN(15 downto 14)  <= (others => '0');
-   asicDataN(23 downto 20)  <= (others => '0');
+   --asicDataN(23 downto 20)  <= (others => '0');
    asicDataP(4)    <= '0';
    asicDataP(6)    <= '0';
    asicDataP(15 downto 14)  <= (others => '0');
-   asicDataP(23 downto 20)  <= (others => '0');
+   --asicDataP(23 downto 20)  <= (others => '0');
 
    ------------------------------------------
    -- Generate clocks from 156.25 MHz PGP  --
@@ -777,14 +803,23 @@ begin
       SR0Out       => iAsicSR0
    );
 
+   -- synchronizers
+   U_Sync_WFDac20bitLdacL : entity work.Synchronizer     
+   port map (
+      clk     => asicRdClk,
+      rst     => asicRdClkRst,
+      dataIn  => WFDac20bitLdacL_i,
+      dataOut => WFDac20bitLdacLSync
+   );
+
    ---------------------
    -- Trig control    --
    --------------------- 
    U_TrigControl : entity work.TrigControlAxi
    port map (
       -- Trigger outputs
-      sysClk         => appClk,
-      sysRst         => appRst,
+      appClk         => appClk,
+      appRst         => appRst,
       acqStart       => acqStart,
       dataSend       => dataSend,
       
@@ -793,8 +828,8 @@ begin
       daqTrigger     => iDaqTrigger,
       
       -- PGP clocks and reset
-      pgpClk         => sysClk,
-      pgpClkRst      => sysRst,
+      sysClk         => sysClk,
+      sysRst         => sysRst,
       -- SW trigger in (from VC)
       ssiCmd         => ssiCmd,
       -- PGP RxOutType (to trigger from sideband)
@@ -1052,28 +1087,67 @@ begin
   --------------------------------------------
   -- High speed DAC (DAC8812)               --
   --------------------------------------------
-  U_HSDAC: entity work.DacWaveformGenAxi
-    generic map (
-      TPD_G => TPD_G,
-      NUM_SLAVE_SLOTS_G  => HR_FD_NUM_AXI_SLAVE_SLOTS_C,
-      NUM_MASTER_SLOTS_G => HR_FD_NUM_AXI_MASTER_SLOTS_C,
-      MASTERS_CONFIG_G   => ssiAxiStreamConfig(4, TKEEP_COMP_C)
-   )
-    port map (
-      sysClk            => appClk,
-      sysClkRst         => appRst,
-      dacDin            => WFDacDin_i,
-      dacSclk           => WFDacSclk_i,
-      dacCsL            => WFDacCsL_i,
-      dacLdacL          => WFDacLdacL_i,
-      dacClrL           => WFDacClrL_i,
-      externalTrigger   => acqStart,
-      axilClk           => appClk,
-      axilRst           => appRst,
-      sAxilWriteMaster  => mAxiWriteMasters(DACWFMEM_REG_AXI_INDEX_C downto DAC8812_REG_AXI_INDEX_C),
-      sAxilWriteSlave   => mAxiWriteSlaves(DACWFMEM_REG_AXI_INDEX_C downto DAC8812_REG_AXI_INDEX_C),
-      sAxilReadMaster   => mAxiReadMasters(DACWFMEM_REG_AXI_INDEX_C downto DAC8812_REG_AXI_INDEX_C),
-      sAxilReadSlave    => mAxiReadSlaves(DACWFMEM_REG_AXI_INDEX_C downto DAC8812_REG_AXI_INDEX_C));
+  U_INTDAC : if (INTERNAL_DAC_C) generate 
+    U_HSDAC: entity work.DacWaveformGenAxi
+      generic map (
+        TPD_G => TPD_G,
+        NUM_SLAVE_SLOTS_G  => HR_FD_NUM_AXI_SLAVE_SLOTS_C,
+        NUM_MASTER_SLOTS_G => HR_FD_NUM_AXI_MASTER_SLOTS_C,
+        MASTERS_CONFIG_G   => ssiAxiStreamConfig(4, TKEEP_COMP_C)
+        )
+      port map (
+        sysClk            => appClk,
+        sysClkRst         => appRst,
+        dacDin            => WFDacDin_i,
+        dacSclk           => WFDacSclk_i,
+        dacCsL            => WFDacCsL_i,
+        dacLdacL          => WFDacLdacL_i,
+        dacClrL           => WFDacClrL_i,
+        externalTrigger   => acqStart,
+        axilClk           => appClk,
+        axilRst           => appRst,
+        sAxilWriteMaster  => mAxiWriteMasters(DACWFMEM_REG_AXI_INDEX_C downto DAC8812_REG_AXI_INDEX_C),
+        sAxilWriteSlave   => mAxiWriteSlaves(DACWFMEM_REG_AXI_INDEX_C downto DAC8812_REG_AXI_INDEX_C),
+        sAxilReadMaster   => mAxiReadMasters(DACWFMEM_REG_AXI_INDEX_C downto DAC8812_REG_AXI_INDEX_C),
+        sAxilReadSlave    => mAxiReadSlaves(DACWFMEM_REG_AXI_INDEX_C downto DAC8812_REG_AXI_INDEX_C));
+
+        WFDac20bitDin_i   <= '0';
+        WFDac20bitSclk_i  <= '0';
+        WFDac20bitSyncL_i <= '0';
+        WFDac20bitLdacL_i <= '0';
+        WFDac20bitClrL_i  <= '0';
+  end generate;
+
+  U_EXTDAC : if (not INTERNAL_DAC_C) generate 
+    U_HSDAC: entity work.Dac20bitWaveformGenAxi
+      generic map (
+        TPD_G => TPD_G,
+        NUM_SLAVE_SLOTS_G  => HR_FD_NUM_AXI_SLAVE_SLOTS_C,
+        NUM_MASTER_SLOTS_G => HR_FD_NUM_AXI_MASTER_SLOTS_C,
+        MASTERS_CONFIG_G   => ssiAxiStreamConfig(4, TKEEP_COMP_C)
+        )
+      port map (
+        sysClk            => appClk,
+        sysClkRst         => appRst,
+        dacDin            => WFDac20bitDin_i,
+        dacSclk           => WFDac20bitSclk_i,
+        dacSyncL          => WFDac20bitSyncL_i,
+        dacLdacL          => WFDac20bitLdacL_i,
+        dacClrL           => WFDac20bitClrL_i,
+        externalTrigger   => acqStart,
+        axilClk           => appClk,
+        axilRst           => appRst,
+        sAxilWriteMaster  => mAxiWriteMasters(DACWFMEM_REG_AXI_INDEX_C downto DAC8812_REG_AXI_INDEX_C),
+        sAxilWriteSlave   => mAxiWriteSlaves(DACWFMEM_REG_AXI_INDEX_C downto DAC8812_REG_AXI_INDEX_C),
+        sAxilReadMaster   => mAxiReadMasters(DACWFMEM_REG_AXI_INDEX_C downto DAC8812_REG_AXI_INDEX_C),
+        sAxilReadSlave    => mAxiReadSlaves(DACWFMEM_REG_AXI_INDEX_C downto DAC8812_REG_AXI_INDEX_C));
+
+        WFDacDin_i   <= '0';
+        WFDacSclk_i  <= '0';
+        WFDacCsL_i   <= '0';
+        WFDacLdacL_i <= '0';
+        WFDacClrL_i  <= '0';
+  end generate;
 
   --------------------------------------------
   -- ePix HR analog board SPI DACs          --

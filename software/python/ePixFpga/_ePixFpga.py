@@ -205,8 +205,8 @@ class EpixHRGen1Cryo(pr.Device):
             epix.CryoAsic(                   name='CryoAsic0',                         offset=0x88000000, expand=False, enabled=False),
             CryoAppCoreFpgaRegisters(        name="AppFpgaRegisters",                  offset=0x96000000, expand=False, enabled=False),
             powerSupplyRegisters(            name='PowerSupply',                       offset=0x89000000, expand=False, enabled=False),            
-            HighSpeedDacRegisters(           name='HSDac',                             offset=0x8A000000, expand=False, enabled=False, HsDacEnum=HsDacEnum),
-            pr.MemoryDevice(                 name='waveformMem',                       offset=0x8B000000, wordBitSize=16, stride=4, size=1024*4),
+            HighSpeedExtDacRegisters(        name='HSDac',                             offset=0x8A000000, expand=False, enabled=False, HsDacEnum=HsDacEnum),
+            pr.MemoryDevice(                 name='waveformMem',                       offset=0x8B000000, wordBitSize=16, stride=4, size=4096*4),
             sDacRegisters(                   name='SlowDacs'    ,                      offset=0x8C000000, expand=False, enabled=False),
             OscilloscopeRegisters(           name='Oscilloscope',                      offset=0x8D000000, expand=False, enabled=False, trigChEnum=trigChEnum, inChaEnum=inChaEnum, inChbEnum=inChbEnum),
             MonAdcRegisters(                 name='FastADCsDebug',                     offset=0x8E000000, expand=False, enabled=False),
@@ -218,19 +218,74 @@ class EpixHRGen1Cryo(pr.Device):
             DigitalPktRegisters(             name="PacketRegisters",                   offset=0x95000000, expand=False, enabled=False)
             ))
 
-        self.add(pr.LocalCommand(name='SetWaveform',   description='Set test waveform for high speed DAC', function=self.fnSetWaveform))
-        self.add(pr.LocalCommand(name='GetWaveform',   description='Get test waveform for high speed DAC', function=self.fnGetWaveform))
-        self.add(pr.LocalCommand(name='InitCryo',      description='Inicialization routines', function=self.fnInitCryo))
-        self.add(pr.LocalCommand(name='ReSyncCryo',    description='Generates the sequence necessary to resync asic',   function=self.fnReSyncCryo))
-        self.add(pr.LocalCommand(name='EnAllCryoAdcs', description='Generates the sequence necessary to resync asic',   function=self.fnEnAllCryoAdcs))
-        self.add(pr.LocalCommand(name='BypassDecoder', description='Generates the sequence necessary to resync asic',   function=self.fnBypassDecoder))
-        self.add(pr.LocalCommand(name='SendAdcData',   description='Generates the sequence necessary to send adc data', function=self.fnSendAdcData))
+        self.add(pr.LocalCommand(name='SetWaveform',         description='Set test waveform for high speed DAC', function=self.fnSetWaveform))
+        self.add(pr.LocalCommand(name='GetWaveform',         description='Get test waveform for high speed DAC', function=self.fnGetWaveform))
+        self.add(pr.LocalCommand(name='InitCryo',            description='Inicialization routines', function=self.fnInitCryo))
+        self.add(pr.LocalCommand(name='ReSyncCryo',          description='Generates the sequence necessary to resync asic',   function=self.fnReSyncCryo))
+        self.add(pr.LocalCommand(name='EnAllCryoAdcs',       description='Generates the sequence necessary to resync asic',   function=self.fnEnAllCryoAdcs))
+        self.add(pr.LocalCommand(name='BypassDecoder',       description='Generates the sequence necessary to resync asic',   function=self.fnBypassDecoder))
+        self.add(pr.LocalCommand(name='SendAdcData',         description='Generates the sequence necessary to send adc data', function=self.fnSendAdcData))
+        self.add(pr.LocalCommand(name='rampTestToFile',      description='Generates the sequence necessary to send adc data', function=self.fnRampTestCryo))
+        self.add(pr.LocalCommand(name='linearityTestToFile', description='Pulser used to check linearity via scope and adc' , function=self.fnLinTestCryo))
 
 
+    def fnRampTestCryo(self, dev,cmd,arg):
+        """SetTestBitmap command function"""       
+        print("Rysync cryo started")
+        print(arg)
+        DAC_TYPE = "20bitDAC"
+        if DAC_TYPE == "20bitDAC":
+            dacRangeValue = 524288
+            dacStep = 8
+        else:
+            dacRangeValue = 65536
+            dacStep = 1
+        self.root.dataWriter.enable.set(True)
+        self.root.dataWriter.open.set(False)
+        self.currentFilename = self.root.dataWriter.dataFile.get()
+        self.currentFrameCount = self.root.dataWriter.frameCount.get()
+        dacValue = 1
+        self.HSDac.enable.set(True)
+#        for i in range(64):
+#            self.HSDac.DacValue.set(dacValue*1024-1)
+        for i in range(dacRangeValue):
+            self.HSDac.DacValue.set(dacValue-1)
+            self.root.dataWriter.dataFile.set(self.currentFilename +"_"+ str(i)+".dat")
+            self.root.dataWriter.open.set(True)
+            for j in range(10):
+                self.root.Trigger()
+                time.sleep(0.001) 
+            time.sleep(0.003) 
+                
+            self.root.dataWriter.open.set(False)
+            dacValue = dacValue + dacStep
+
+    def fnLinTestCryo(self, dev,cmd,arg):
+        """SetTestBitmap command function"""       
+        print("Rysync cryo started")
+        print(arg)
+        self.root.dataWriter.enable.set(True)
+        self.root.dataWriter.open.set(False)
+        self.currentFilename = self.root.dataWriter.dataFile.get()
+        self.currentFrameCount = self.root.dataWriter.frameCount.get()
+        pulserValue = 1        
+        for i in range(1024):
+            self.CryoAsic0.Pulser.set(pulserValue-1)
+            self.root.dataWriter.dataFile.set(self.currentFilename +"_"+ str(i)+".dat")
+            self.root.dataWriter.open.set(True)
+            for j in range(20):
+                self.root.Trigger()
+                time.sleep(0.001) 
+            time.sleep(0.003) 
+                
+            self.root.dataWriter.open.set(False)
+            pulserValue = pulserValue + 1
+            
 
     def fnInitCryo(self, dev,cmd,arg):
         """SetTestBitmap command function"""       
         print("Rysync cryo started")
+        self.filenameSCOPE = "./yml/cryo_config_SCOPE.yml"
         if arg == 1:
             self.filenameMMCM = "./yml/cryo_config_mmcm_ExtClk_112MHz.yml"
             self.filenamePowerSupply = "./yml/cryo_config_PowerSupply_2v5.yml"
@@ -261,7 +316,38 @@ class EpixHRGen1Cryo(pr.Device):
             self.filenamePowerSupply = "./yml/cryo_config_PowerSupply_2v5.yml"
             self.filenameCJC = "./yml/cryo_config_CJC_PLLClk_56MHz.yml"
             self.filenameASIC = "./yml/cryo_config_ASIC_PLLClk_448MHz_RoomTemp_v0p1.yml"
-        self.fnInitCryoScript(dev,cmd,arg)
+        elif arg == 7:
+            self.filenameMMCM = "./yml/cryo_config_mmcm_ExtClk_112MHz.yml"
+            self.filenamePowerSupply = "./yml/cryo_config_PowerSupply_2v5.yml"
+            self.filenameCJC = "./yml/cryo_config_CJC_ExtClk_112MHz.yml"
+            self.filenameASIC = "./yml/cryo_config_ASIC_ExtClk_DUNETemp_v0p1.yml"
+        elif arg == 8:
+            self.filenameMMCM = "./yml/cryo_config_mmcm_ExtClk_224MHz.yml"
+            self.filenamePowerSupply = "./yml/cryo_config_PowerSupply_2v5.yml"
+            self.filenameCJC = "./yml/cryo_config_CJC_ExtClk_224MHz.yml"
+            self.filenameASIC = "./yml/cryo_config_ASIC_ExtClk_DUNETemp_v0p1.yml"
+        elif arg == 9:
+            self.filenameMMCM = "./yml/cryo_config_mmcm_ExtClk_448MHz.yml"
+            self.filenamePowerSupply = "./yml/cryo_config_PowerSupply_2v5.yml"
+            self.filenameCJC = "./yml/cryo_config_CJC_ExtClk_448MHz.yml"
+            self.filenameASIC = "./yml/cryo_config_ASIC_ExtClk_DUNETemp_v0p1.yml"
+        elif arg == 10:
+            self.filenameMMCM = "./yml/cryo_config_mmcm_PLLClk_112MHz.yml"
+            self.filenamePowerSupply = "./yml/cryo_config_PowerSupply_2v5.yml"
+            self.filenameCJC = "./yml/cryo_config_CJC_PLLClk_56MHz.yml"
+            self.filenameASIC = "./yml/cryo_config_ASIC_PLLClk_112MHz_DUNETemp_v0p1.yml"
+        elif arg == 11:
+            self.filenameMMCM = "./yml/cryo_config_mmcm_PLLClk_224MHz.yml"
+            self.filenamePowerSupply = "./yml/cryo_config_PowerSupply_2v5.yml"
+            self.filenameCJC = "./yml/cryo_config_CJC_PLLClk_56MHz.yml"
+            self.filenameASIC = "./yml/cryo_config_ASIC_PLLClk_224MHz_DUNETemp_v0p1.yml"
+        elif arg == 12:
+            self.filenameMMCM = "./yml/cryo_config_mmcm_PLLClk_448MHz.yml"
+            self.filenamePowerSupply = "./yml/cryo_config_PowerSupply_2v5.yml"
+            self.filenameCJC = "./yml/cryo_config_CJC_PLLClk_56MHz.yml"
+            self.filenameASIC = "./yml/cryo_config_ASIC_PLLClk_448MHz_DUNETemp_v0p1.yml"
+        if arg != 0:
+            self.fnInitCryoScript(dev,cmd,arg)
 
     def fnInitCryoScript(self, dev,cmd,arg):
         """SetTestBitmap command function"""       
@@ -294,9 +380,10 @@ class EpixHRGen1Cryo(pr.Device):
         print("Loading CJC configuration")
         self.root.ReadConfig(self.filenameCJC)
         print(self.filenameCJC)
-        for i in range(5):
+        self.numberOfAttempts = 5
+        for i in range(self.numberOfAttempts):
             time.sleep(2*delay)
-            print("Waiting asic to stablize", i)
+            print("Waiting asic to stablize %d out of %d" % (i, self.numberOfAttempts))
 
         ## takes the asic off of reset
         print("Taking asic off of reset")
@@ -311,7 +398,12 @@ class EpixHRGen1Cryo(pr.Device):
         ## load config for the asic
         print("Loading timing configuration")
         self.root.ReadConfig(self.filenameASIC)
-        time.sleep(5*delay) 
+        print(self.filenameASIC)
+        self.numberOfAttempts = 18
+        for i in range(self.numberOfAttempts):
+            time.sleep(2*delay)
+            print("Waiting LDO to settle, attempt %d out of %d" % (i, self.numberOfAttempts))
+
 
         ## start deserializer config for the asic
         EN_DESERIALIZERS = True
@@ -344,7 +436,7 @@ class EpixHRGen1Cryo(pr.Device):
         EN_SR0 = True
         EN_ALL_CRYO_ADCS = True
         if EN_SR0 : 
-            print("Settig SR0 set to true")
+            print("Setting SR0 set to true")
             self.AppFpgaRegisters.enable.set(True)
             self.root.readBlocks()
             for i in range(2):
@@ -361,6 +453,11 @@ class EpixHRGen1Cryo(pr.Device):
         BYPASS_DECODER = True
         if BYPASS_DECODER : 
             self.fnBypassDecoder(dev,cmd,arg)
+
+        CONFIG_SCOPE = True
+        if CONFIG_SCOPE :
+            print("Loading Pseudo Scope configuration")
+            self.root.ReadConfig(self.filenameSCOPE)
 
     def fnReSyncCryo(self, dev,cmd,arg):
         """SetTestBitmap command function"""       
@@ -422,40 +519,44 @@ class EpixHRGen1Cryo(pr.Device):
         print("Enabling stream readout")
         self.PacketRegisters.enable.set(True)
         self.PacketRegisters.StreamDataMode.set(True)
+        self.PacketRegisters.decDataBitOrder.set(True)
 
     def fnSendAdcData(self, dev,cmd,arg):
         print("Sends adc data in stream mode")
         delay = 1.0
         self.PacketRegisters.enable.set(True)
         self.root.readBlocks()
-        self.PacketRegisters.decBypass.set(False)
         time.sleep(delay/10) 
         print("Setting cryo to send counter to readout")
         self.CryoAsic0.encoder_mode_dft.set(0)
+        time.sleep(delay/10) 
         print("Enabling stream readout")
-        self.PacketRegisters.enable.set(True)
         self.PacketRegisters.StreamDataMode.set(True)
+        self.PacketRegisters.decDataBitOrder.set(True)
+        self.PacketRegisters.decBypass.set(False)
 
 
     def fnSetWaveform(self, dev,cmd,arg):
         """SetTestBitmap command function"""       
         self.filename = QFileDialog.getOpenFileName(self.root.guiTop, 'Open File', '', 'csv file (*.csv);; Any (*.*)')
         if os.path.splitext(self.filename[0])[1] == '.csv':
-            waveform = np.genfromtxt(self.filename[0], delimiter=',', dtype='uint16')
-            if waveform.shape == (1024,):
-                for x in range (0, 1024):
+            waveform = np.genfromtxt(self.filename[0], delimiter=',', dtype='uint32')
+            if waveform.shape == (4096,):
+                for x in range (0, 4096):
                     self.waveformMem._rawWrite(offset = (x * 4),data =  int(waveform[x]))
+                    #self.waveformMem._rawWrite(offset = (x * 4),data =  int(waveform[x]))
             else:
                 print('wrong csv file format')
 
     def fnGetWaveform(self, dev,cmd,arg):
         """GetTestBitmap command function"""
         self.filename = QFileDialog.getSaveFileName(self.root.guiTop, 'Open File', '', 'csv file (*.csv);; Any (*.*)')
-        if os.path.splitext(self.filename)[1] == '.csv':
-            readBack = np.zeros((1024),dtype='uint16')
-            for x in range (0, 1024):
-                readBack[x] = self._rawRead(offset = (0x86100000 + x * 4))
-            np.savetxt(self.filename, readBack, fmt='%d', delimiter=',', newline='\n')
+        if os.path.splitext(self.filename[0])[1] == '.csv':
+            readBack = np.zeros((4096),dtype='uint32')
+            for x in range (0, 4096):
+                readBack[x] = self.waveformMem._rawRead(offset = (x * 4))
+                #readBack[x] = self.waveformMem.Mem[x].get()
+            np.savetxt(self.filename[0], readBack, fmt='%d', delimiter=',', newline='\n')
 
 
 
@@ -1163,6 +1264,84 @@ class HighSpeedDacRegisters(pr.Device):
          return '{:.3f} kHz'.format(1/(self.clkPeriod * self._count(var.dependencies)) * 1e-3)
       return func
 
+
+
+##########################################################
+#
+# High Speed External DAC
+#
+##########################################################
+class HighSpeedExtDacRegisters(pr.Device):
+   def __init__(self, HsDacEnum, **kwargs):
+      super().__init__(description='HS DAC Registers', **kwargs)
+      
+      # Creation. memBase is either the register bus server (srp, rce mapped memory, etc) or the device which
+      # contains this object. In most cases the parent and memBase are the same but they can be 
+      # different in more complex bus structures. They will also be different for the top most node.
+      # The setMemBase call can be used to update the memBase for this Device. All sub-devices and local
+      # blocks will be updated.
+      
+      #############################################
+      # Create block / variable combinations
+      #############################################
+      
+      
+      #Setup registers & variables
+      
+      self.add((
+         pr.RemoteVariable(name='WFEnabled',       description='Enable waveform generation',                        offset=0x00000000, bitSize=1,   bitOffset=0,   base=pr.Bool, mode='RW'),
+         pr.RemoteVariable(name='run',             description='Generates waveform when true',                      offset=0x00000000, bitSize=1,   bitOffset=1,   base=pr.Bool, mode='RW'),
+         pr.RemoteVariable(name='externalUpdateEn',description='Updates value on AcqStart',                         offset=0x00000000, bitSize=1,   bitOffset=2,   base=pr.Bool, mode='RW'),
+         pr.RemoteVariable(name='waveformSource',  description='Selects between custom wf or internal ramp',        offset=0x00000000, bitSize=2,   bitOffset=3,   base=pr.UInt, mode='RW'),
+         pr.RemoteVariable(name='samplingCounter', description='Sampling period (>269, times 1/clock ref. 156MHz)', offset=0x00000004, bitSize=12,  bitOffset=0,   base=pr.UInt, disp = '{:#x}', mode='RW'),
+         pr.RemoteVariable(name='DacValue',        description='Set a fixed value for the DAC',                     offset=0x00000008, bitSize=20,  bitOffset=0,   base=pr.UInt, disp = '{:#x}', mode='RW'),
+         pr.RemoteVariable(name='DacCh',           description='Set a fixed value for the DAC',                     offset=0x00000008, bitSize=3,   bitOffset=20,  base=pr.UInt, disp = '{:#x}', mode='RW')
+         ))
+      
+      self.add((pr.LinkVariable  (name='DacValueV' ,      linkedGet=self.convtFloat,        dependencies=[self.DacValue])));
+      
+      self.add((         
+         pr.RemoteVariable(name='rCStartValue',    description='Internal ramp generator start value',               offset=0x00000010, bitSize=20,  bitOffset=0,   base=pr.UInt, disp = '{}', mode='RW'),
+         pr.RemoteVariable(name='rCStopValue',     description='Internal ramp generator stop value',                offset=0x00000014, bitSize=20,  bitOffset=0,   base=pr.UInt, disp = '{}', mode='RW'),
+         pr.RemoteVariable(name='rCStep',          description='Internal ramp generator step value',                offset=0x00000018, bitSize=20,  bitOffset=0,   base=pr.UInt, disp = '{}', mode='RW')
+         ))
+      
+      self.add(pr.LocalCommand(name='InitDac',description='Enable high speed DAC to drive its output', function=self.fnInitDac))
+      #####################################
+      # Create commands
+      #####################################
+      
+      # A command has an associated function. The function can be a series of
+      # python commands in a string. Function calls are executed in the command scope
+      # the passed arg is available as 'arg'. Use 'dev' to get to device scope.
+      # A command can also be a call to a local function with local scope.
+      # The command object and the arg are passed
+
+   def fnInitDac(self, dev,cmd,arg):
+        """SetTestBitmap command function"""
+        self.DacCh.set(2)
+        self.DacValue.set(0x00012)
+        self.DacCh.set(1)
+        
+
+   @staticmethod
+   def convtFloat(dev, var):
+       value   = var.dependencies[0].get(read=False)
+       fpValue = value*(2.5/(16*65536.0))
+       return '%0.3f'%(fpValue)               
+
+   @staticmethod   
+   def frequencyConverter(self):
+      def func(dev, var):         
+         return '{:.3f} kHz'.format(1/(self.clkPeriod * self._count(var.dependencies)) * 1e-3)
+      return func
+
+
+##########################################################
+#
+#
+#
+##########################################################
 class powerSupplyRegisters(pr.Device):
    def __init__(self, **kwargs):
       super().__init__(description='Power Supply Registers', **kwargs)
@@ -1712,7 +1891,7 @@ class DigitalPktRegisters(pr.Device):
       self.add(pr.RemoteVariable(name='StreamDataMode',  description='Streams data cont.',                          offset=0x00000020, bitSize=1,   bitOffset=0, base=pr.Bool, mode='RW'))
       self.add(pr.RemoteVariable(name='StopDataTx',      description='Interrupt data stream',                       offset=0x00000020, bitSize=1,   bitOffset=1, base=pr.Bool, mode='RW'))
       self.add(pr.RemoteVariable(name='ResetCounters',   description='ResetCounters',                               offset=0x00000024, bitSize=1,   bitOffset=0, base=pr.Bool, mode='WO'))
-      self.add(pr.RemoteVariable(name='asicDataReq',     description='Number of samples requested per ADC stream.', offset=0x00000028, bitSize=16,  bitOffset=0, base=pr.UInt, disp = '{}', mode='RW'))
+      self.add(pr.RemoteVariable(name='asicDataReq',     description='Number of samples requested per ADC stream.', offset=0x00000028, bitSize=32,  bitOffset=0, base=pr.UInt, disp = '{}', mode='RW'))
       self.add(pr.RemoteVariable(name='adcIndexOffset',  description='Changes the sequence where adc are readout',  offset=0x0000002C, bitSize=5,   bitOffset=0, base=pr.UInt, disp = '{}', mode='RW'))
       self.add(pr.RemoteVariable(name='DecData0',        description='Decoded data',                                offset=0x00000080, bitSize=32,  bitOffset=0, base=pr.UInt, disp = '{}', mode='RO'))
       self.add(pr.RemoteVariable(name='DecData1',        description='Decoded data',                                offset=0x00000084, bitSize=32,  bitOffset=0, base=pr.UInt, disp = '{}', mode='RO'))      

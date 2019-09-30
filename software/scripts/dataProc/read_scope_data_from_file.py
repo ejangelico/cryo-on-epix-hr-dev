@@ -63,14 +63,15 @@ while ((len(file_header)>0) and ((numberOfFrames<MAX_NUMBER_OF_FRAMES_PER_BATCH)
         
 
         #save only serial data frames
-        newPayload = np.fromfile(f, dtype='uint16', count=payloadSize*2) #(frame size splited by four to read 32 bit 
-        if (numberOfFrames == 0):
-            allFrames = [newPayload.copy()]
-        else:
-            newFrame  = [newPayload.copy()]
-            allFrames = np.append(allFrames, newFrame, axis = 0)
-        numberOfFrames = numberOfFrames + 1 
-        previousSize = file_header
+        newPayload = np.fromfile(f, dtype='uint16', count=payloadSize*2) #(frame size splited by four to read 32 bit
+        if ((file_header[1]&0xff000000)>>24)==2: #image packet only, 2 mean scope data
+            if (numberOfFrames == 0):
+                allFrames = [newPayload.copy()]
+            else:
+                newFrame  = [newPayload.copy()]
+                allFrames = np.append(allFrames, newFrame, axis = 0)
+            numberOfFrames = numberOfFrames + 1 
+            previousSize = file_header
         
         if (numberOfFrames%1000==0):
             print("Read %d frames" % numberOfFrames)

@@ -132,16 +132,17 @@ if(SAVEHDF5):
     f = h5py.File(h5_filename, "w")
     f['adcData'] = imgDesc.astype('uint16')
     f.close()
-
-    np.savetxt(os.path.splitext(filename)[0] + "_traces" + ".csv", imgDesc[0,:,:], fmt='%d', delimiter=',', newline='\n')
+    
+    for runNum in range(imgDesc.shape[0]):
+        np.savetxt(os.path.splitext(filename)[0] + "_runNum" + str(runNum) + "_traces" + ".csv", imgDesc[runNum,:,:], fmt='%d', delimiter=',', newline='\n')
 
 ##################################################
 #from here on we have a set of images to work with
 ##################################################
 if PLOT_ADC9_VS_N :
     # All averages
-    i=1
-    plt.plot(imgDesc[i,2,:])
+    i=0
+    plt.plot(imgDesc[i,10,:])
     plt.title('ADC value')
     plt.show()
 

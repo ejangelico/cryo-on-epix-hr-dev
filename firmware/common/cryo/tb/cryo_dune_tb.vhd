@@ -6,7 +6,7 @@
 -- Author     : Dionisio Doering  <ddoering@tid-pc94280.slac.stanford.edu>
 -- Company    : 
 -- Created    : 2017-05-22
--- Last update: 2019-04-03
+-- Last update: 2019-07-01
 -- Platform   : 
 -- Standard   : VHDL'87
 -------------------------------------------------------------------------------
@@ -47,17 +47,17 @@ use unisim.vcomponents.all;
 
 -------------------------------------------------------------------------------
 
-entity cryo_full_tb is
+entity cryo_dune_tb is
      generic (
       TPD_G        : time := 1 ns;
       BUILD_INFO_G : BuildInfoType := BUILD_INFO_C;
       IDLE_PATTERN_C : slv(11 downto 0) := x"03F"  -- "11 0100 0000 0111"
       );
-end cryo_full_tb;
+end cryo_dune_tb;
 
 -------------------------------------------------------------------------------
 
-architecture arch of cryo_full_tb is
+architecture arch of cryo_dune_tb is
 
 
   
@@ -265,6 +265,28 @@ architecture arch of cryo_full_tb is
   signal serialDataOut2 : sl;
   signal chId           : slv(11 downto 0);
 
+  -- DUNE system level simulation
+  signal duneClk    : sl := '1';
+  signal duneClkInt : sl ;
+  signal duneClkx4  : sl ;
+  signal cryoClk    : sl ;
+  signal duneRst    : sl := '1';
+  signal duneRstInt : sl ;
+  signal duneRstx4  : sl ;
+  signal cryoRst    : sl ;
+  signal phaseDuneCryo : slv(7 downto 0);
+
+
+  signal protoDuneClk    : sl := '1';
+  signal protoDuneClkInt : sl ;
+  signal protoDuneClkx4  : sl ;
+  signal protoCryoClk    : sl ;
+  signal protoDuneRst    : sl := '1';
+  signal protoDuneRstInt : sl ;
+  signal protoDuneRstx4  : sl ;
+  signal protoCryoRst    : sl ;
+  signal phaseprotoDuneCryo : slv(7 downto 0);
+
 signal dummy : slv(1 downto 0);
 
 begin  --
@@ -280,6 +302,169 @@ begin  --
   fClkN <= not fClkP;
 --  dClkP <= not dClkP after 2 ns; 
   dClkN <= not dClkP;
+
+  -- dunel clk
+  duneClk <= not duneClk after 8 ns;
+
+  protoDuneClk <= not protoDuneClk after 10 ns;
+
+
+  ------------------------------------------
+  -- Generate clocks from 156.25 MHz PGP  --
+  ------------------------------------------
+  -- clkIn     :  62.50 MHz DUNE base clock
+  -- clkOut(0) :  62.50 MHz -- Internal copy of the clock
+  -- clkOut(1) : 250.00 MHz -- DUNE clock times 4 used for the deserializer
+  -- clkOut(2) :  56.00 MHz -- CRYO clock
+
+
+  U_DUNE_ClockGen : entity work.ClockManagerUltraScale 
+    generic map(
+      TPD_G                  => 1 ns,
+      TYPE_G                 => "MMCM",  -- or "PLL"
+      INPUT_BUFG_G           => true,
+      FB_BUFG_G              => true,
+      RST_IN_POLARITY_G      => '1',     -- '0' for active low
+      NUM_CLOCKS_G           => 3,
+      -- MMCM attributes
+      BANDWIDTH_G            => "OPTIMIZED",
+      CLKIN_PERIOD_G         => 16.0,    -- Input period in ns );
+      DIVCLK_DIVIDE_G        => 1,
+      CLKFBOUT_MULT_F_G      => 1.0,
+      CLKFBOUT_MULT_G        => 16,
+      CLKOUT0_DIVIDE_F_G     => 1.0,
+      CLKOUT0_DIVIDE_G       => 16,
+      CLKOUT0_PHASE_G        => 0.0,
+      CLKOUT0_DUTY_CYCLE_G   => 0.5,
+      CLKOUT0_RST_HOLD_G     => 3,
+      CLKOUT0_RST_POLARITY_G => '1',
+      CLKOUT1_DIVIDE_G       => 4,
+      CLKOUT1_PHASE_G        => 0.0,
+      CLKOUT1_DUTY_CYCLE_G   => 0.5,
+      CLKOUT1_RST_HOLD_G     => 3,
+      CLKOUT1_RST_POLARITY_G => '1',
+      CLKOUT2_DIVIDE_G       => 18,
+      CLKOUT2_PHASE_G        => 0.0,
+      CLKOUT2_DUTY_CYCLE_G   => 0.5,
+      CLKOUT2_RST_HOLD_G     => 3,
+      CLKOUT2_RST_POLARITY_G => '1')
+   port map(
+      clkIn           => duneClk,
+      rstIn           => duneRst,
+      clkOut(0)       => duneClkInt,       
+      clkOut(1)       => duneClkx4,
+      clkOut(2)       => cryoClk,
+      rstOut(0)       => duneRstInt,
+      rstOut(1)       => duneRstx4,
+      rstOut(2)       => cryoRst,
+      locked          => open
+   );
+
+
+  U_ISERDESE3_62p5to56 : ISERDESE3
+    generic map (
+      DATA_WIDTH => 8,            -- Parallel data width (4,8)
+      FIFO_ENABLE => "FALSE",     -- Enables the use of the FIFO
+      FIFO_SYNC_MODE => "FALSE",  -- Enables the use of internal 2-stage synchronizers on the FIFO
+      IS_CLK_B_INVERTED => '1',   -- Optional inversion for CLK_B
+      IS_CLK_INVERTED => '0',     -- Optional inversion for CLK
+      IS_RST_INVERTED => '0',     -- Optional inversion for RST
+      SIM_DEVICE => "ULTRASCALE"  -- Set the device version (ULTRASCALE, ULTRASCALE_PLUS, ULTRASCALE_PLUS_ES1,
+                                  -- ULTRASCALE_PLUS_ES2)
+      )
+    port map (
+      FIFO_EMPTY => OPEN,         -- 1-bit output: FIFO empty flag
+      INTERNAL_DIVCLK => open,    -- 1-bit output: Internally divided down clock used when FIFO is
+                                  -- disabled (do not connect)
+
+      Q => phaseDuneCryo,            -- bit registered output
+      CLK => duneClkx4,            -- 1-bit input: High-speed clock
+      CLKDIV => duneClkInt,         -- 1-bit input: Divided Clock
+      CLK_B => duneClkx4,        -- 1-bit input: Inversion of High-speed clock CLK
+      D => cryoClk,               -- 1-bit input: Serial Data Input
+      FIFO_RD_CLK => '1',         -- 1-bit input: FIFO read clock
+      FIFO_RD_EN => '1',          -- 1-bit input: Enables reading the FIFO when asserted
+      RST => duneRstInt              -- 1-bit input: Asynchronous Reset
+      );
+
+
+    ------------------------------------------
+  -- Generate clocks from 156.25 MHz PGP  --
+  ------------------------------------------
+  -- clkIn     :  62.50 MHz DUNE base clock
+  -- clkOut(0) :  62.50 MHz -- Internal copy of the clock
+  -- clkOut(1) : 250.00 MHz -- DUNE clock times 4 used for the deserializer
+  -- clkOut(2) :  56.00 MHz -- CRYO clock
+
+
+  U_PROTODUNE_ClockGen : entity work.ClockManagerUltraScale 
+    generic map(
+      TPD_G                  => 1 ns,
+      TYPE_G                 => "MMCM",  -- or "PLL"
+      INPUT_BUFG_G           => true,
+      FB_BUFG_G              => true,
+      RST_IN_POLARITY_G      => '1',     -- '0' for active low
+      NUM_CLOCKS_G           => 3,
+      -- MMCM attributes
+      BANDWIDTH_G            => "OPTIMIZED",
+      CLKIN_PERIOD_G         => 20.0,    -- Input period in ns );
+      DIVCLK_DIVIDE_G        => 1,
+      CLKFBOUT_MULT_F_G      => 1.0,
+      CLKFBOUT_MULT_G        => 20,
+      CLKOUT0_DIVIDE_F_G     => 1.0,
+      CLKOUT0_DIVIDE_G       => 20,
+      CLKOUT0_PHASE_G        => 0.0,
+      CLKOUT0_DUTY_CYCLE_G   => 0.5,
+      CLKOUT0_RST_HOLD_G     => 3,
+      CLKOUT0_RST_POLARITY_G => '1',
+      CLKOUT1_DIVIDE_G       => 5,
+      CLKOUT1_PHASE_G        => 0.0,
+      CLKOUT1_DUTY_CYCLE_G   => 0.5,
+      CLKOUT1_RST_HOLD_G     => 3,
+      CLKOUT1_RST_POLARITY_G => '1',
+      CLKOUT2_DIVIDE_G       => 18,
+      CLKOUT2_PHASE_G        => 0.0,
+      CLKOUT2_DUTY_CYCLE_G   => 0.5,
+      CLKOUT2_RST_HOLD_G     => 3,
+      CLKOUT2_RST_POLARITY_G => '1')
+   port map(
+      clkIn           => protoDuneClk,
+      rstIn           => protoDuneRst,
+      clkOut(0)       => protoDuneClkInt,       
+      clkOut(1)       => protoDuneClkx4,
+      clkOut(2)       => protoCryoClk,
+      rstOut(0)       => protoDuneRstInt,
+      rstOut(1)       => protoDuneRstx4,
+      rstOut(2)       => protoCryoRst,
+      locked          => open
+   );
+
+
+  U_ISERDESE3_50to56 : ISERDESE3
+    generic map (
+      DATA_WIDTH => 8,            -- Parallel data width (4,8)
+      FIFO_ENABLE => "FALSE",     -- Enables the use of the FIFO
+      FIFO_SYNC_MODE => "FALSE",  -- Enables the use of internal 2-stage synchronizers on the FIFO
+      IS_CLK_B_INVERTED => '1',   -- Optional inversion for CLK_B
+      IS_CLK_INVERTED => '0',     -- Optional inversion for CLK
+      IS_RST_INVERTED => '0',     -- Optional inversion for RST
+      SIM_DEVICE => "ULTRASCALE"  -- Set the device version (ULTRASCALE, ULTRASCALE_PLUS, ULTRASCALE_PLUS_ES1,
+                                  -- ULTRASCALE_PLUS_ES2)
+      )
+    port map (
+      FIFO_EMPTY => OPEN,         -- 1-bit output: FIFO empty flag
+      INTERNAL_DIVCLK => open,    -- 1-bit output: Internally divided down clock used when FIFO is
+                                  -- disabled (do not connect)
+
+      Q => phaseProtoDuneCryo,            -- bit registered output
+      CLK => protoDuneClkx4,            -- 1-bit input: High-speed clock
+      CLKDIV => protoDuneClkInt,         -- 1-bit input: Divided Clock
+      CLK_B => protoDuneClkx4,        -- 1-bit input: Inversion of High-speed clock CLK
+      D => protoCryoClk,               -- 1-bit input: Serial Data Input
+      FIFO_RD_CLK => '1',         -- 1-bit input: FIFO read clock
+      FIFO_RD_EN => '1',          -- 1-bit input: Enables reading the FIFO when asserted
+      RST => protoDuneRstInt              -- 1-bit input: Asynchronous Reset
+      );
 
   ------------------------------------------
   -- Generate clocks from 156.25 MHz PGP  --
@@ -323,6 +508,33 @@ begin  --
       rstOut(0)       => dummy(0),
       rstOut(1)       => dummy(1),
       locked          => open
+   );
+
+
+  U_asicModel : entity work.CryoAsicTopLevelModel 
+   generic map(
+      TPD_G              => TPD_G
+   )
+   port map(
+      clk              => protoCryoClk,
+      gRst             => protoCryoRst,
+      -- simulated data
+      analogData       => x"000",
+      -- saci
+      saciClk          => asicSaciClk,
+      saciSelL         => asicSaciSel(0),
+      saciCmd          => asicSaciCmd,
+      saciRsp          => asicSaciRsp,
+      -- static control
+      SRO              => asicR0,
+      
+      -- data out
+      bitClk0          => open,
+      frameClk0        => open,
+      sData0           => open,
+      bitClk1          => open,
+      frameClk1        => open,
+      sData1           => open      
    );
   
   -- waveform generation
@@ -437,7 +649,9 @@ begin  --
     );
 
 
-  sysRst_n   <= not sysRst;
+  sysRst_n      <= not sysRst;
+  duneRst       <= sysRst;
+  protoDuneRst  <= sysRst;
     
   asicDataP(0) <=     serialDataOut1;
   asicDataN(0) <= not serialDataOut1;

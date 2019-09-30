@@ -1,0 +1,20 @@
+cryoAsicGen1:
+  enable: True
+  ForceWrite: False
+  EpixHRGen1Cryo:
+    enable: True
+    Clock Jitter Cleaner:
+      enable: True
+      RstL: True
+      Dec: False
+      Inc: False
+      Frqtbl: True
+      FrqtblZ: False
+      Rate: 0x0
+      RateZ: 0x0
+      BwSel: 0x0
+      BwSelZ: 0x2
+      FreqSel: 0x0
+      FreqSelZ: 0x6
+      Sfout: 0x2
+      SfoutZ: 0x1
