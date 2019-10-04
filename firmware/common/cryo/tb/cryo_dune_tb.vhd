@@ -6,7 +6,7 @@
 -- Author     : Dionisio Doering  <ddoering@tid-pc94280.slac.stanford.edu>
 -- Company    : 
 -- Created    : 2017-05-22
--- Last update: 2019-07-01
+-- Last update: 2019-07-24
 -- Platform   : 
 -- Standard   : VHDL'87
 -------------------------------------------------------------------------------
@@ -145,6 +145,7 @@ architecture arch of cryo_dune_tb is
       signal asicDataN     : slv(23 downto 0);
       -- ASIC Control Ports
       signal asicR0        : sl;
+      signal asicSamClkEn  : sl;
       signal asicPpmat     : sl;
       signal asicGlblRst   : sl;
       signal asicSync      : sl;
@@ -269,14 +270,24 @@ architecture arch of cryo_dune_tb is
   signal duneClk    : sl := '1';
   signal duneClkInt : sl ;
   signal duneClkx4  : sl ;
-  signal cryoClk    : sl ;
   signal duneRst    : sl := '1';
   signal duneRstInt : sl ;
   signal duneRstx4  : sl ;
   signal cryoRst    : sl ;
   signal phaseDuneCryo : slv(7 downto 0);
+  --
+  signal duneSyncCmd                : slv(15 downto 0) := (others => '0');
+  signal duneCmdAddr                : slv( 7 downto 0) := (others => '0');
+  signal duneSyncCmdStrobe          : sl := '0';
+  signal duneTimeStamp              : slv(31 downto 0);
+  signal duneCycleTime              : slv(6  downto 0);
+  signal duneSR0                    : sl;
+  signal duneSamClkiEnable          : sl;
+  signal duneSamClkiEnableAtCold    : sl;
+  signal cryoClk                    : sl; 
 
 
+  -- protoDune
   signal protoDuneClk    : sl := '1';
   signal protoDuneClkInt : sl ;
   signal protoDuneClkx4  : sl ;
@@ -308,92 +319,15 @@ begin  --
 
   protoDuneClk <= not protoDuneClk after 10 ns;
 
+  --cable model
+  duneSamClkiEnableAtCold  <= duneSamClkiEnable after 125 ns;
 
   ------------------------------------------
-  -- Generate clocks from 156.25 MHz PGP  --
+  -- Generate clocks                      --
   ------------------------------------------
-  -- clkIn     :  62.50 MHz DUNE base clock
-  -- clkOut(0) :  62.50 MHz -- Internal copy of the clock
-  -- clkOut(1) : 250.00 MHz -- DUNE clock times 4 used for the deserializer
-  -- clkOut(2) :  56.00 MHz -- CRYO clock
-
-
-  U_DUNE_ClockGen : entity work.ClockManagerUltraScale 
-    generic map(
-      TPD_G                  => 1 ns,
-      TYPE_G                 => "MMCM",  -- or "PLL"
-      INPUT_BUFG_G           => true,
-      FB_BUFG_G              => true,
-      RST_IN_POLARITY_G      => '1',     -- '0' for active low
-      NUM_CLOCKS_G           => 3,
-      -- MMCM attributes
-      BANDWIDTH_G            => "OPTIMIZED",
-      CLKIN_PERIOD_G         => 16.0,    -- Input period in ns );
-      DIVCLK_DIVIDE_G        => 1,
-      CLKFBOUT_MULT_F_G      => 1.0,
-      CLKFBOUT_MULT_G        => 16,
-      CLKOUT0_DIVIDE_F_G     => 1.0,
-      CLKOUT0_DIVIDE_G       => 16,
-      CLKOUT0_PHASE_G        => 0.0,
-      CLKOUT0_DUTY_CYCLE_G   => 0.5,
-      CLKOUT0_RST_HOLD_G     => 3,
-      CLKOUT0_RST_POLARITY_G => '1',
-      CLKOUT1_DIVIDE_G       => 4,
-      CLKOUT1_PHASE_G        => 0.0,
-      CLKOUT1_DUTY_CYCLE_G   => 0.5,
-      CLKOUT1_RST_HOLD_G     => 3,
-      CLKOUT1_RST_POLARITY_G => '1',
-      CLKOUT2_DIVIDE_G       => 18,
-      CLKOUT2_PHASE_G        => 0.0,
-      CLKOUT2_DUTY_CYCLE_G   => 0.5,
-      CLKOUT2_RST_HOLD_G     => 3,
-      CLKOUT2_RST_POLARITY_G => '1')
-   port map(
-      clkIn           => duneClk,
-      rstIn           => duneRst,
-      clkOut(0)       => duneClkInt,       
-      clkOut(1)       => duneClkx4,
-      clkOut(2)       => cryoClk,
-      rstOut(0)       => duneRstInt,
-      rstOut(1)       => duneRstx4,
-      rstOut(2)       => cryoRst,
-      locked          => open
-   );
-
-
-  U_ISERDESE3_62p5to56 : ISERDESE3
-    generic map (
-      DATA_WIDTH => 8,            -- Parallel data width (4,8)
-      FIFO_ENABLE => "FALSE",     -- Enables the use of the FIFO
-      FIFO_SYNC_MODE => "FALSE",  -- Enables the use of internal 2-stage synchronizers on the FIFO
-      IS_CLK_B_INVERTED => '1',   -- Optional inversion for CLK_B
-      IS_CLK_INVERTED => '0',     -- Optional inversion for CLK
-      IS_RST_INVERTED => '0',     -- Optional inversion for RST
-      SIM_DEVICE => "ULTRASCALE"  -- Set the device version (ULTRASCALE, ULTRASCALE_PLUS, ULTRASCALE_PLUS_ES1,
-                                  -- ULTRASCALE_PLUS_ES2)
-      )
-    port map (
-      FIFO_EMPTY => OPEN,         -- 1-bit output: FIFO empty flag
-      INTERNAL_DIVCLK => open,    -- 1-bit output: Internally divided down clock used when FIFO is
-                                  -- disabled (do not connect)
-
-      Q => phaseDuneCryo,            -- bit registered output
-      CLK => duneClkx4,            -- 1-bit input: High-speed clock
-      CLKDIV => duneClkInt,         -- 1-bit input: Divided Clock
-      CLK_B => duneClkx4,        -- 1-bit input: Inversion of High-speed clock CLK
-      D => cryoClk,               -- 1-bit input: Serial Data Input
-      FIFO_RD_CLK => '1',         -- 1-bit input: FIFO read clock
-      FIFO_RD_EN => '1',          -- 1-bit input: Enables reading the FIFO when asserted
-      RST => duneRstInt              -- 1-bit input: Asynchronous Reset
-      );
-
-
-    ------------------------------------------
-  -- Generate clocks from 156.25 MHz PGP  --
-  ------------------------------------------
-  -- clkIn     :  62.50 MHz DUNE base clock
-  -- clkOut(0) :  62.50 MHz -- Internal copy of the clock
-  -- clkOut(1) : 250.00 MHz -- DUNE clock times 4 used for the deserializer
+  -- clkIn     :  50.00 MHz -- DUNE base clock
+  -- clkOut(0) :  50.00 MHz -- Internal copy of the clock
+  -- clkOut(1) : 200.00 MHz -- DUNE clock times 4 used for the deserializer
   -- clkOut(2) :  56.00 MHz -- CRYO clock
 
 
@@ -526,7 +460,8 @@ begin  --
       saciCmd          => asicSaciCmd,
       saciRsp          => asicSaciRsp,
       -- static control
-      SRO              => asicR0,
+      SRO              => duneSR0,--asicR0,
+      SamClkiEnable    => duneSamClkiEnableAtCold,--asicSamClkEn,
       
       -- data out
       bitClk0          => open,
@@ -535,6 +470,30 @@ begin  --
       bitClk1          => open,
       frameClk1        => open,
       sData1           => open      
+   );
+
+
+
+   U_WIBModel_0 : entity work.WIBTopLevelModel 
+   generic map(
+      TPD_G                    => TPD_G,
+      SYSTEM_ENVIRONMENT       => "DUNE",  -- "PROTODUNE"
+      THIS_MODULE_CMD_ADDRESS  => x"01"
+      
+   )
+   port map(
+      DUNEclk          => duneClk,
+      DUNERst          => duneRst,
+      -- DUNE highSpeed bus
+      SyncCmd          => duneSyncCmd,
+      CmdAddr          => duneCmdAddr,
+      SyncCmdStrobe    => duneSyncCmdStrobe,
+      timeStamp        => duneTimeStamp,
+      cycleTime        => duneCycleTime,
+      -- level based control
+      SR0              => duneSR0,
+      SamCLKiEnable    => duneSamClkiEnable,
+      asicClk          => cryoClk
    );
   
   -- waveform generation
@@ -545,12 +504,71 @@ begin  --
     ---------------------------------------------------------------------------
     -- reset
     ---------------------------------------------------------------------------
+    wait until duneRst = '0';
+    wait for 10 us;
+
+    
+    -- check reset timestamp command
+    wait until duneClk = '0';
+    wait until duneClk = '1';
+    duneSyncCmd          <= x"0000";
+    duneCmdAddr          <= x"01";
+    duneSyncCmdStrobe    <= '1';
+
+    wait until duneClk = '0';
+    wait until duneClk = '1';
+    duneSyncCmd          <= x"0000";
+    duneCmdAddr          <= x"00";
+    duneSyncCmdStrobe    <= '0';
+
+
+    wait for 10 us;
+    -- check reset cycletime command
+    wait until duneClk = '0';
+    wait until duneClk = '1';
+    duneSyncCmd          <= x"0001";
+    duneCmdAddr          <= x"01";
+    duneSyncCmdStrobe    <= '1';
+
+    wait until duneClk = '0';
+    wait until duneClk = '1';
+    duneSyncCmd          <= x"0000";
+    duneCmdAddr          <= x"00";
+    duneSyncCmdStrobe    <= '0';
+
+    wait for 10 us;
+    -- check reset SamCLKiEnable
+    wait until duneClk = '0';
+    wait until duneClk = '1';
+    duneSyncCmd          <= x"0002";
+    duneCmdAddr          <= x"01";
+    duneSyncCmdStrobe    <= '1';
+
+    wait until duneClk = '0';
+    wait until duneClk = '1';
+    duneSyncCmd          <= x"0000";
+    duneCmdAddr          <= x"00";
+    duneSyncCmdStrobe    <= '0';
+
+
+    wait for 10 us;
+    -- check reset SR0 command
+    wait until duneClk = '0';
+    wait until duneClk = '1';
+    duneSyncCmd          <= x"0003";
+    duneCmdAddr          <= x"01";
+    duneSyncCmdStrobe    <= '1';
+
+    wait until duneClk = '0';
+    wait until duneClk = '1';
+    duneSyncCmd          <= x"0000";
+    duneCmdAddr          <= x"00";
+    duneSyncCmdStrobe    <= '0';
+    
     wait until sysClk = '1';
    
     wait;
   end process WaveGen_Proc;
-
-
 
 
 -------------------------------------------------------------------------------
