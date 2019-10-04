@@ -262,7 +262,7 @@ begin
       generic map(
          BRAM_EN_G    => true,
          DATA_WIDTH_G => 16,
-         ADDR_WIDTH_G => 13)
+         ADDR_WIDTH_G => SCOPE_MEM_DEPTH)
       port map (
          sysClk      => sysClk,
          sysClkRst   => sysClkRst,
@@ -283,7 +283,7 @@ begin
       generic map(
          BRAM_EN_G    => true,
          DATA_WIDTH_G => 16,
-         ADDR_WIDTH_G => 13)
+         ADDR_WIDTH_G => SCOPE_MEM_DEPTH)
       port map (
          sysClk      => sysClk,
          sysClkRst   => sysClkRst,
