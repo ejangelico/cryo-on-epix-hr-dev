@@ -2,7 +2,7 @@
 -- File       : EpixHr: PowerControlModule.vhd
 -- Company    : SLAC National Accelerator Laboratory
 -- Created    : 04/07/2017
--- Last update: 2019-07-05
+-- Last update: 2019-07-24
 -------------------------------------------------------------------------------
 -- Description: This module enable the voltage regulators on the epix boards
 -- based on saci register values. If needed syncronization modules should be
@@ -25,6 +25,9 @@ use ieee.std_logic_unsigned.all;
 use work.StdRtlPkg.all;
 use work.AxiLitePkg.all;
 
+library unisim;
+use unisim.vcomponents.all;
+
 entity CryoAsicTopLevelModel is
    generic (
       TPD_G              : time             := 1 ns;
@@ -40,16 +43,17 @@ entity CryoAsicTopLevelModel is
       saciSelL         : in  sl;                  -- chipSelect
       saciCmd          : in  sl;
       saciRsp          : out sl;
-      -- static control
-      SRO              : in   sl;
+      -- level based control
+      SRO              : in  sl;
+      SamClkiEnable    : in  sl;
       
       -- data out
-      bitClk0         : out sl;
-      frameClk0       : out sl;
-      sData0          : out sl;
-      bitClk1         : out sl;
-      frameClk1       : out sl;
-      sData1          : out sl
+      bitClk0          : out sl;
+      frameClk0        : out sl;
+      sData0           : out sl;
+      bitClk1          : out sl;
+      frameClk1        : out sl;
+      sData1           : out sl
       
    );
 
@@ -57,19 +61,23 @@ end entity CryoAsicTopLevelModel;
 
 architecture rtl of CryoAsicTopLevelModel is
 
+  -- runs on ADC clock (typical 112MHz)
   type asicStateType is (DELAY_ST, RUNNING_ST);
 
   type CryoAsicRegType is record
     asicState        : asicStateType;
     stateCounter     : slv(15 downto 0);
+    --
     sahClk           : sl;
     sahClkPolarity   : sl;
     sahClkDelay      : slv(7 downto 0);
+    --
     muxCh0           : sl;
     muxCh1           : sl;
     muxCh2           : sl;
     muxCh3           : sl;
     muxChSel         : slv(1 downto 0);
+    --
     adcSamp          : sl;
     adcSampDelay     : slv(7 downto 0);
     adcSampPeriod    : slv(7 downto 0);
@@ -93,26 +101,32 @@ architecture rtl of CryoAsicTopLevelModel is
     adcSampCounter   => x"00"
     );
 
-  signal r, rin        : CryoAsicRegType :=  CRYO_ASIC_REG_INIT_C;  
-  signal asicRstL      : sl := '0';
-  signal clk2x         : sl;
-  signal adcClk        : sl;
-  signal rstInt        : sl := '1';
-  signal s_enc_valid_i : sl := '0';
-  signal s_mode_i      : slv(2  downto 0) := "001";
-  signal data_i        : slv(11 downto 0) := (others => '0');
-  signal data_o        : slv(11 downto 0);
-  signal dClk          : sl;
-  signal fClk          : sl;
-  signal samClk        : sl;
-  signal dummyRst      : slv(2  downto 0);
-  signal s_enc_data_o  : slv(13 downto 0);
-  signal s_enc_data_i  : slv(11 downto 0);
-   
+  signal r, rin          : CryoAsicRegType :=  CRYO_ASIC_REG_INIT_C;  
+  signal asicRstL        : sl := '0';
+  signal SRO_l8MHz       : sl;
+  signal SRO_En          : sl;
+  signal adcClk_i        : sl;
+  signal adcClk          : sl;
+  signal rstInt          : sl := '1';
+  signal s_enc_valid_i   : sl := '0';
+  signal s_mode_i        : slv(2  downto 0) := "001";
+  signal data_i          : slv(11 downto 0) := (others => '0');
+  signal data_o          : slv(11 downto 0);
+  signal serClk          : sl;
+  signal serClk_i        : sl;
+  signal colCk           : sl;
+  signal sampClk_i       : sl;
+  signal dummyRst        : slv(2  downto 0);
+  signal s_enc_data_o    : slv(13 downto 0);
+  signal s_enc_data_i    : slv(11 downto 0);
+  signal SamClkiEnable_i : slv( 1 downto 0);
+  
 begin
 
   asicRstL <= not gRst;
-
+  -----------------------------------------------------------------------------
+  -- SACI
+  -----------------------------------------------------------------------------
   -- saci simulation core
   SaciSlaveWrapper: entity work.SaciSlaveWrapper
       port map (
@@ -122,8 +136,11 @@ begin
         saciCmd  => saciCmd,
         saciRsp  => saciRsp);
 
+  -----------------------------------------------------------------------------
+  -- CLOCKs
+  -----------------------------------------------------------------------------
   -- pll simulation using xilinx specific model (MMCM)
-  -- clk0 is a 2x of clk in
+  -- clk0 is a 8x of clk in
   U_CRYO_PLL : entity work.ClockManagerUltraScale 
     generic map(
       TPD_G                  => 1 ns,
@@ -131,7 +148,7 @@ begin
       INPUT_BUFG_G           => true,
       FB_BUFG_G              => true,
       RST_IN_POLARITY_G      => '1',     -- '0' for active low
-      NUM_CLOCKS_G           => 4,
+      NUM_CLOCKS_G           => 1,
       -- MMCM attributes
       BANDWIDTH_G            => "OPTIMIZED",
       CLKIN_PERIOD_G         => 17.8571,    -- Input period in ns );
@@ -139,56 +156,126 @@ begin
       CLKFBOUT_MULT_F_G      => 1.0,
       CLKFBOUT_MULT_G        => 16,
       CLKOUT0_DIVIDE_F_G     => 1.0,
-      CLKOUT0_DIVIDE_G       => 8,
+      CLKOUT0_DIVIDE_G       => 2,
       CLKOUT0_PHASE_G        => 0.0,
       CLKOUT0_DUTY_CYCLE_G   => 0.5,
       CLKOUT0_RST_HOLD_G     => 3,
-      CLKOUT0_RST_POLARITY_G => '1',
-      CLKOUT1_DIVIDE_G       => 2,
-      CLKOUT1_PHASE_G        => 0.0,
-      CLKOUT1_DUTY_CYCLE_G   => 0.5,
-      CLKOUT1_RST_HOLD_G     => 3,
-      CLKOUT1_RST_POLARITY_G => '1',
-      CLKOUT2_DIVIDE_G       => 14,
-      CLKOUT2_PHASE_G        => 0.0,
-      CLKOUT2_DUTY_CYCLE_G   => 0.5,
-      CLKOUT2_RST_HOLD_G     => 4,
-      CLKOUT2_RST_POLARITY_G => '1',
-      CLKOUT3_DIVIDE_G       => 112,
-      CLKOUT3_PHASE_G        => 0.0,
-      CLKOUT3_DUTY_CYCLE_G   => 0.5,
-      CLKOUT3_RST_HOLD_G     => 4,
-      CLKOUT3_RST_POLARITY_G => '1')
+      CLKOUT0_RST_POLARITY_G => '1')
    port map(
       clkIn           => clk,           -- 56
       rstIn           => gRst,
-      clkOut(0)       => clk2x,         -- 112
-      clkOut(1)       => dClk,          -- 448
-      clkOut(2)       => fClk,          -- 64MHz
-      clkOut(3)       => samClk,        -- 8
+      clkOut(0)       => serClk,        -- 448
       rstOut(0)       => rstInt,
-      rstOut(1)       => dummyRst(0),
-      rstOut(2)       => dummyRst(1),
-      rstOut(3)       => dummyRst(2),
       locked          => open
    );
 
-  U_synchronizer_s_enc_valid_i : entity work.Synchronizer
+  -- generates 112MHz
+  U_BUFGCE_DIV_112MHz : BUFGCE_DIV
+   generic map (
+      BUFGCE_DIVIDE => 4,     -- 1-8
+      IS_CE_INVERTED => '0',  -- Optional inversion for CE
+      IS_CLR_INVERTED => '0', -- Optional inversion for CLR
+      IS_I_INVERTED => '0'    -- Optional inversion for I
+   )
+   port map (
+      O => adcClk_i,    -- 1-bit output: Buffer
+      CE => '1',        -- 1-bit input: Buffer enable
+      CLR => '0',       -- 1-bit input: Asynchronous clear (saci rst??)
+      I => serClk_i     -- 1-bit input: Buffer
+   );
+
+  -- generates 64MHz
+  U_BUFGCE_DIV_64MHz : BUFGCE_DIV
+   generic map (
+      BUFGCE_DIVIDE => 7,     -- 1-8
+      IS_CE_INVERTED => '0',  -- Optional inversion for CE
+      IS_CLR_INVERTED => '0', -- Optional inversion for CLR
+      IS_I_INVERTED => '0'    -- Optional inversion for I
+   )
+   port map (
+      O => colCk,     -- 1-bit output: Buffer
+      CE => '1',        -- 1-bit input: Buffer enable
+      CLR => '0',       -- 1-bit input: Asynchronous clear (saci rst??)
+      I => serClk_i      -- 1-bit input: Buffer
+   );
+
+  -- generates 8MHz
+  U_BUFGCE_DIV_8MHz : BUFGCE_DIV
+   generic map (
+      BUFGCE_DIVIDE => 8,     -- 1-8
+      IS_CE_INVERTED => '0',  -- Optional inversion for CE
+      IS_CLR_INVERTED => '0', -- Optional inversion for CLR
+      IS_I_INVERTED => '0'    -- Optional inversion for I
+   )
+   port map (
+      O => sampClk_i,    -- 1-bit output: Buffer
+      CE => '1',        -- 1-bit input: Buffer enable
+      CLR => '0',       -- 1-bit input: Asynchronous clear (saci rst??)
+      I => colCk      -- 1-bit input: Buffer
+   );
+
+  -----------------------------------------------------------------------------
+  -- LATCHES
+  -----------------------------------------------------------------------------
+  -- latche for SR0  
+  U_latch_SRO : entity work.AsicLatch
    generic map (
       TPD_G          => TPD_G,
-      STAGES_G       => 2
+      STAGES_G       => 1
      )
       port map (
-      clk     => samClk,
+      clk     => sampClk_i,
       rst     => rstInt,
       dataIn  => SRO,
-      dataOut => s_enc_valid_i
-   ); 
+      dataOut => SRO_l8MHz
+   );
+  
+  U_latch_SRO_EN : entity work.AsicLatch
+   generic map (
+      TPD_G          => TPD_G,
+      STAGES_G       => 1
+     )
+      port map (
+      clk     => sampClk_i,
+      rst     => rstInt,
+      dataIn  => SRO_l8MHz,
+      dataOut => SRO_En
+   );
 
+  s_enc_valid_i <= SRO_En;
+
+  -- latches for SamClkiEnable_i
+  U_latch_SamClkiEnable_i0 : entity work.AsicLatch
+   generic map (
+      TPD_G          => TPD_G,
+      STAGES_G       => 1
+     )
+      port map (
+      clk     => clk,
+      rst     => gRst,
+      dataIn  => SamClkiEnable,
+      dataOut => SamClkiEnable_i(0)
+   );
+   U_latch_SamClkiEnable_i1 : entity work.AsicLatch
+   generic map (
+      TPD_G          => TPD_G,
+      STAGES_G       => 1
+     )
+      port map (
+      clk     => serClk,
+      rst     => rstInt,
+      dataIn  => SamClkiEnable_i(0),
+      dataOut => SamClkiEnable_i(1)
+   );
+
+  -----------------------------------------------------------------------------
+  -- digital back end
+  -----------------------------------------------------------------------------
+  --
   u_ssp_enc12b14b_ext : entity work.ssp_enc12b14b_ext
     port map(
       start_ro  => SRO,
-      clk_i     => fClk,                -- needs updating
+      clk_i     => colCk,                -- needs updating
       rst_n_i   => asicRstL,
       valid_i   => s_enc_valid_i,       -- needs updating
       mode_i    => s_mode_i,            
@@ -201,18 +288,27 @@ begin
         g_dwidth => 14 
     )
     port map(
-        clk_i     => dClk,             
+        clk_i     => serClk,             
         reset_n_i => asicRstL,
         data_i    => s_enc_data_o,        -- "00"&EncDataIn, --
         data_o    => sData0
     );
 
+  -----------------------------------------------------------------------------
+  -- clock enable
+  -----------------------------------------------------------------------------
   -- gated clock to simulate adcClk at 112MHz
-  adcClk <= clk2x when SRO = '1'
+  serClk_i <= serClk when SamClkiEnable_i(1) = '1'
+           else '0';
+  adcClk <= adcClk_i when SRO = '1'
             else '0';
 
+
+  -----------------------------------------------------------------------------
+  -- SubBanck clock (derived from ADC clock)
+  -----------------------------------------------------------------------------
   -- sequential process
-  seq : process (clk2x, rstInt) is
+  seq : process (adcClk, rstInt) is
   begin
     if (rising_edge(adcClk)) then
       r <= rin after TPD_G;
