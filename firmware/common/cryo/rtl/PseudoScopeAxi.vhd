@@ -469,12 +469,12 @@ begin
       axiSlaveRegister (regCon, x"08",  6, v.scope.triggerMode);
       axiSlaveRegister (regCon, x"08", 16, v.scope.triggerAdcThresh);
       axiSlaveRegister (regCon, x"0C",  0, v.scope.triggerHoldoff);
-      axiSlaveRegister (regCon, x"0C", 13, v.scope.triggerOffset);
-      axiSlaveRegister (regCon, x"10",  0, v.scope.traceLength);
-      axiSlaveRegister (regCon, x"10", 13, v.scope.skipSamples);
-      axiSlaveRegister (regCon, x"14",  0, v.scope.inputChannelA);
-      axiSlaveRegister (regCon, x"14",  5, v.scope.inputChannelB);
-      axiSlaveRegister (regCon, x"18",  0, v.scope.triggerDelay);
+      axiSlaveRegister (regCon, x"10",  0, v.scope.triggerOffset);
+      axiSlaveRegister (regCon, x"14",  0, v.scope.traceLength);
+      axiSlaveRegister (regCon, x"18",  0, v.scope.skipSamples);
+      axiSlaveRegister (regCon, x"1C",  0, v.scope.inputChannelA);
+      axiSlaveRegister (regCon, x"20",  0, v.scope.inputChannelB);
+      axiSlaveRegister (regCon, x"24",  0, v.scope.triggerDelay);
       
       axiSlaveDefault(regCon, v.sAxilWriteSlave, v.sAxilReadSlave, AXIL_ERR_RESP_G);
       
