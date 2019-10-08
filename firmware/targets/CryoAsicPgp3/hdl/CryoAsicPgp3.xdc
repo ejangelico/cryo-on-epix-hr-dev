@@ -12,8 +12,8 @@
 #######################
 # EVAL BOARD ONLY
 
-set_property -dict {PACKAGE_PIN H27 IOSTANDARD LVCMOS18} [get_ports userSmaP]
-set_property -dict {PACKAGE_PIN G27 IOSTANDARD LVCMOS18} [get_ports userSmaN]
+#set_property -dict {PACKAGE_PIN H27 IOSTANDARD LVCMOS18} [get_ports userSmaP]
+#set_property -dict {PACKAGE_PIN G27 IOSTANDARD LVCMOS18} [get_ports userSmaN]
 
 
 
@@ -43,11 +43,12 @@ set_clock_groups -asynchronous -group [get_clocks appClk] -group [get_clocks adc
 set_clock_groups -asynchronous -group [get_clocks appClk] -group [get_clocks adcBitClkRD4]
 set_clock_groups -asynchronous -group [get_clocks appClk] -group [get_clocks adcMonDoClkP]
 set_clock_groups -asynchronous -group [get_clocks appClk] -group [get_clocks bitClk]
+set_clock_groups -asynchronous -group [get_clocks appClk] -group [get_clocks asicRdClk]
 set_clock_groups -asynchronous -group [get_clocks byteClk] -group [get_clocks adcBitClkR]
 set_clock_groups -asynchronous -group [get_clocks byteClk] -group [get_clocks adcBitClkRD4]
 
 
-
+set_clock_groups -asynchronous -group [get_clocks -of_objects [get_pins U_App/U_CoreClockGen/MmcmGen.U_Mmcm/CLKOUT0]] -group [get_clocks -of_objects [get_pins U_App/U_CoreClockGen/MmcmGen.U_Mmcm/CLKOUT1]]
 set_clock_groups -asynchronous -group [get_clocks -of_objects [get_pins U_Core/U_Mmcm/PllGen.U_Pll/CLKOUT0]] -group [get_clocks -of_objects [get_pins U_App/U_CoreClockGen/MmcmGen.U_Mmcm/CLKOUT2]]
 
 #requierd becase we repurpose the IO lines to get the clock from the cryo ADC debug lines

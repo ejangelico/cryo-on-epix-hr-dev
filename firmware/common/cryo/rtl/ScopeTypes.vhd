@@ -28,7 +28,8 @@ package ScopeTypes is
    --------------------------------------------
    -- Configuration Type
    --------------------------------------------
-
+   -- Constants
+   constant SCOPE_MEM_DEPTH     : integer := 17;
    -- Record
    type ScopeConfigType is record
       scopeEnable       : std_logic;
@@ -37,11 +38,11 @@ package ScopeTypes is
       triggerChannel    : std_logic_vector(3 downto 0);
       triggerMode       : std_logic_vector(1 downto 0);
       triggerAdcThresh  : std_logic_vector(15 downto 0);
-      triggerHoldoff    : std_logic_vector(12 downto 0);
-      triggerOffset     : std_logic_vector(12 downto 0);
-      triggerDelay      : std_logic_vector(12 downto 0);
-      traceLength       : std_logic_vector(12 downto 0);
-      skipSamples       : std_logic_vector(12 downto 0);
+      triggerHoldoff    : std_logic_vector(SCOPE_MEM_DEPTH-1 downto 0);
+      triggerOffset     : std_logic_vector(SCOPE_MEM_DEPTH-1 downto 0);
+      triggerDelay      : std_logic_vector(SCOPE_MEM_DEPTH-1 downto 0);
+      traceLength       : std_logic_vector(SCOPE_MEM_DEPTH-1 downto 0);
+      skipSamples       : std_logic_vector(SCOPE_MEM_DEPTH-1 downto 0);
       inputChannelA     : std_logic_vector(1 downto 0);
       inputChannelB     : std_logic_vector(1 downto 0);
       arm               : std_logic;

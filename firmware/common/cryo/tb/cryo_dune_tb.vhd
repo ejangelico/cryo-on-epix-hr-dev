@@ -6,7 +6,7 @@
 -- Author     : Dionisio Doering  <ddoering@tid-pc94280.slac.stanford.edu>
 -- Company    : 
 -- Created    : 2017-05-22
--- Last update: 2019-09-30
+-- Last update: 2019-07-24
 -- Platform   : 
 -- Standard   : VHDL'87
 -------------------------------------------------------------------------------
@@ -47,40 +47,30 @@ use unisim.vcomponents.all;
 
 -------------------------------------------------------------------------------
 
-entity cryo_full_tb is
+entity cryo_dune_tb is
      generic (
       TPD_G        : time := 1 ns;
       BUILD_INFO_G : BuildInfoType := BUILD_INFO_C;
       IDLE_PATTERN_C : slv(11 downto 0) := x"03F"  -- "11 0100 0000 0111"
       );
-end cryo_full_tb;
+end cryo_dune_tb;
 
 -------------------------------------------------------------------------------
 
-architecture arch of cryo_full_tb is
+architecture arch of cryo_dune_tb is
 
 
   
 
   --file definitions
-  constant DATA_BITS       : natural := 12;
-  constant DEPTH_C         : natural := 1024;
-  --constant DEPTH_SER_C     : natural := 1253;
-  constant DEPTH_SER_C     : natural := 3927;
-  constant FILENAME_C      : string  := "/afs/slac.stanford.edu/u/re/ddoering/localGit/cryo-on-epix-hr-dev/firmware/common/cryo/tb/sin.csv";
-  --constant FILENAME_SER_C  : string  := "/afs/slac.stanford.edu/u/re/ddoering/localGit/cryo-on-epix-hr-dev/firmware/common/cryo/tb/ser_out_PEX_NEW_FF.csv";
-  --constant FILENAME_SER_C  : string  := "/afs/slac.stanford.edu/u/re/ddoering/localGit/cryo-on-epix-hr-dev/firmware/common/cryo/tb/ser_out_PEX_NEW2_FF.csv";
-  constant FILENAME_SER_C  : string  := "/afs/slac.stanford.edu/u/re/ddoering/localGit/cryo-on-epix-hr-dev/firmware/common/cryo/tb/ser_out.csv";
+  constant DATA_BITS   : natural := 12;
+  constant DEPTH_C     : natural := 1024;
+  constant FILENAME_C  : string  := "/afs/slac.stanford.edu/u/re/ddoering/localGit/epix-hr-dev/firmware/simulations/CryoEncDec/sin.csv";
   --simulation constants to select data type
-  constant CH_ID           : natural := 0;
-  constant CH_WF           : natural := 1;
-  constant DATA_TYPE_C     : natural := CH_ID;
+  constant CH_ID       : natural := 0;
+  constant CH_WF       : natural := 1;
+  constant DATA_TYPE_C : natural := CH_ID;
   
-  -------------------------------------------------------------------------------
-  -- Functions to read files
-  -------------------------------------------------------------------------------
-  -- parallel data
-  --
   subtype word_t  is slv(DATA_BITS - 1 downto 0);
   type    ram_t   is array(0 to DEPTH_C - 1) of word_t;
 
@@ -101,38 +91,9 @@ architecture arch of cryo_full_tb is
     return Result;
   end function;
 
-
-  --serial
-  subtype word_t_ser  is slv(0 downto 0);
-  type    ram_t_ser   is array(0 to DEPTH_SER_C - 1) of word_t_ser;
-
-  impure function readSerWaveFile(FileName : STRING) return ram_t_ser is
-    file     FileHandle   : TEXT open READ_MODE is FileName;
-    variable CurrentLine  : LINE;
-    variable TempWord     : real; --slv(DATA_BITS - 1 downto 0);
-    variable TempWordInt  : integer; --slv(DATA_BITS - 1 downto 0);
-    variable TempWordSlv  : slv(16 - 1 downto 0);
-    variable Result       : ram_t_ser    := (others => (others => '0'));
-  begin
-    for i in 0 to DEPTH_SER_C - 1 loop
-      exit when endfile(FileHandle);
-      readline(FileHandle, CurrentLine);
-      read(CurrentLine, TempWord);
-      read(CurrentLine, TempWordInt);
-      TempWordSlv  := toSlv(TempWordInt, 16);
-      Result(i)    := TempWordSlv(0 downto 0);
-    end loop;
-    return Result;
-  end function;
-
-
-  
   -- waveform signal
-  signal ramWaveform         : ram_t      := readWaveFile(FILENAME_C);
-  signal ramTestWaveform     : ram_t      := readWaveFile(FILENAME_C);
-  signal ramTestSerWaveform  : ram_t_ser  := readSerWaveFile(FILENAME_SER_C);
-  signal serDataIndex        : slv(15 downto 0);
-  
+  signal ramWaveform      : ram_t    := readWaveFile(FILENAME_C);
+  signal ramTestWaveform  : ram_t    := readWaveFile(FILENAME_C);
 
 
   -----------------------------------------------------------------------------
@@ -184,6 +145,7 @@ architecture arch of cryo_full_tb is
       signal asicDataN     : slv(23 downto 0);
       -- ASIC Control Ports
       signal asicR0        : sl;
+      signal asicSamClkEn  : sl;
       signal asicPpmat     : sl;
       signal asicGlblRst   : sl;
       signal asicSync      : sl;
@@ -302,8 +264,39 @@ architecture arch of cryo_full_tb is
   signal fClkN : sl := '1';
   signal serialDataOut1 : sl;
   signal serialDataOut2 : sl;
-  signal serDataFromFile: sl;
   signal chId           : slv(11 downto 0);
+
+  -- DUNE system level simulation
+  signal duneClk    : sl := '1';
+  signal duneClkInt : sl ;
+  signal duneClkx4  : sl ;
+  signal duneRst    : sl := '1';
+  signal duneRstInt : sl ;
+  signal duneRstx4  : sl ;
+  signal cryoRst    : sl ;
+  signal phaseDuneCryo : slv(7 downto 0);
+  --
+  signal duneSyncCmd                : slv(15 downto 0) := (others => '0');
+  signal duneCmdAddr                : slv( 7 downto 0) := (others => '0');
+  signal duneSyncCmdStrobe          : sl := '0';
+  signal duneTimeStamp              : slv(31 downto 0);
+  signal duneCycleTime              : slv(6  downto 0);
+  signal duneSR0                    : sl;
+  signal duneSamClkiEnable          : sl;
+  signal duneSamClkiEnableAtCold    : sl;
+  signal cryoClk                    : sl; 
+
+
+  -- protoDune
+  signal protoDuneClk    : sl := '1';
+  signal protoDuneClkInt : sl ;
+  signal protoDuneClkx4  : sl ;
+  signal protoCryoClk    : sl ;
+  signal protoDuneRst    : sl := '1';
+  signal protoDuneRstInt : sl ;
+  signal protoDuneRstx4  : sl ;
+  signal protoCryoRst    : sl ;
+  signal phaseprotoDuneCryo : slv(7 downto 0);
 
 signal dummy : slv(1 downto 0);
 
@@ -320,6 +313,92 @@ begin  --
   fClkN <= not fClkP;
 --  dClkP <= not dClkP after 2 ns; 
   dClkN <= not dClkP;
+
+  -- dunel clk
+  duneClk <= not duneClk after 8 ns;
+
+  protoDuneClk <= not protoDuneClk after 10 ns;
+
+  --cable model
+  duneSamClkiEnableAtCold  <= duneSamClkiEnable after 125 ns;
+
+  ------------------------------------------
+  -- Generate clocks                      --
+  ------------------------------------------
+  -- clkIn     :  50.00 MHz -- DUNE base clock
+  -- clkOut(0) :  50.00 MHz -- Internal copy of the clock
+  -- clkOut(1) : 200.00 MHz -- DUNE clock times 4 used for the deserializer
+  -- clkOut(2) :  56.00 MHz -- CRYO clock
+
+
+  U_PROTODUNE_ClockGen : entity work.ClockManagerUltraScale 
+    generic map(
+      TPD_G                  => 1 ns,
+      TYPE_G                 => "MMCM",  -- or "PLL"
+      INPUT_BUFG_G           => true,
+      FB_BUFG_G              => true,
+      RST_IN_POLARITY_G      => '1',     -- '0' for active low
+      NUM_CLOCKS_G           => 3,
+      -- MMCM attributes
+      BANDWIDTH_G            => "OPTIMIZED",
+      CLKIN_PERIOD_G         => 20.0,    -- Input period in ns );
+      DIVCLK_DIVIDE_G        => 1,
+      CLKFBOUT_MULT_F_G      => 1.0,
+      CLKFBOUT_MULT_G        => 20,
+      CLKOUT0_DIVIDE_F_G     => 1.0,
+      CLKOUT0_DIVIDE_G       => 20,
+      CLKOUT0_PHASE_G        => 0.0,
+      CLKOUT0_DUTY_CYCLE_G   => 0.5,
+      CLKOUT0_RST_HOLD_G     => 3,
+      CLKOUT0_RST_POLARITY_G => '1',
+      CLKOUT1_DIVIDE_G       => 5,
+      CLKOUT1_PHASE_G        => 0.0,
+      CLKOUT1_DUTY_CYCLE_G   => 0.5,
+      CLKOUT1_RST_HOLD_G     => 3,
+      CLKOUT1_RST_POLARITY_G => '1',
+      CLKOUT2_DIVIDE_G       => 18,
+      CLKOUT2_PHASE_G        => 0.0,
+      CLKOUT2_DUTY_CYCLE_G   => 0.5,
+      CLKOUT2_RST_HOLD_G     => 3,
+      CLKOUT2_RST_POLARITY_G => '1')
+   port map(
+      clkIn           => protoDuneClk,
+      rstIn           => protoDuneRst,
+      clkOut(0)       => protoDuneClkInt,       
+      clkOut(1)       => protoDuneClkx4,
+      clkOut(2)       => protoCryoClk,
+      rstOut(0)       => protoDuneRstInt,
+      rstOut(1)       => protoDuneRstx4,
+      rstOut(2)       => protoCryoRst,
+      locked          => open
+   );
+
+
+  U_ISERDESE3_50to56 : ISERDESE3
+    generic map (
+      DATA_WIDTH => 8,            -- Parallel data width (4,8)
+      FIFO_ENABLE => "FALSE",     -- Enables the use of the FIFO
+      FIFO_SYNC_MODE => "FALSE",  -- Enables the use of internal 2-stage synchronizers on the FIFO
+      IS_CLK_B_INVERTED => '1',   -- Optional inversion for CLK_B
+      IS_CLK_INVERTED => '0',     -- Optional inversion for CLK
+      IS_RST_INVERTED => '0',     -- Optional inversion for RST
+      SIM_DEVICE => "ULTRASCALE"  -- Set the device version (ULTRASCALE, ULTRASCALE_PLUS, ULTRASCALE_PLUS_ES1,
+                                  -- ULTRASCALE_PLUS_ES2)
+      )
+    port map (
+      FIFO_EMPTY => OPEN,         -- 1-bit output: FIFO empty flag
+      INTERNAL_DIVCLK => open,    -- 1-bit output: Internally divided down clock used when FIFO is
+                                  -- disabled (do not connect)
+
+      Q => phaseProtoDuneCryo,            -- bit registered output
+      CLK => protoDuneClkx4,            -- 1-bit input: High-speed clock
+      CLKDIV => protoDuneClkInt,         -- 1-bit input: Divided Clock
+      CLK_B => protoDuneClkx4,        -- 1-bit input: Inversion of High-speed clock CLK
+      D => protoCryoClk,               -- 1-bit input: Serial Data Input
+      FIFO_RD_CLK => '1',         -- 1-bit input: FIFO read clock
+      FIFO_RD_EN => '1',          -- 1-bit input: Enables reading the FIFO when asserted
+      RST => protoDuneRstInt              -- 1-bit input: Asynchronous Reset
+      );
 
   ------------------------------------------
   -- Generate clocks from 156.25 MHz PGP  --
@@ -364,6 +443,58 @@ begin  --
       rstOut(1)       => dummy(1),
       locked          => open
    );
+
+
+  U_asicModel : entity work.CryoAsicTopLevelModel 
+   generic map(
+      TPD_G              => TPD_G
+   )
+   port map(
+      clk              => protoCryoClk,
+      gRst             => protoCryoRst,
+      -- simulated data
+      analogData       => x"000",
+      -- saci
+      saciClk          => asicSaciClk,
+      saciSelL         => asicSaciSel(0),
+      saciCmd          => asicSaciCmd,
+      saciRsp          => asicSaciRsp,
+      -- static control
+      SRO              => duneSR0,--asicR0,
+      SamClkiEnable    => duneSamClkiEnableAtCold,--asicSamClkEn,
+      
+      -- data out
+      bitClk0          => open,
+      frameClk0        => open,
+      sData0           => open,
+      bitClk1          => open,
+      frameClk1        => open,
+      sData1           => open      
+   );
+
+
+
+   U_WIBModel_0 : entity work.WIBTopLevelModel 
+   generic map(
+      TPD_G                    => TPD_G,
+      SYSTEM_ENVIRONMENT       => "DUNE",  -- "PROTODUNE"
+      THIS_MODULE_CMD_ADDRESS  => x"01"
+      
+   )
+   port map(
+      DUNEclk          => duneClk,
+      DUNERst          => duneRst,
+      -- DUNE highSpeed bus
+      SyncCmd          => duneSyncCmd,
+      CmdAddr          => duneCmdAddr,
+      SyncCmdStrobe    => duneSyncCmdStrobe,
+      timeStamp        => duneTimeStamp,
+      cycleTime        => duneCycleTime,
+      -- level based control
+      SR0              => duneSR0,
+      SamCLKiEnable    => duneSamClkiEnable,
+      asicClk          => cryoClk
+   );
   
   -- waveform generation
   WaveGen_Proc: process
@@ -373,12 +504,71 @@ begin  --
     ---------------------------------------------------------------------------
     -- reset
     ---------------------------------------------------------------------------
+    wait until duneRst = '0';
+    wait for 10 us;
+
+    
+    -- check reset timestamp command
+    wait until duneClk = '0';
+    wait until duneClk = '1';
+    duneSyncCmd          <= x"0000";
+    duneCmdAddr          <= x"01";
+    duneSyncCmdStrobe    <= '1';
+
+    wait until duneClk = '0';
+    wait until duneClk = '1';
+    duneSyncCmd          <= x"0000";
+    duneCmdAddr          <= x"00";
+    duneSyncCmdStrobe    <= '0';
+
+
+    wait for 10 us;
+    -- check reset cycletime command
+    wait until duneClk = '0';
+    wait until duneClk = '1';
+    duneSyncCmd          <= x"0001";
+    duneCmdAddr          <= x"01";
+    duneSyncCmdStrobe    <= '1';
+
+    wait until duneClk = '0';
+    wait until duneClk = '1';
+    duneSyncCmd          <= x"0000";
+    duneCmdAddr          <= x"00";
+    duneSyncCmdStrobe    <= '0';
+
+    wait for 10 us;
+    -- check reset SamCLKiEnable
+    wait until duneClk = '0';
+    wait until duneClk = '1';
+    duneSyncCmd          <= x"0002";
+    duneCmdAddr          <= x"01";
+    duneSyncCmdStrobe    <= '1';
+
+    wait until duneClk = '0';
+    wait until duneClk = '1';
+    duneSyncCmd          <= x"0000";
+    duneCmdAddr          <= x"00";
+    duneSyncCmdStrobe    <= '0';
+
+
+    wait for 10 us;
+    -- check reset SR0 command
+    wait until duneClk = '0';
+    wait until duneClk = '1';
+    duneSyncCmd          <= x"0003";
+    duneCmdAddr          <= x"01";
+    duneSyncCmdStrobe    <= '1';
+
+    wait until duneClk = '0';
+    wait until duneClk = '1';
+    duneSyncCmd          <= x"0000";
+    duneCmdAddr          <= x"00";
+    duneSyncCmdStrobe    <= '0';
+    
     wait until sysClk = '1';
    
     wait;
   end process WaveGen_Proc;
-
-
 
 
 -------------------------------------------------------------------------------
@@ -406,32 +596,7 @@ begin  --
       chIdCounter := 0;
     end if;
     chId <= toSlv(chIdCounter, 12);
-  end process;
-
-  -------------------------------------------------------------------------------
---  
--------------------------------------------------------------------------------
--------------------------------------------------------------------------------
-  serDataFromFile_Proc: process
-    variable dataIndex : integer := 49;
-  begin
-    wait until dClkP'event;
-    serDataIndex <= toSlv(dataIndex, 16);
-    serDataFromFile <= ramTestSerWaveform(dataIndex)(0);
-    if asicR0 = '1' then      
-      dataIndex := dataIndex + 1;
-      if dataIndex = DEPTH_SER_C then
-        dataIndex := 49+((54)*14);
-      end if;
-    else
-      dataIndex := dataIndex + 1;
-      if dataIndex = 49+(53*14) then
-        dataIndex := 49;
-      elsif dataIndex = DEPTH_SER_C then
-        dataIndex := 49;
-      end if;
-    end if;
-  end process;
+  end process;  
 -------------------------------------------------------------------------------
 --  
 -------------------------------------------------------------------------------
@@ -502,19 +667,16 @@ begin  --
     );
 
 
-  sysRst_n   <= not sysRst;
-
-  asicDataP(0) <=     serDataFromFile;
-  asicDataN(0) <= not serDataFromFile;
---  asicDataP(0) <=     serialDataOut1;
---  asicDataN(0) <= not serialDataOut1;
+  sysRst_n      <= not sysRst;
+  duneRst       <= sysRst;
+  protoDuneRst  <= sysRst;
+    
+  asicDataP(0) <=     serialDataOut1;
+  asicDataN(0) <= not serialDataOut1;
 --  asicDataP(0) <= fClkP;
---  asicDataN(0) <= fClkN;
---  
-  asicDataP(3) <=     serDataFromFile;
-  asicDataN(3) <= not serDataFromFile;
---  asicDataP(3) <=     serialDataOut2;
---  asicDataN(3) <= not serialDataOut2;
+--  asicDataN(0) <= fClkN;  
+  asicDataP(3) <=     serialDataOut2;
+  asicDataN(3) <= not serialDataOut2;
 
   asicDataP(2) <= fClkP;
   asicDataN(2) <= fClkN;
