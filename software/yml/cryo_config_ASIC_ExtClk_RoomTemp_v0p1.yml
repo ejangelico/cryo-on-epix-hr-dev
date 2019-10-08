@@ -14,7 +14,7 @@ cryoAsicGen1:
       Bias_LVDS_Rx: 0x3
       Bias_LVDS_Tx: 0x3
       RbiasEn: False
-      Pulser: 0x0e0
+      Pulser: 0x1e0
       test: False
       atest: False
       hrtest: False
@@ -47,8 +47,8 @@ cryoAsicGen1:
       PLL_RO_filter1: 0x5
       PLL_RO_filter2: 0x4
       Dcycle_DAC_gain: 0x3
-      VTBias_B0: 0x2
-      VTBias_T0: 0xe
+      VTBias_B0: 0x3
+      VTBias_T0: 0xf
       SAH_B0: 0x0
       SAH_VcmBuf_B0: 0x0
       SigBuf_B0: 0x0
