@@ -235,7 +235,7 @@ class EpixHRGen1Cryo(pr.Device):
         print(arg)
         DAC_TYPE = "20bitDAC"
         if DAC_TYPE == "20bitDAC":
-            dacRangeValue = 524288
+            dacRangeValue = 65536
             dacStep = 8
         else:
             dacRangeValue = 65536
@@ -346,6 +346,11 @@ class EpixHRGen1Cryo(pr.Device):
             self.filenamePowerSupply = "./yml/cryo_config_PowerSupply_2v5.yml"
             self.filenameCJC = "./yml/cryo_config_CJC_PLLClk_56MHz.yml"
             self.filenameASIC = "./yml/cryo_config_ASIC_PLLClk_448MHz_DUNETemp_v0p1.yml"
+        elif arg == 13:
+            self.filenameMMCM = "./yml/cryo_config_mmcm_ExtClk_448MHz.yml"
+            self.filenamePowerSupply = "./yml/cryo_config_PowerSupply_2v5.yml"
+            self.filenameCJC = "./yml/cryo_config_CJC_ExtClk_500MHz.yml"
+            self.filenameASIC = "./yml/cryo_config_ASIC_ExtClk_500MHz_RoomTemp_v0p1.yml"
         if arg != 0:
             self.fnInitCryoScript(dev,cmd,arg)
 
@@ -528,12 +533,13 @@ class EpixHRGen1Cryo(pr.Device):
         self.root.readBlocks()
         time.sleep(delay/10) 
         print("Setting cryo to send counter to readout")
-        self.CryoAsic0.encoder_mode_dft.set(0)
+        self.CryoAsic0.encoder_mode_dft.set(1)
         time.sleep(delay/10) 
         print("Enabling stream readout")
         self.PacketRegisters.StreamDataMode.set(True)
         self.PacketRegisters.decDataBitOrder.set(True)
         self.PacketRegisters.decBypass.set(False)
+        self.CryoAsic0.encoder_mode_dft.set(0)
 
 
     def fnSetWaveform(self, dev,cmd,arg):
@@ -1180,15 +1186,15 @@ class OscilloscopeRegisters(pr.Device):
          pr.RemoteVariable(name='TriggerMode',     description='Setting1', offset=0x00000008, bitSize=2,  bitOffset=6,  mode='RW', enum={0:'Never', 1:'ArmReg', 2:'AcqStart', 3:'Always'}),
          pr.RemoteVariable(name='TriggerAdcThresh',description='Setting1', offset=0x00000008, bitSize=16, bitOffset=16, base=pr.UInt, disp = '{}', mode='RW')))
       self.add((
-         pr.RemoteVariable(name='TriggerHoldoff',  description='Setting2', offset=0x0000000C, bitSize=13, bitOffset=0,  base=pr.UInt, disp = '{}', mode='RW'),
-         pr.RemoteVariable(name='TriggerOffset',   description='Setting2', offset=0x0000000C, bitSize=13, bitOffset=13, base=pr.UInt, disp = '{}', mode='RW')))
+         pr.RemoteVariable(name='TriggerHoldoff',  description='Setting2', offset=0x0000000C, bitSize=17, bitOffset=0,  base=pr.UInt, disp = '{}', mode='RW'),
+         pr.RemoteVariable(name='TriggerOffset',   description='Setting2', offset=0x00000010, bitSize=17, bitOffset=0,  base=pr.UInt, disp = '{}', mode='RW')))
       self.add((
-         pr.RemoteVariable(name='TraceLength',     description='Setting3', offset=0x00000010, bitSize=13, bitOffset=0,  base=pr.UInt, disp = '{}', mode='RW'),
-         pr.RemoteVariable(name='SkipSamples',     description='Setting3', offset=0x00000010, bitSize=13, bitOffset=13, base=pr.UInt, disp = '{}', mode='RW')))
+         pr.RemoteVariable(name='TraceLength',     description='Setting3', offset=0x00000014, bitSize=17, bitOffset=0,  base=pr.UInt, disp = '{}', mode='RW'),
+         pr.RemoteVariable(name='SkipSamples',     description='Setting3', offset=0x00000018, bitSize=17, bitOffset=0,  base=pr.UInt, disp = '{}', mode='RW')))
       self.add((
-         pr.RemoteVariable(name='InputChannelA',   description='Setting4', offset=0x00000014, bitSize=2,  bitOffset=0,  mode='RW', enum=inChaEnum),       
-         pr.RemoteVariable(name='InputChannelB',   description='Setting4', offset=0x00000014, bitSize=2,  bitOffset=5,  mode='RW', enum=inChbEnum)))
-      self.add(pr.RemoteVariable(name='TriggerDelay',    description='TriggerDelay',      offset=0x00000018, bitSize=13, bitOffset=0, base=pr.UInt, disp = '{}', mode='RW'))
+         pr.RemoteVariable(name='InputChannelA',   description='Setting4', offset=0x0000001C, bitSize=2,  bitOffset=0,  mode='RW', enum=inChaEnum),       
+         pr.RemoteVariable(name='InputChannelB',   description='Setting4', offset=0x00000020, bitSize=2,  bitOffset=0,  mode='RW', enum=inChbEnum)))
+      self.add(pr.RemoteVariable(name='TriggerDelay',    description='TriggerDelay',      offset=0x00000024, bitSize=17, bitOffset=0, base=pr.UInt, disp = '{}', mode='RW'))
       
       
       
@@ -2178,7 +2184,8 @@ class AsicDeserHr12bRegisters(pr.Device):
            self.Resync.set(True)
            self.Resync.set(False)
            time.sleep(1.0 / float(100))
-           self.testResult0[delay] = ((self.IserdeseOutA0.get()==0x3407)or(self.IserdeseOutA0.get()==0xBF8)) 
+           IserdeseOut = self.IserdeseOutA0.get()
+           self.testResult0[delay] = ((IserdeseOut==0x3407)or(IserdeseOut==0xBF8)) 
        print("Test result adc 0:")
        print(self.testResult0*self.testDelay0)
 
@@ -2191,7 +2198,8 @@ class AsicDeserHr12bRegisters(pr.Device):
            self.Resync.set(True)
            self.Resync.set(False)
            time.sleep(1.0 / float(100))
-           self.testResult1[delay] = ((self.IserdeseOutA1.get()==0x3407)or(self.IserdeseOutA1.get()==0xBF8)) 
+           IserdeseOut = self.IserdeseOutA1.get()
+           self.testResult1[delay] = ((IserdeseOut==0x3407)or(IserdeseOut==0xBF8)) 
        print("Test result adc 1:")     
        print(self.testResult1*self.testDelay1)
        

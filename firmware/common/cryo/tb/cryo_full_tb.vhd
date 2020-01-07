@@ -6,7 +6,7 @@
 -- Author     : Dionisio Doering  <ddoering@tid-pc94280.slac.stanford.edu>
 -- Company    : 
 -- Created    : 2017-05-22
--- Last update: 2019-09-30
+-- Last update: 2019-11-26
 -- Platform   : 
 -- Standard   : VHDL'87
 -------------------------------------------------------------------------------
@@ -65,12 +65,38 @@ architecture arch of cryo_full_tb is
   --file definitions
   constant DATA_BITS       : natural := 12;
   constant DEPTH_C         : natural := 1024;
-  --constant DEPTH_SER_C     : natural := 1253;
-  constant DEPTH_SER_C     : natural := 3927;
   constant FILENAME_C      : string  := "/afs/slac.stanford.edu/u/re/ddoering/localGit/cryo-on-epix-hr-dev/firmware/common/cryo/tb/sin.csv";
   --constant FILENAME_SER_C  : string  := "/afs/slac.stanford.edu/u/re/ddoering/localGit/cryo-on-epix-hr-dev/firmware/common/cryo/tb/ser_out_PEX_NEW_FF.csv";
   --constant FILENAME_SER_C  : string  := "/afs/slac.stanford.edu/u/re/ddoering/localGit/cryo-on-epix-hr-dev/firmware/common/cryo/tb/ser_out_PEX_NEW2_FF.csv";
-  constant FILENAME_SER_C  : string  := "/afs/slac.stanford.edu/u/re/ddoering/localGit/cryo-on-epix-hr-dev/firmware/common/cryo/tb/ser_out.csv";
+  --constant FILENAME_SER_C  : string  := "/afs/slac.stanford.edu/u/re/ddoering/localGit/cryo-on-epix-hr-dev/firmware/common/cryo/tb/diff_out_zero.csv";
+  --
+  --constant FILENAME_SER_C  : string  := "/afs/slac.stanford.edu/u/re/ddoering/localGit/cryo-on-epix-hr-dev/firmware/common/cryo/tb/ser_out.csv";
+  --constant DEPTH_SER_C     : natural := 3927;  -- last line with data
+  --constant untilIdle       : natural := 49;  -- bad data at the begining
+  --constant numIdle         : natural := 53;  -- number of idles
+  --
+  --constant FILENAME_SER_C  : string  := "/afs/slac.stanford.edu/u/re/ddoering/localGit/cryo-on-epix-hr-dev/firmware/common/cryo/tb/FINAL_wMOSCAP/diff_out_dune_TT.csv";
+  --constant FILENAME_SER_C  : string  := "/afs/slac.stanford.edu/u/re/ddoering/localGit/cryo-on-epix-hr-dev/firmware/common/cryo/tb/FINAL_wMOSCAP/diff_out_room_TT.csv";
+  --constant FILENAME_SER_C  : string  := "/afs/slac.stanford.edu/u/re/ddoering/localGit/cryo-on-epix-hr-dev/firmware/common/cryo/tb/mixMode/diff_out_mode0_mode1.csv";
+  --constant FILENAME_SER_C  : string  := "/afs/slac.stanford.edu/u/re/ddoering/localGit/cryo-on-epix-hr-dev/firmware/common/cryo/tb/mixMode/diff_out_mode0_mode4.csv";
+  --constant DEPTH_SER_C     : natural := 3060;  -- last line with data
+  --constant untilIdle       : natural := 50;  -- bad data at the begining
+  --constant numIdle         : natural := 29;  -- number of idles
+  --
+  constant FILENAME_SER_C  : string  := "/afs/slac.stanford.edu/u/re/ddoering/localGit/cryo-on-epix-hr-dev/firmware/common/cryo/tb/mode0corners/diff_out_DUNE_448_SS.csv";
+  constant DEPTH_SER_C     : natural := 2164;  -- last line with data
+  constant untilIdle       : natural := 50;  -- bad data at the begining
+  constant numIdle         : natural := 29;  -- number of idles
+  --
+  --constant FILENAME_SER_C  : string  := "/afs/slac.stanford.edu/u/re/ddoering/localGit/cryo-on-epix-hr-dev/firmware/common/cryo/tb/mixMode/diff_out_mode3_mode7.csv";
+  --constant DEPTH_SER_C     : natural := 3060;  -- last line with data
+  --constant untilIdle       : natural := 50;  -- bad data at the begining
+  --constant numIdle         : natural := 14;  -- number of idles
+  --
+  --constant FILENAME_SER_C  : string  := "/afs/slac.stanford.edu/u/re/ddoering/localGit/cryo-on-epix-hr-dev/firmware/common/cryo/tb/FINAL_wMOSCAP/diff_out_nexo_SS.csv";
+  --constant DEPTH_SER_C     : natural := 3061;  -- last line with data
+  --constant untilIdle       : natural := 51;  -- bad data at the begining
+  --constant numIdle         : natural := 37;  -- number of idles
   --simulation constants to select data type
   constant CH_ID           : natural := 0;
   constant CH_WF           : natural := 1;
@@ -413,7 +439,7 @@ begin  --
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
   serDataFromFile_Proc: process
-    variable dataIndex : integer := 49;
+    variable dataIndex : integer := untilIdle;
   begin
     wait until dClkP'event;
     serDataIndex <= toSlv(dataIndex, 16);
@@ -421,14 +447,14 @@ begin  --
     if asicR0 = '1' then      
       dataIndex := dataIndex + 1;
       if dataIndex = DEPTH_SER_C then
-        dataIndex := 49+((54)*14);
+        dataIndex := untilIdle+((numIdle+1)*14);
       end if;
     else
       dataIndex := dataIndex + 1;
-      if dataIndex = 49+(53*14) then
-        dataIndex := 49;
+      if dataIndex = untilIdle+(numIdle*14) then
+        dataIndex := untilIdle;
       elsif dataIndex = DEPTH_SER_C then
-        dataIndex := 49;
+        dataIndex := untilIdle;
       end if;
     end if;
   end process;
