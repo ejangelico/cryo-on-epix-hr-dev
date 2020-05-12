@@ -2,7 +2,7 @@
 -- File       : Hr16bAdcDeserializerUS.vhd
 -- Company    : SLAC National Accelerator Laboratory
 -- Created    : 2016-05-26
--- Last update: 2018-11-15
+-- Last update: 2020-05-12
 -------------------------------------------------------------------------------
 -- Description:
 -- ADC data deserializer
@@ -29,9 +29,11 @@ use ieee.numeric_std.all;
 library UNISIM;
 use UNISIM.vcomponents.all;
 
-use work.StdRtlPkg.all;
-use work.AxiLitePkg.all;
-use work.AxiStreamPkg.all;
+library surf;
+use surf.StdRtlPkg.all;
+use surf.AxiStreamPkg.all;
+use surf.AxiLitePkg.all;
+
 use work.HrAdcPkg.all;
 
 entity Hr16bAdcDeserializer is

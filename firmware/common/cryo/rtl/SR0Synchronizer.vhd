@@ -23,9 +23,11 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.std_logic_unsigned.all;
-use work.all;
-use work.StdRtlPkg.all;
 
+library surf;
+use surf.StdRtlPkg.all;
+
+use work.all;
 
 entity SR0Synchronizer is
    generic (
@@ -83,7 +85,7 @@ architecture arch of SR0Synchronizer is
 begin
 
   -- synchronizers
-   U_Sync_SR0 : entity work.Synchronizer     
+   U_Sync_SR0 : entity surf.Synchronizer     
    port map (
       clk     => sysClk,
       rst     => sysClkRst,

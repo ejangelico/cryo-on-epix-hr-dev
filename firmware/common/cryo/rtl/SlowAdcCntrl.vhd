@@ -24,12 +24,16 @@
 -------------------------------------------------------------------------------
 
 LIBRARY ieee;
-use work.all;
+
 use ieee.std_logic_1164.all;
 use ieee.std_logic_arith.all;
 use ieee.std_logic_unsigned.all;
 use ieee.math_real.all;
-use work.StdRtlPkg.all;
+
+library surf;
+use surf.StdRtlPkg.all;
+
+use work.all;
 
 entity SlowAdcCntrl is 
    generic (
@@ -182,7 +186,7 @@ begin
    adcStartEn <= adcStartD1 and not adcStartD2;
 
    -- Instance of the SPI Master controller
-   SPI_Master_i: entity work.SpiMaster
+   SPI_Master_i: entity surf.SpiMaster
       generic map (
          TPD_G             => TPD_G,
          NUM_CHIPS_G       => 1,

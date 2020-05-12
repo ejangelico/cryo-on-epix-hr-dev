@@ -5,7 +5,7 @@
 -- Author     : Maciej Kwiatkowski <mkwiatko@slac.stanford.edu>
 -- Company    : SLAC National Accelerator Laboratory
 -- Created    : 06/13/2016
--- Last update: 06/13/2016
+-- Last update: 2020-05-12
 -- Platform   : Vivado 2014.4
 -- Standard   : VHDL'93/02
 -------------------------------------------------------------------------------
@@ -26,10 +26,10 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-use work.StdRtlPkg.all;
-use work.AxiStreamPkg.all;
-use work.SsiPkg.all;
-
+library surf;
+use surf.StdRtlPkg.all;
+use surf.AxiStreamPkg.all;
+use surf.SsiPkg.all;
 
 library unisim;
 use unisim.vcomponents.all;

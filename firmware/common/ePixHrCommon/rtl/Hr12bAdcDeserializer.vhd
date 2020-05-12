@@ -2,7 +2,7 @@
 -- File       : Hr12bAdcDeserializerUS.vhd
 -- Company    : SLAC National Accelerator Laboratory
 -- Created    : 2016-05-26
--- Last update: 2018-07-10
+-- Last update: 2020-05-12
 -------------------------------------------------------------------------------
 -- Description:
 -- ADC data deserializer
@@ -29,9 +29,11 @@ use ieee.numeric_std.all;
 library UNISIM;
 use UNISIM.vcomponents.all;
 
-use work.StdRtlPkg.all;
-use work.AxiLitePkg.all;
-use work.AxiStreamPkg.all;
+library surf;
+use surf.StdRtlPkg.all;
+use surf.AxiStreamPkg.all;
+use surf.AxiLitePkg.all;
+
 use work.HrAdcPkg.all;
 
 entity Hr12bAdcDeserializerUS is
@@ -267,13 +269,13 @@ begin
   -----------------------------------------------------------------------------
   -- crossing clock domain
   -----------------------------------------------------------------------------
-  U_sync_0: entity work.SynchronizerOneShot 
+  U_sync_0: entity surf.SynchronizerOneShot 
    generic map(
       TPD_G           => 1 ns,   -- Simulation FF output delay
       RST_POLARITY_G  => '1',    -- '1' for active HIGH reset, '0' for active LOW reset
       RST_ASYNC_G     => false,  -- Reset is asynchronous
       BYPASS_SYNC_G   => false,  -- Bypass RstSync module for synchronous data configuration
-      RELEASE_DELAY_G => 3,      -- Delay between deassertion of async and sync resets
+      OUT_DELAY_G     => 3,   -- Stages in output sync chain    
       IN_POLARITY_G   => '1',    -- 0 for active LOW, 1 for active HIGH
       OUT_POLARITY_G  => '1',    -- 0 for active LOW, 1 for active HIGH
       PULSE_WIDTH_G   => 1)      -- one-shot pulse width duration (units of clk cycles)

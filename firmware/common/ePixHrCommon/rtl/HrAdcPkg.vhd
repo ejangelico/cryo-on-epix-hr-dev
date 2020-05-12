@@ -2,7 +2,7 @@
 -- File       : Ad9249Pkg.vhd
 -- Company    : SLAC National Accelerator Laboratory
 -- Created    : 2016-05-26
--- Last update: 2018-07-06
+-- Last update: 2020-05-12
 -------------------------------------------------------------------------------
 -- Description: AD9249 Package File
 -------------------------------------------------------------------------------
@@ -17,8 +17,10 @@
 
 library ieee;
 use ieee.std_logic_1164.all;
-use work.StdRtlPkg.all;
-use work.AxiStreamPkg.all;
+
+library surf;
+use surf.StdRtlPkg.all;
+use surf.AxiStreamPkg.all;
 
 package HrAdcPkg is
 

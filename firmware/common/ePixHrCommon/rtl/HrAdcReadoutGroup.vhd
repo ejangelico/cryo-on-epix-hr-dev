@@ -2,7 +2,7 @@
 -- File       : HrAdcReadoutGroup.vhd
 -- Company    : SLAC National Accelerator Laboratory
 -- Created    : 2016-05-26
--- Last update: 2019-03-02
+-- Last update: 2020-05-12
 -------------------------------------------------------------------------------
 -- Description:
 -- ADC Readout Controller
@@ -26,9 +26,11 @@ use ieee.std_logic_unsigned.all;
 library UNISIM;
 use UNISIM.vcomponents.all;
 
-use work.StdRtlPkg.all;
-use work.AxiLitePkg.all;
-use work.AxiStreamPkg.all;
+library surf;
+use surf.StdRtlPkg.all;
+use surf.AxiStreamPkg.all;
+use surf.AxiLitePkg.all;
+
 use work.HrAdcPkg.all;
 
 entity HrAdcReadoutGroup is

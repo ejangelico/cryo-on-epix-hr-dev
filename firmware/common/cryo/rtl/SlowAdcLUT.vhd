@@ -23,11 +23,14 @@
 -------------------------------------------------------------------------------
 
 LIBRARY ieee;
-use work.all;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
+
+library surf;
+use surf.StdRtlPkg.all;
+
+use work.all;
 use work.SlowAdcPkg.all;
-use work.StdRtlPkg.all;
 
 --
 -- The Unisim Library is used to define Xilinx primitives. It is also used during

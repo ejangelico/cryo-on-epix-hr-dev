@@ -25,7 +25,8 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-use work.StdRtlPkg.all;
+library surf;
+use surf.StdRtlPkg.all;
 
 entity RingBuffer is
    generic (
@@ -86,11 +87,11 @@ architecture rtl of RingBuffer is
    
 begin
 
-   SimpleDualPortRam_Inst : entity work.SimpleDualPortRam
+   SimpleDualPortRam_Inst : entity surf.SimpleDualPortRam
       generic map(
-         BRAM_EN_G    => true,
-         DATA_WIDTH_G => 16,
-         ADDR_WIDTH_G => ADDR_WIDTH_G)
+         MEMORY_TYPE_G => "block",
+         DATA_WIDTH_G  => 16,
+         ADDR_WIDTH_G  => ADDR_WIDTH_G)
       port map (
          -- Port A
          clka  => sysClk,

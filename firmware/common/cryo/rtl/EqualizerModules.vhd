@@ -2,7 +2,7 @@
 -- File       : cryo: EqualizerModules.vhd
 -- Company    : SLAC National Accelerator Laboratory
 -- Created    : 04/07/2017
--- Last update: 2018-01-31
+-- Last update: 2020-05-12
 -------------------------------------------------------------------------------
 -- Description: This module enables the equalizer LOS status information
 -- to be accessed via axi lite and exposes it to other modules after 
@@ -22,8 +22,9 @@ use ieee.std_logic_1164.all;
 use ieee.std_logic_arith.all;
 use ieee.std_logic_unsigned.all;
 
-use work.StdRtlPkg.all;
-use work.AxiLitePkg.all;
+library surf;
+use surf.StdRtlPkg.all;
+use surf.AxiLitePkg.all;
 
 entity EqualizerModules is
    generic (

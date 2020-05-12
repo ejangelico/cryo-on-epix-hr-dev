@@ -27,8 +27,11 @@ use ieee.std_logic_1164.all;
 use ieee.std_logic_unsigned.all;
 use ieee.std_logic_arith.all;
 
-use work.StdRtlPkg.all;
-use work.AxiLitePkg.all;
+library surf;
+use surf.StdRtlPkg.all;
+use surf.AxiLitePkg.all;
+
+
 use work.AppPkg.all;
 
 library unisim;
@@ -462,7 +465,7 @@ begin
    GEN_DEVICE_DNA : if (EN_DEVICE_DNA_G = true) generate
       signal dummy : slv(63 downto 0);
    begin
-      G_DEVICE_DNA : entity work.DeviceDna
+      G_DEVICE_DNA : entity surf.DeviceDna
          generic map (
             TPD_G        => TPD_G,
             XIL_DEVICE_G => "ULTRASCALE")
@@ -474,7 +477,7 @@ begin
             dnaValid => idValids(0)
          );
       G_DS2411 : for i in 0 to 1 generate
-        U_DS2411_N : entity work.DS2411Core
+        U_DS2411_N : entity surf.DS2411Core
           generic map (
             TPD_G        => TPD_G,
             CLK_PERIOD_G => CLK_PERIOD_G
@@ -501,7 +504,7 @@ begin
    -- Special reset to the DS2411 to re-read in the event of a start up request event
    -- Start up (picoblaze) is disabling the ASIC digital monitors to ensure proper carrier ID readout
    adcCardStartUp <= r.boardRegOut.startupAck or r.boardRegOut.startupFail;
-   U_adcCardStartUpRisingEdge : entity work.SynchronizerEdge
+   U_adcCardStartUpRisingEdge : entity surf.SynchronizerEdge
    generic map (
       TPD_G       => TPD_G)
    port map (
