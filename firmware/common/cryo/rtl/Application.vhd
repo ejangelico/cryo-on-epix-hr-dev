@@ -2,7 +2,7 @@
 -- File       : Application.vhd
 -- Company    : SLAC National Accelerator Laboratory
 -- Created    : 2017-04-21
--- Last update: 2020-05-11
+-- Last update: 2020-05-12
 -------------------------------------------------------------------------------
 -- Description: Application Core's Top Level
 -------------------------------------------------------------------------------
@@ -46,6 +46,7 @@ entity Application is
       TPD_G            : time            := 1 ns;
       APP_CONFIG_G     : AppConfigType   := APP_CONFIG_INIT_C;
       SIMULATION_G     : boolean         := false;
+      DDR_GEN_G        : boolean         := false;
       BUILD_INFO_G     : BuildInfoType;
       AXI_ERROR_RESP_G : slv(1 downto 0) := AXI_RESP_SLVERR_C;
       IODELAY_GROUP_G   : string          := "DEFAULT_GROUP");
@@ -1363,42 +1364,51 @@ begin
    -- in order to desable the mem tester, the followint two signasl need to be wired
    --   mAxiReadMaster  <= AXI_READ_MASTER_INIT_C;
    --   mAxiWriteMaster <= AXI_WRITE_MASTER_INIT_C;
+  DDR_NOT_GEN : if (not DDR_GEN_G) generate
+     -- in order to desable the mem tester, the followint two signasl need to be wired
+     mAxiReadMaster  <= AXI_READ_MASTER_INIT_C;
+     mAxiWriteMaster <= AXI_WRITE_MASTER_INIT_C;
+     -- init unused axiLite
+     mAxiWriteSlaves(DDR_MEM_INDEX_C) <= axiLiteWriteSlaveEmptyInit(AXI_RESP_OK_C);
+     mAxiReadSlaves(DDR_MEM_INDEX_C)  <= axiLiteReadSlaveEmptyInit(AXI_RESP_OK_C);
+   end generate;
 
-   U_AxiMemTester : entity surf.AxiMemTester
-   generic map (
-      TPD_G        => TPD_G,
-      START_ADDR_G => START_ADDR_C,
-      STOP_ADDR_G  => STOP_ADDR_C,
-      AXI_CONFIG_G => DDR_AXI_CONFIG_C)
-   port map (
-      -- AXI-Lite Interface
-      axilClk         => appClk,
-      axilRst         => appRst,
-      axilReadMaster  => mAxiReadMasters(DDR_MEM_INDEX_C),
-      axilReadSlave   => mAxiReadSlaves(DDR_MEM_INDEX_C),
-      axilWriteMaster => mAxiWriteMasters(DDR_MEM_INDEX_C),
-      axilWriteSlave  => mAxiWriteSlaves(DDR_MEM_INDEX_C),
-      memReady        => open,  -- status bits
-      memError        => open, -- status bits
-      -- DDR Memory Interface
-      axiClk          => sysClk,
-      axiRst          => sysRst,
-      start           => startDdrTest, -- input signal that starts the test 
-      axiWriteMaster  => mAxiWriteMaster,
-      axiWriteSlave   => mAxiWriteSlave,
-      axiReadMaster   => mAxiReadMaster,
-      axiReadSlave    => mAxiReadSlave
-   );
+   DDR_GEN : if (DDR_GEN_G) generate
+     U_AxiMemTester : entity surf.AxiMemTester
+       generic map (
+         TPD_G        => TPD_G,
+         START_ADDR_G => START_ADDR_C,
+         STOP_ADDR_G  => STOP_ADDR_C,
+         AXI_CONFIG_G => DDR_AXI_CONFIG_C)
+       port map (
+         -- AXI-Lite Interface
+         axilClk         => appClk,
+         axilRst         => appRst,
+         axilReadMaster  => mAxiReadMasters(DDR_MEM_INDEX_C),
+         axilReadSlave   => mAxiReadSlaves(DDR_MEM_INDEX_C),
+         axilWriteMaster => mAxiWriteMasters(DDR_MEM_INDEX_C),
+         axilWriteSlave  => mAxiWriteSlaves(DDR_MEM_INDEX_C),
+         memReady        => open,  -- status bits
+         memError        => open, -- status bits
+         -- DDR Memory Interface
+         axiClk          => sysClk,
+         axiRst          => sysRst,
+         start           => startDdrTest, -- input signal that starts the test 
+         axiWriteMaster  => mAxiWriteMaster,
+         axiWriteSlave   => mAxiWriteSlave,
+         axiReadMaster   => mAxiReadMaster,
+         axiReadSlave    => mAxiReadSlave
+         );
 
-   U_StartDdrTest : entity surf.PwrUpRst
-   generic map (
-      DURATION_G => 10000000
-   )
-   port map (
-      clk      => appClk,
-      rstOut   => startDdrTest_n
-   );
-
+     U_StartDdrTest : entity surf.PwrUpRst
+       generic map (
+         DURATION_G => 10000000
+         )
+       port map (
+         clk      => appClk,
+         rstOut   => startDdrTest_n
+         );
+   end generate;
    --------------------------------------------
    -- Equalizer monitoring                   --
    --------------------------------------------
