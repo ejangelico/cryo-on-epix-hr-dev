@@ -4,7 +4,7 @@
 -- File       : RegControlEpixHR.vhd
 -- Company    : SLAC National Accelerator Laboratory
 -- Created    : 04/26/2016
--- Last update: 2019-03-13
+-- Last update: 2020-05-13
 -- Platform   : Vivado 2014.4
 -- Standard   : VHDL'93/02
 -------------------------------------------------------------------------------
@@ -107,10 +107,10 @@ architecture rtl of RegisterControl is
       PPbePolarity      : sl;
       PPbeDelay         : slv(31 downto 0);
       PPbeWidth         : slv(31 downto 0);
-      Ppmat             : sl;
-      PpmatPolarity     : sl;
-      PpmatDelay        : slv(31 downto 0);
-      PpmatWidth        : slv(31 downto 0);
+      SampClkEn         : sl;
+      SampClkEnPolarity : sl;
+      SampClkEnDelay    : slv(31 downto 0);
+      SampClkEnWidth    : slv(31 downto 0);
       Sync              : sl;
       SyncPolarity      : sl;
       SyncDelay         : slv(31 downto 0);
@@ -149,10 +149,10 @@ architecture rtl of RegisterControl is
       PPbePolarity      => '0',
       PPbeDelay         => (others=>'0'),
       PPbeWidth         => (others=>'0'),
-      Ppmat             => '0',
-      PpmatPolarity     => '0',
-      PpmatDelay        => (others=>'0'),
-      PpmatWidth        => (others=>'0'),
+      SampClkEn         => '0',
+      SampClkEnPolarity => '0',
+      SampClkEnDelay    => (others=>'0'),
+      SampClkEnWidth    => (others=>'0'),
       Sync              => '0',
       SyncPolarity      => '0',
       SyncDelay         => (others=>'0'),
@@ -258,9 +258,9 @@ begin
       axiSlaveRegister(regCon,  x"144",  0, v.asicAcqReg.PPbePolarity);
       axiSlaveRegister(regCon,  x"148",  0, v.asicAcqReg.PPbeDelay);
       axiSlaveRegister(regCon,  x"14C",  0, v.asicAcqReg.PPbeWidth);
-      axiSlaveRegister(regCon,  x"150",  0, v.asicAcqReg.PpmatPolarity);
-      axiSlaveRegister(regCon,  x"154",  0, v.asicAcqReg.PpmatDelay);
-      axiSlaveRegister(regCon,  x"158",  0, v.asicAcqReg.PpmatWidth);
+      axiSlaveRegister(regCon,  x"150",  0, v.asicAcqReg.SampClkEnPolarity);
+      axiSlaveRegister(regCon,  x"154",  0, v.asicAcqReg.SampClkEnDelay);
+      axiSlaveRegister(regCon,  x"158",  0, v.asicAcqReg.SampClkEnWidth);
       axiSlaveRegister(regCon,  x"15C",  0, v.asicAcqReg.SyncPolarity);
       axiSlaveRegister(regCon,  x"160",  0, v.asicAcqReg.SyncDelay);
       axiSlaveRegister(regCon,  x"164",  0, v.asicAcqReg.SyncWidth);
@@ -313,7 +313,7 @@ begin
          v.asicAcqReg.Tpulse     := r.asicAcqReg.TpulsePolarity;
          v.asicAcqReg.Start      := r.asicAcqReg.StartPolarity;
          v.asicAcqReg.PPbe       := r.asicAcqReg.PPbePolarity;
-         v.asicAcqReg.Ppmat      := r.asicAcqReg.PpmatPolarity;
+         v.asicAcqReg.SampClkEn  := r.asicAcqReg.SampClkEnPolarity;
          v.asicAcqReg.Sync       := r.asicAcqReg.SyncPolarity;
          v.asicAcqReg.saciSync   := r.asicAcqReg.saciSyncPolarity;
       else
@@ -376,12 +376,12 @@ begin
          end if;
          
          -- single pulse. zero value corresponds to infinite delay/width
-         if r.asicAcqReg.PpmatDelay /= 0 and r.asicAcqReg.PpmatDelay <= r.asicAcqTimeCnt then
-            v.asicAcqReg.Ppmat := not r.asicAcqReg.PpmatPolarity;
-            if r.asicAcqReg.PpmatWidth /= 0 and (r.asicAcqReg.PpmatWidth + r.asicAcqReg.PpmatDelay) <= r.asicAcqTimeCnt then
-               v.asicAcqReg.Ppmat := r.asicAcqReg.PpmatPolarity;
-            end if;
-         end if;
+         --if r.asicAcqReg.SampClkEnDelay /= 0 and r.asicAcqReg.SampClkEnDelay <= r.asicAcqTimeCnt then
+         --   v.asicAcqReg.SampClkEn := not r.asicAcqReg.SampClkEnPolarity;
+         --   if r.asicAcqReg.SampClkEnWidth /= 0 and (r.asicAcqReg.SampClkEnWidth + r.asicAcqReg.SampClkEnDelay) <= r.asicAcqTimeCnt then
+         --      v.asicAcqReg.SampClkEn := r.asicAcqReg.SampClkEnPolarity;
+         --   end if;
+         --end if;
          
          -- single pulse. zero value corresponds to infinite delay/width
          if r.asicAcqReg.SyncDelay /= 0 and r.asicAcqReg.SyncDelay <= r.asicAcqTimeCnt then
@@ -442,7 +442,7 @@ begin
       adcClk         <= r.adcClk;
       saciReadoutReq <= r.asicAcqReg.saciSync;
       asicPPbe       <= r.asicAcqReg.PPbe;
-      asicPpmat      <= r.asicAcqReg.Ppmat;
+      asicPpmat      <= r.asicAcqReg.SampClkEn;
       asicTpulse     <= r.asicAcqReg.Tpulse;
       asicStart      <= r.asicAcqReg.Start;
       asicSR0        <= r.asicAcqReg.SR0Polarity;--r.asicAcqReg.SR0;
