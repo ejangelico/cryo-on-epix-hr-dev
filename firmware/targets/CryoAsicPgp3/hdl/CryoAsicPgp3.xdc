@@ -110,10 +110,10 @@ set_property -dict {PACKAGE_PIN AF12 IOSTANDARD LVCMOS25} [get_ports asicGlblRst
 set_property -dict {PACKAGE_PIN AG15 IOSTANDARD LVCMOS25} [get_ports asicSync]
 set_property -dict {PACKAGE_PIN AG14 IOSTANDARD LVCMOS25} [get_ports asicAcq]
 
-set_property -dict {PACKAGE_PIN AE11 IOSTANDARD LVDS_25} [get_ports {asicRoClkP[0]}]
-set_property -dict {PACKAGE_PIN AE10 IOSTANDARD LVDS_25} [get_ports {asicRoClkN[0]}]
+set_property -dict {PACKAGE_PIN AE11 IOSTANDARD LVCMOS25} [get_ports {asicRoClkP[0]}]
+set_property -dict {PACKAGE_PIN AE10 IOSTANDARD LVCMOS25} [get_ports {asicRoClkN[0]}]
 set_property -dict {PACKAGE_PIN AF10 IOSTANDARD LVCMOS25} [get_ports {asicRoClkP[1]}]
-set_property -dict {PACKAGE_PIN AF9 IOSTANDARD LVCMOS25} [get_ports {asicRoClkN[1]}]
+set_property -dict {PACKAGE_PIN AF9  IOSTANDARD LVCMOS25} [get_ports {asicRoClkN[1]}]
 set_property -dict {PACKAGE_PIN AC13 IOSTANDARD LVCMOS25} [get_ports {asicRoClkP[2]}]
 set_property -dict {PACKAGE_PIN AC12 IOSTANDARD LVCMOS25} [get_ports {asicRoClkN[2]}]
 set_property -dict {PACKAGE_PIN AD14 IOSTANDARD LVCMOS25} [get_ports {asicRoClkP[3]}]
