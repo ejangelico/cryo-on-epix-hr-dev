@@ -259,7 +259,7 @@ if (args.verbose): dbgData.setDebug(60, "DATA Verbose 3[{}]".format(0))
 if (args.verbose): pyrogue.streamTap(pgpL3Vc0, dbgData)
 
 # Create GUI
-appTop = QApplication(sys.argv)
+appTop = pyrogue.gui.application(sys.argv)
 guiTop = pyrogue.gui.GuiTop(group='cryoAsicGui')
 cryoAsicBoard = Board(guiTop, cmd, dataWriter, srp)
 if ( args.type == 'dataFile' or args.type == 'SIM'):

@@ -14,6 +14,9 @@ loadRuckusTcl $::env(TOP_DIR)/submodules
 
 loadRuckusTcl $::env(TOP_DIR)/common/cryo
 
+# Adding the common Si5345 configuration
+add_files -norecurse "$::DIR_PATH/../../../software/config/Si5345-RevD-Regmap-56MHz.mem"
+
 
 # set top moudule
 set_property top {cryo_full_tb} [get_filesets sim_1]

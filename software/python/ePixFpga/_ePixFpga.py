@@ -123,7 +123,7 @@ class EpixHRGen1Cryo(pr.Device):
             ssiPrbsTxRegisters(              name='ssiPrbs1PktRegisters',              offset=0x83000000, expand=False, enabled=False),
             ssiPrbsTxRegisters(              name='ssiPrbs2PktRegisters',              offset=0x84000000, expand=False, enabled=False),
             ssiPrbsTxRegisters(              name='ssiPrbs3PktRegisters',              offset=0x85000000, expand=False, enabled=False),
-            axi.AxiStreamMonitoring(         name='AxiStreamMon',                      offset=0x86000000, expand=False, enabled=False, numberLanes=4),
+            axi.AxiStreamMonAxiL(            name='AxiStreamMon',                      offset=0x86000000, expand=False, enabled=False, numberLanes=4),
             axi.AxiMemTester(                name='AxiMemTester',                      offset=0x87000000, expand=False, enabled=False),
             epix.CryoAsic(                   name='CryoAsic0',                         offset=0x88000000, expand=False, enabled=False),
             CryoAppCoreFpgaRegisters(        name="AppFpgaRegisters",                  offset=0x96000000, expand=False, enabled=False),
@@ -136,7 +136,7 @@ class EpixHRGen1Cryo(pr.Device):
             analog_devices.Ad9249ConfigGroup(name='Ad9249Config_Adc_0',                offset=0x8F000000, expand=False, enabled=False),
             SlowAdcRegisters(                name="SlowAdcRegisters",                  offset=0x90000000, expand=False, enabled=False),
             ProgrammablePowerSupplyCryo(     name="ProgPowerSupply",                   offset=0x92000000, expand=False, enabled=False),
-            silabs.Si5345(                   name='Pll',                               offset=0x93000000, expand=False, enabled=False, description = 'This device contains Jitter cleaner PLL')
+            silabs.Si5345(                   name='Pll',                               offset=0x93000000, expand=False, enabled=False, description = 'This device contains Jitter cleaner PLL'),
             #ClockJitterCleanerRegisters(     name="Clock Jitter Cleaner",              offset=0x93000000, expand=False, enabled=False),
             AsicDeserHr12bRegisters(         name="DeserRegisters",                    offset=0x94000000, expand=False, enabled=False), 
             DigitalPktRegisters(             name="PacketRegisters",                   offset=0x95000000, expand=False, enabled=False)
