@@ -1054,6 +1054,320 @@ class CryoAsic(pr.Device):
         return func
 
 
+#################################################################################################################
+#
+#  ASIC CRYO prototype v0.2
+#
+#################################################################################################################
+class CryoAsic0p2(pr.Device):
+    def __init__(self, **kwargs):
+        """Create the cryo ASIC 0P2 device"""
+        super().__init__(description='EpixHrAdc Asic Configuration', **kwargs)
+
+
+        #In order to easily compare GenDAQ address map with the ePix rogue address map 
+        #it is defined the addrSize variable
+        addrSize = 4	
+
+        # Creation. memBase is either the register bus server (srp, rce mapped memory, etc) or the device which
+        # contains this object. In most cases the parent and memBase are the same but they can be 
+        # different in more complex bus structures. They will also be different for the top most node.
+        # The setMemBase call can be used to update the memBase for this Device. All sub-devices and local
+        # blocks will be updated.
+
+        #############################################
+        # Create block / variable combinations
+        #############################################
+    
+        
+        #Setup registers & variables
+                
+        # CMD = 0, Addr = 0  : Prepare for readout
+        self.add(pr.RemoteCommand(name='CmdPrepForRead', description='ASIC Prepare For Readout',offset=0x00000000*addrSize, bitSize=1, bitOffset=0, function=pr.Command.touchZero, hidden=True))
+        
+        # CMD = 1, Addr = XXX offset = 0xCCCCCAAA where C and command bits and A are address bits
+        CMD_TYPE_1 = 0x00001000
+        self.add((pr.RemoteVariable(name='RowStart',     description='Config1',  offset=(CMD_TYPE_1 + 0x01)*addrSize, bitSize=8,  bitOffset=0, base=pr.UInt, mode='RO')))
+        self.add((pr.RemoteVariable(name='RowStop',      description='Config2',  offset=(CMD_TYPE_1 + 0x02)*addrSize, bitSize=8,  bitOffset=0, base=pr.UInt, mode='RO')))
+        self.add((pr.RemoteVariable(name='ColStart',     description='Config3',  offset=(CMD_TYPE_1 + 0x03)*addrSize, bitSize=8,  bitOffset=0, base=pr.UInt, mode='RO')))        
+        self.add((pr.RemoteVariable(name='StartPixel',   description='Config4',  offset=(CMD_TYPE_1 + 0x04)*addrSize, bitSize=16, bitOffset=0, base=pr.UInt, mode='RO')))        
+        # CMD = 1, Addr = 5
+        self.add((
+            pr.RemoteVariable(name='TPS_DAC',   description='Config5', offset=(CMD_TYPE_1 + 0x05)*addrSize, bitSize=6,  bitOffset=2,  base=pr.UInt, mode='RW'),
+            pr.RemoteVariable(name='TPS_GR',    description='Config5', offset=(CMD_TYPE_1 + 0x05)*addrSize, bitSize=4,  bitOffset=8,  base=pr.UInt, mode='RW'),
+            pr.RemoteVariable(name='TPSMux',    description='Config5', offset=(CMD_TYPE_1 + 0x05)*addrSize, bitSize=4,  bitOffset=12, base=pr.UInt, mode='RW')))
+        # CMD = 1, Addr = 6
+        self.add((
+            pr.RemoteVariable(name='Bias_TPS_Buffer',   description='Config6', offset=(CMD_TYPE_1 + 0x06)*addrSize, bitSize=3,  bitOffset=0,  base=pr.UInt, mode='RW'),
+            pr.RemoteVariable(name='Bias_TPS',          description='Config6', offset=(CMD_TYPE_1 + 0x06)*addrSize, bitSize=3,  bitOffset=3,  base=pr.UInt, mode='RW'),
+            pr.RemoteVariable(name='Bias_TPS_DAC',      description='Config6', offset=(CMD_TYPE_1 + 0x06)*addrSize, bitSize=3,  bitOffset=6,  base=pr.UInt, mode='RW'),
+            pr.RemoteVariable(name='Bias_LVDS_Rx',      description='Config6', offset=(CMD_TYPE_1 + 0x06)*addrSize, bitSize=3,  bitOffset=9,  base=pr.UInt, mode='RW'),
+            pr.RemoteVariable(name='Bias_LVDS_Tx',      description='Config6', offset=(CMD_TYPE_1 + 0x06)*addrSize, bitSize=3,  bitOffset=12, base=pr.UInt, mode='RW'),
+            pr.RemoteVariable(name='RbiasEn',           description='Config6', offset=(CMD_TYPE_1 + 0x06)*addrSize, bitSize=1,  bitOffset=15, base=pr.Bool, mode='RW')))
+
+        # CMD = 1, Addr = 7
+        self.add((
+            pr.RemoteVariable(name='Pulser',        description='Config7', offset=(CMD_TYPE_1 + 0x07)*addrSize, bitSize=10, bitOffset=0,  base=pr.UInt, mode='RW'),
+            pr.RemoteVariable(name='test',          description='Config7', offset=(CMD_TYPE_1 + 0x07)*addrSize, bitSize=1,  bitOffset=10, base=pr.Bool, mode='RW'),
+            pr.RemoteVariable(name='atest',         description='Config7', offset=(CMD_TYPE_1 + 0x07)*addrSize, bitSize=1,  bitOffset=11, base=pr.Bool, mode='RW'),
+            pr.RemoteVariable(name='hrtest',        description='Config7', offset=(CMD_TYPE_1 + 0x07)*addrSize, bitSize=1,  bitOffset=12, base=pr.Bool, mode='RW'),
+            pr.RemoteVariable(name='sbatest',       description='Config7', offset=(CMD_TYPE_1 + 0x07)*addrSize, bitSize=1,  bitOffset=13, base=pr.Bool, mode='RW'),
+            pr.RemoteVariable(name='pbit',          description='Config7', offset=(CMD_TYPE_1 + 0x07)*addrSize, bitSize=1,  bitOffset=14, base=pr.Bool, mode='RW'),
+            pr.RemoteVariable(name='Pulser_Reset',  description='Config7', offset=(CMD_TYPE_1 + 0x07)*addrSize, bitSize=1,  bitOffset=15, base=pr.Bool, mode='RW')))
+
+        # CMD = 1, Addr = 8
+        self.add((
+            pr.RemoteVariable(name='PPbit',           description='Config8', offset=(CMD_TYPE_1 + 0x08)*addrSize, bitSize=1,  bitOffset=0,  base=pr.Bool, mode='RW'),
+            pr.RemoteVariable(name='test_BE',         description='Config8', offset=(CMD_TYPE_1 + 0x08)*addrSize, bitSize=1,  bitOffset=1,  base=pr.Bool, mode='RW'),
+            pr.RemoteVariable(name='DelEXEC',         description='Config8', offset=(CMD_TYPE_1 + 0x08)*addrSize, bitSize=1,  bitOffset=2,  base=pr.Bool, mode='RW'),
+            pr.RemoteVariable(name='DelCCKreg',       description='Config8', offset=(CMD_TYPE_1 + 0x08)*addrSize, bitSize=1,  bitOffset=3,  base=pr.Bool, mode='RW'),
+            pr.RemoteVariable(name='sync_exten',      description='Config8', offset=(CMD_TYPE_1 + 0x08)*addrSize, bitSize=1,  bitOffset=4,  base=pr.Bool, mode='RW'),
+            pr.RemoteVariable(name='sync_role_sel',   description='Config8', offset=(CMD_TYPE_1 + 0x08)*addrSize, bitSize=1,  bitOffset=5,  base=pr.Bool, mode='RW'),
+            pr.RemoteVariable(name='RO_Bk0_disable',  description='Config8', offset=(CMD_TYPE_1 + 0x08)*addrSize, bitSize=1,  bitOffset=6,  base=pr.Bool, mode='RW'),
+            pr.RemoteVariable(name='RO_Bk1_disable',  description='Config8', offset=(CMD_TYPE_1 + 0x08)*addrSize, bitSize=1,  bitOffset=7,  base=pr.Bool, mode='RW'),
+            pr.RemoteVariable(name='DM1en',           description='Config8', offset=(CMD_TYPE_1 + 0x08)*addrSize, bitSize=1,  bitOffset=8,  base=pr.Bool, mode='RW'),
+            pr.RemoteVariable(name='DM2en',           description='Config8', offset=(CMD_TYPE_1 + 0x08)*addrSize, bitSize=1,  bitOffset=9,  base=pr.Bool, mode='RW'),
+            pr.RemoteVariable(name='Pulser_Monost',   description='Config8', offset=(CMD_TYPE_1 + 0x08)*addrSize, bitSize=3,  bitOffset=10, base=pr.UInt, mode='RW'),
+            #pr.RemoteVariable(name='Pulser_SyncEn',   description='Config8', offset=(CMD_TYPE_1 + 0x08)*addrSize, bitSize=1,  bitOffset=13, base=pr.Bool, mode='RW'),
+            pr.RemoteVariable(name='cs_LVDS_Tx',      description='Config8', offset=(CMD_TYPE_1 + 0x08)*addrSize, bitSize=2,  bitOffset=14, base=pr.UInt, mode='RW')))
+
+        # CMD = 1, Addr = 9
+        self.add((
+            pr.RemoteVariable(name='DCycle_en',            description='Config9', offset=(CMD_TYPE_1 + 0x09)*addrSize, bitSize=1,  bitOffset=0,  base=pr.Bool, mode='RW'),
+            pr.RemoteVariable(name='DCycle_bypass',        description='Config9', offset=(CMD_TYPE_1 + 0x09)*addrSize, bitSize=1,  bitOffset=1,  base=pr.Bool, mode='RW'),
+            pr.RemoteVariable(name='DCycle_polarity',      description='Config9', offset=(CMD_TYPE_1 + 0x09)*addrSize, bitSize=1,  bitOffset=2,  base=pr.Bool, mode='RW'),
+            pr.RemoteVariable(name='DCycle_DAC',           description='Config9', offset=(CMD_TYPE_1 + 0x09)*addrSize, bitSize=6,  bitOffset=3,  base=pr.UInt, mode='RW'),
+            pr.RemoteVariable(name='Bias_DCycle_DAC',      description='Config9', offset=(CMD_TYPE_1 + 0x09)*addrSize, bitSize=3,  bitOffset=9,  base=pr.UInt, mode='RW'),
+            pr.RemoteVariable(name='PLL_RO_OutDivider',    description='Config9', offset=(CMD_TYPE_1 + 0x09)*addrSize, bitSize=2,  bitOffset=12, base=pr.UInt, mode='RW'),
+            pr.RemoteVariable(name='PLL_DCycle_Bypass_B0', description='Config9', offset=(CMD_TYPE_1 + 0x09)*addrSize, bitSize=2,  bitOffset=14, base=pr.UInt, mode='RW')))
+
+
+        # CMD = 1, Addr = 10
+        self.add((
+            pr.RemoteVariable(name='PLL_RO_Reset',     description='Config10', offset=(CMD_TYPE_1 + 0x0A)*addrSize, bitSize=1,  bitOffset=0,  base=pr.Bool, mode='RW'),
+            pr.RemoteVariable(name='PLL_RO_Itune',     description='Config10', offset=(CMD_TYPE_1 + 0x0A)*addrSize, bitSize=3,  bitOffset=1,  base=pr.UInt, mode='RW'),
+            pr.RemoteVariable(name='PLL_RO_KVCO',      description='Config10', offset=(CMD_TYPE_1 + 0x0A)*addrSize, bitSize=3,  bitOffset=4,  base=pr.UInt, mode='RW'),
+            pr.RemoteVariable(name='PLL_RO_filter1',   description='Config10', offset=(CMD_TYPE_1 + 0x0A)*addrSize, bitSize=3,  bitOffset=7,  base=pr.UInt, mode='RW'),
+            pr.RemoteVariable(name='PLL_RO_filter2',   description='Config10', offset=(CMD_TYPE_1 + 0x0A)*addrSize, bitSize=3,  bitOffset=10, base=pr.UInt, mode='RW'),
+            pr.RemoteVariable(name='Dcycle_DAC_gain',  description='Config10', offset=(CMD_TYPE_1 + 0x0A)*addrSize, bitSize=3,  bitOffset=13, base=pr.UInt, mode='RW')))
+
+
+        # CMD = 1, Addr = 11
+        self.add((
+            pr.RemoteVariable(name='VTBias_B0',      description='Config11', offset=(CMD_TYPE_1 + 0x0B)*addrSize, bitSize=2,  bitOffset=0,  base=pr.UInt, mode='RW'),
+            pr.RemoteVariable(name='VTBias_T0',      description='Config11', offset=(CMD_TYPE_1 + 0x0B)*addrSize, bitSize=4,  bitOffset=2,  base=pr.UInt, mode='RW'),
+            pr.RemoteVariable(name='SAH_B0',         description='Config11', offset=(CMD_TYPE_1 + 0x0B)*addrSize, bitSize=2,  bitOffset=6,  base=pr.UInt, mode='RW'),
+            pr.RemoteVariable(name='SAH_VcmBuf_B0',  description='Config11', offset=(CMD_TYPE_1 + 0x0B)*addrSize, bitSize=2,  bitOffset=8,  base=pr.UInt, mode='RW'),
+            pr.RemoteVariable(name='SigBuf_B0',      description='Config11', offset=(CMD_TYPE_1 + 0x0B)*addrSize, bitSize=2,  bitOffset=10, base=pr.UInt, mode='RW'),
+            pr.RemoteVariable(name='ADC_VrefBuf_B0', description='Config11', offset=(CMD_TYPE_1 + 0x0B)*addrSize, bitSize=2,  bitOffset=12, base=pr.UInt, mode='RW'),
+            pr.RemoteVariable(name='ADC_B0',         description='Config11', offset=(CMD_TYPE_1 + 0x0B)*addrSize, bitSize=2,  bitOffset=14, base=pr.UInt, mode='RW')))
+
+        # CMD = 1, Addr = 12
+        self.add((
+            pr.RemoteVariable(name='ADC_VcmBuf_B0',      description='Config12', offset=(CMD_TYPE_1 + 0x0C)*addrSize, bitSize=2,  bitOffset=0,  base=pr.UInt, mode='RW'),
+            pr.RemoteVariable(name='bamp',               description='Config12', offset=(CMD_TYPE_1 + 0x0C)*addrSize, bitSize=3,  bitOffset=2,  base=pr.UInt, mode='RW'),
+            pr.RemoteVariable(name='bleak',              description='Config12', offset=(CMD_TYPE_1 + 0x0C)*addrSize, bitSize=3,  bitOffset=5,  base=pr.UInt, mode='RW'),
+            pr.RemoteVariable(name='brstVref',           description='Config12', offset=(CMD_TYPE_1 + 0x0C)*addrSize, bitSize=3,  bitOffset=8,  base=pr.UInt, mode='RW'),
+            pr.RemoteVariable(name='SAH_Ctrl_Visel',     description='Config12', offset=(CMD_TYPE_1 + 0x0C)*addrSize, bitSize=1,  bitOffset=11, base=pr.Bool, mode='RW'),
+            pr.RemoteVariable(name='ADC_Ocen_Bk0',       description='Config12', offset=(CMD_TYPE_1 + 0x0C)*addrSize, bitSize=1,  bitOffset=12, base=pr.Bool, mode='RW'),
+            pr.RemoteVariable(name='ADC_Ocen_Bk1',       description='Config12', offset=(CMD_TYPE_1 + 0x0C)*addrSize, bitSize=1,  bitOffset=13, base=pr.Bool, mode='RW'),
+            pr.RemoteVariable(name='VrefBuffExt_En_Bk0', description='Config12', offset=(CMD_TYPE_1 + 0x0C)*addrSize, bitSize=1,  bitOffset=14, base=pr.Bool, mode='RW'),
+            pr.RemoteVariable(name='VrefBuffExt_En_Bk1', description='Config12', offset=(CMD_TYPE_1 + 0x0C)*addrSize, bitSize=1,  bitOffset=15, base=pr.Bool, mode='RW')))
+
+        # CMD = 1, Addr = 13
+        self.add((
+            pr.RemoteVariable(name='ROsLVDS_bit',    description='Config13', offset=(CMD_TYPE_1 + 0x0D)*addrSize, bitSize=1,  bitOffset=0,  base=pr.Bool, mode='RW'),
+            pr.RemoteVariable(name='SACIsLVDS_bit',  description='Config13', offset=(CMD_TYPE_1 + 0x0D)*addrSize, bitSize=1,  bitOffset=1,  base=pr.Bool, mode='RW'),
+            pr.RemoteVariable(name='emph_bc',        description='Config13', offset=(CMD_TYPE_1 + 0x0D)*addrSize, bitSize=3,  bitOffset=2,  base=pr.UInt, mode='RW'),
+            pr.RemoteVariable(name='emph_bd',        description='Config13', offset=(CMD_TYPE_1 + 0x0D)*addrSize, bitSize=3,  bitOffset=5,  base=pr.UInt, mode='RW'),
+            pr.RemoteVariable(name='DM1sel',         description='Config13', offset=(CMD_TYPE_1 + 0x0D)*addrSize, bitSize=4,  bitOffset=8,  base=pr.UInt, mode='RW'),
+            pr.RemoteVariable(name='DM2sel',         description='Config13', offset=(CMD_TYPE_1 + 0x0D)*addrSize, bitSize=4,  bitOffset=12, base=pr.UInt, mode='RW')))
+        
+        # CMD = 1, Addr = 14
+        self.add((pr.RemoteVariable(name='SubBnkEn', description='Config14',  offset=(CMD_TYPE_1 + 0x0E)*addrSize, bitSize=16,  bitOffset=0, base=pr.UInt, mode='RW')))
+
+        # CMD = 1, Addr = 15
+        self.add((
+            pr.RemoteVariable(name='LDO_VTBias_B0',   description='Config15', offset=(CMD_TYPE_1 + 0x0F)*addrSize, bitSize=2,  bitOffset=0,  base=pr.UInt, mode='RW'),
+            pr.RemoteVariable(name='LDO_VTBias_T0',   description='Config15', offset=(CMD_TYPE_1 + 0x0F)*addrSize, bitSize=4,  bitOffset=2,  base=pr.UInt, mode='RW'),
+            pr.RemoteVariable(name='LDO_VTBias_Br0',  description='Config15', offset=(CMD_TYPE_1 + 0x0F)*addrSize, bitSize=2,  bitOffset=6,  base=pr.UInt, mode='RW'),
+            pr.RemoteVariable(name='LDO_VTBias_Tr0',  description='Config15', offset=(CMD_TYPE_1 + 0x0F)*addrSize, bitSize=4,  bitOffset=8,  base=pr.UInt, mode='RW'),
+            pr.RemoteVariable(name='TPS_DAC_Gain',    description='Config15', offset=(CMD_TYPE_1 + 0x0F)*addrSize, bitSize=3,  bitOffset=12, base=pr.UInt, mode='RW'),
+            pr.RemoteVariable(name='S2D_MX',          description='Config15', offset=(CMD_TYPE_1 + 0x0F)*addrSize, bitSize=1,  bitOffset=15, base=pr.Bool, mode='RW')))
+
+        # CMD = 1, Addr = 16
+        self.add((
+            pr.RemoteVariable(name='LDO0TB_En',               description='Config16', offset=(CMD_TYPE_1 + 0x10)*addrSize, bitSize=1,  bitOffset=0,  base=pr.Bool, mode='RW'),
+            pr.RemoteVariable(name='LDO0rTB_En',              description='Config16', offset=(CMD_TYPE_1 + 0x10)*addrSize, bitSize=1,  bitOffset=1,  base=pr.Bool, mode='RW'),
+            pr.RemoteVariable(name='LDO1TB_En',               description='Config16', offset=(CMD_TYPE_1 + 0x10)*addrSize, bitSize=1,  bitOffset=2,  base=pr.Bool, mode='RW'),
+            pr.RemoteVariable(name='LDO2TB_En',               description='Config16', offset=(CMD_TYPE_1 + 0x10)*addrSize, bitSize=1,  bitOffset=3,  base=pr.Bool, mode='RW'),
+            pr.RemoteVariable(name='LDO46_En',                description='Config16', offset=(CMD_TYPE_1 + 0x10)*addrSize, bitSize=1,  bitOffset=4,  base=pr.Bool, mode='RW'),
+            pr.RemoteVariable(name='encoder_mode_dft',        description='Config16', offset=(CMD_TYPE_1 + 0x10)*addrSize, bitSize=3,  bitOffset=5,  base=pr.UInt, mode='RW'),
+            pr.RemoteVariable(name='En_BankClk_Bk0_LVDS',     description='Config16', offset=(CMD_TYPE_1 + 0x10)*addrSize, bitSize=1,  bitOffset=8,  base=pr.Bool, mode='RW'),
+            pr.RemoteVariable(name='En_BankClk_Bk1_LVDS',     description='Config16', offset=(CMD_TYPE_1 + 0x10)*addrSize, bitSize=1,  bitOffset=9,  base=pr.Bool, mode='RW'),
+            pr.RemoteVariable(name='En_SerClk_out_Bk0_LVDS',  description='Config16', offset=(CMD_TYPE_1 + 0x10)*addrSize, bitSize=1,  bitOffset=10, base=pr.Bool, mode='RW'),
+            pr.RemoteVariable(name='En_SerClk_out_Bk1_LVDS',  description='Config16', offset=(CMD_TYPE_1 + 0x10)*addrSize, bitSize=1,  bitOffset=11, base=pr.Bool, mode='RW'),
+            pr.RemoteVariable(name='rtrimLVDS_b0',            description='Config16', offset=(CMD_TYPE_1 + 0x10)*addrSize, bitSize=3,  bitOffset=12, base=pr.UInt, mode='RW'),
+            pr.RemoteVariable(name='SACItristateLVDS_bit',    description='Config16', offset=(CMD_TYPE_1 + 0x10)*addrSize, bitSize=1,  bitOffset=15, base=pr.Bool, mode='RW')))
+
+
+        # CMD = 1, Addr = 17
+        self.add((
+            pr.RemoteVariable(name='VrefGen_B0_1v2',   description='Config17', offset=(CMD_TYPE_1 + 0x11)*addrSize, bitSize=2,  bitOffset=0,  base=pr.UInt, mode='RW'),
+            pr.RemoteVariable(name='VrefGen_Br0_1v2',  description='Config17', offset=(CMD_TYPE_1 + 0x11)*addrSize, bitSize=2,  bitOffset=2,  base=pr.UInt, mode='RW'),
+            pr.RemoteVariable(name='VrefGen_T0_1v2',   description='Config17', offset=(CMD_TYPE_1 + 0x11)*addrSize, bitSize=4,  bitOffset=4,  base=pr.UInt, mode='RW'),
+            pr.RemoteVariable(name='VrefGen_Tc0_1v2',  description='Config17', offset=(CMD_TYPE_1 + 0x11)*addrSize, bitSize=4,  bitOffset=8,  base=pr.UInt, mode='RW'),
+            pr.RemoteVariable(name='VrefGen_Tr0_1v2',  description='Config17', offset=(CMD_TYPE_1 + 0x11)*addrSize, bitSize=4,  bitOffset=12, base=pr.UInt, mode='RW')))
+
+
+        # CMD = 1, Addr = 18
+        self.add((
+            pr.RemoteVariable(name='VrefBuf_Ext_B0_1v2', description='Config18', offset=(CMD_TYPE_1 + 0x12)*addrSize, bitSize=2,  bitOffset=0,  base=pr.UInt, mode='RW'),
+            pr.RemoteVariable(name='VcmBuf_Ext_B0_1v2',  description='Config18', offset=(CMD_TYPE_1 + 0x12)*addrSize, bitSize=2,  bitOffset=2,  base=pr.UInt, mode='RW'),
+            pr.RemoteVariable(name='FE_Amp_B0_1v2',      description='Config18', offset=(CMD_TYPE_1 + 0x12)*addrSize, bitSize=2,  bitOffset=4,  base=pr.UInt, mode='RW'),
+            pr.RemoteVariable(name='bifb',               description='Config18', offset=(CMD_TYPE_1 + 0x12)*addrSize, bitSize=3,  bitOffset=6,  base=pr.UInt, mode='RW'),
+            pr.RemoteVariable(name='bbaseref',           description='Config18', offset=(CMD_TYPE_1 + 0x12)*addrSize, bitSize=3,  bitOffset=9,  base=pr.UInt, mode='RW'),
+            pr.RemoteVariable(name='blcoarse',           description='Config18', offset=(CMD_TYPE_1 + 0x12)*addrSize, bitSize=3,  bitOffset=12, base=pr.UInt, mode='RW'),
+            pr.RemoteVariable(name='ctrl_pulser',        description='Config18', offset=(CMD_TYPE_1 + 0x12)*addrSize, bitSize=1,  bitOffset=15, base=pr.Bool, mode='RW')))
+
+        # CMD = 1, Addr = 19
+        self.add((
+            pr.RemoteVariable(name='Pulser_Bias_DAC_b0',     description='Config19', offset=(CMD_TYPE_1 + 0x13)*addrSize, bitSize=3,  bitOffset=0,  base=pr.UInt, mode='RW'),
+            pr.RemoteVariable(name='PP_Pulser_Bias_DAC',     description='Config19', offset=(CMD_TYPE_1 + 0x13)*addrSize, bitSize=1,  bitOffset=3,  base=pr.Bool, mode='RW'),
+            pr.RemoteVariable(name='Pulser_Bias_Monost_b0',  description='Config19', offset=(CMD_TYPE_1 + 0x13)*addrSize, bitSize=3,  bitOffset=4,  base=pr.UInt, mode='RW'),
+            pr.RemoteVariable(name='ensdps',                 description='Config19', offset=(CMD_TYPE_1 + 0x13)*addrSize, bitSize=1,  bitOffset=7,  base=pr.Bool, mode='RW'),
+            pr.RemoteVariable(name='enrefps',                description='Config19', offset=(CMD_TYPE_1 + 0x13)*addrSize, bitSize=1,  bitOffset=8,  base=pr.Bool, mode='RW'),
+            pr.RemoteVariable(name='Ana_Mon_Cal',            description='Config19', offset=(CMD_TYPE_1 + 0x13)*addrSize, bitSize=1,  bitOffset=9,  base=pr.Bool, mode='RW'),
+            pr.RemoteVariable(name='ADC_B3B2',               description='Config19', offset=(CMD_TYPE_1 + 0x13)*addrSize, bitSize=2,  bitOffset=10, base=pr.UInt, mode='RW'),
+            pr.RemoteVariable(name='CRYO_ID',                description='Config19', offset=(CMD_TYPE_1 + 0x13)*addrSize, bitSize=4,  bitOffset=12, base=pr.UInt, mode='RW')))
+
+        
+        # CMD = 6, Addr = 17 : Row counter[8:0]
+        self.add((
+            pr.RemoteCommand(name='RowCounter', description='', offset=0x00006001*addrSize, bitSize=8, bitOffset=0, function=pr.Command.postedTouch, hidden=False)))
+
+        # CMD = 6, Addr = 19 : Bank select [3:0] & Col counter[6:0]
+        self.add((
+            pr.RemoteCommand(name='ColCounter', description='', offset=0x00006003*addrSize, bitSize=8, bitOffset=0, function=pr.Command.postedTouch, hidden=False)))
+
+        # CMD = 2, Addr = X  : Write Row with data
+        self.add((
+            pr.RemoteCommand(name='WriteRowData',    description='', offset=0x00002000*addrSize, bitSize=13, bitOffset=0, function=pr.Command.postedTouch, hidden=False)))
+
+        # CMD = 3, Addr = X  : Write Column with data
+        self.add(
+            pr.RemoteCommand(name='WriteColData',    description='', offset=0x00003000*addrSize, bitSize=13, bitOffset=0, function=pr.Command.postedTouch, hidden=False))
+
+        # CMD = 4, Addr = X  : Write Matrix with data  
+        self.add((    
+            pr.RemoteCommand(name='WriteMatrixData', description='', offset=0x00004000*addrSize, bitSize=13, bitOffset=0, function=pr.Command.touch, hidden=False)))
+   
+        # CMD = 5, Addr = X  : Read/Write Pixel with data
+        self.add(pr.RemoteCommand(name='WritePixelData',  description='WritePixelData',  offset=0x00005000*addrSize, bitSize=13, bitOffset=0,  function=pr.Command.postedTouch, hidden=False))
+ 
+        # CMD = 7, Addr = X  : Prepare to write chip ID
+        #self.add((
+        #    pr.Variable(name='PrepareWriteChipIdA', description='PrepareWriteChipIdA', offset=0x00007000*addrSize, bitSize=32, bitOffset=0, base='hex', mode='RO'),
+        #    pr.Variable(name='PrepareWriteChipIdB', description='PrepareWriteChipIdB', offset=0x00007015*addrSize, bitSize=32, bitOffset=0, base='hex', mode='RO')))
+      
+        # CMD = 8, Addr = X  : Prepare for row/column/matrix configuration
+        self.add(
+            pr.RemoteCommand(name='PrepareMultiConfig', description='PrepareMultiConfig', offset=0x00008000*addrSize, bitSize=32, bitOffset=0, function=pr.Command.touchZero, hidden=False))
+
+
+
+
+        #####################################
+        # Create commands
+        #####################################
+
+        # A command has an associated function. The function can be a series of
+        # python commands in a string. Function calls are executed in the command scope
+        # the passed arg is available as 'arg'. Use 'dev' to get to device scope.
+        # A command can also be a call to a local function with local scope.
+        # The command object and the arg are passed
+
+        self.add(
+            pr.LocalCommand(name='ClearMatrix',description='Clear configuration bits of all channels', function=self.fnClearMatrix))
+
+        self.add(
+            pr.LocalCommand(name='SetChannelBitmap',description='Set channel bitmap of the matrix', function=self.fnSetChannelBitmap))
+        
+        self.add(
+            pr.LocalCommand(name='GetChannelBitmap',description='Get channel bitmap of the matrix', function=self.fnGetChannelBitmap))
+
+        self.add(
+            pr.LocalCommand(name='rawGetChannelValuep',description='Get channel value', function=self.fnReadChannel))
+
+
+
+    def fnSetChannelBitmap(self, dev,cmd,arg):
+        """SetChannelBitmap command function"""
+        print("Warning: Function not implemented.")             
+
+
+    def fnGetChannelBitmap(self, dev,cmd,arg):
+        """GetChannelBitmap command function"""
+
+        addrSize = 4
+        #set r0mode in order to have saci cmd to work properly on legacy firmware
+        #self.root.Epix10ka.EpixFpgaRegisters.AsicR0Mode.set(True)
+
+        if (self.enable.get()):
+
+            self.reportCmd(dev,cmd,arg)
+            if len(arg) > 0:
+               self.filename = arg
+            else:
+               self.filename = QFileDialog.getOpenFileName(self.root.guiTop, 'Open File', '', 'csv file (*.csv);; Any (*.*)')
+            if usingPyQt5:
+               self.filename = self.filename[0]
+            if os.path.splitext(self.filename)[1] == '.csv':
+                readBack = np.zeros((64),dtype='uint16')
+                self._rawWrite(0x00000000*addrSize,0,posted=True)
+                self._rawWrite(0x00008000*addrSize,0,posted=True)
+                for x in range (0, 63):
+                   #for y in range (0, 192):
+                      #bankToWrite = int(y/48);
+                      #if (bankToWrite == 0):
+                      #   colToWrite = 0x700 + y%48;
+                      #elif (bankToWrite == 1):
+                      #   colToWrite = 0x680 + y%48;
+                      #elif (bankToWrite == 2):
+                      #   colToWrite = 0x580 + y%48;
+                      #elif (bankToWrite == 3):
+                      #   colToWrite = 0x380 + y%48;
+                      #else:
+                      #   print('unexpected bank number')
+                      self._rawWrite(0x00006001*addrSize, x, posted=True)
+                      #self._rawWrite(0x00006013*addrSize, colToWrite)
+                      readBack[x] = self._rawRead(0x00005000*addrSize)
+                np.savetxt(self.filename, readBack, fmt='%d', delimiter=',', newline='\n')
+        else:
+            print("Warning: ASIC enable is set to False!")
+
+
+    def fnClearMatrix(self, dev,cmd,arg):
+        """ClearMatrix command function"""
+        print("Warning: Function not implemented.")             
+
+    def fnReadChannel(self, dev,cmd,arg):
+        """ReadMatrix command function"""
+        addrSize = 4
+        print("Read back value: " + str(self._rawRead(0x00005000*addrSize)))
+
+    # standard way to report a command has been executed
+    def reportCmd(self, dev,cmd,arg):
+        """reportCmd command function"""
+        "Enables to unify the console print out for all cmds"
+        print("Command executed : ", cmd)
+
+    @staticmethod   
+    def frequencyConverter(self):
+        def func(dev, var):         
+            return '{:.3f} kHz'.format(1/(self.clkPeriod * self._count(var.dependencies)) * 1e-3)
+        return func
+
 
 
 

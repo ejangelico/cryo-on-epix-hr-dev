@@ -125,7 +125,7 @@ class EpixHRGen1Cryo(pr.Device):
             ssiPrbsTxRegisters(              name='ssiPrbs3PktRegisters',              offset=0x85000000, expand=False, enabled=False),
             axi.AxiStreamMonAxiL(            name='AxiStreamMon',                      offset=0x86000000, expand=False, enabled=False, numberLanes=4),
             axi.AxiMemTester(                name='AxiMemTester',                      offset=0x87000000, expand=False, enabled=False),
-            epix.CryoAsic(                   name='CryoAsic0',                         offset=0x88000000, expand=False, enabled=False),
+            epix.CryoAsic0p2(                name='CryoAsic0p2',                       offset=0x88000000, expand=False, enabled=False),
             CryoAppCoreFpgaRegisters(        name="AppFpgaRegisters",                  offset=0x96000000, expand=False, enabled=False),
             powerSupplyRegisters(            name='PowerSupply',                       offset=0x89000000, expand=False, enabled=False),            
             HighSpeedExtDacRegisters(        name='HSDac',                             offset=0x8A000000, expand=False, enabled=False, HsDacEnum=HsDacEnum),
