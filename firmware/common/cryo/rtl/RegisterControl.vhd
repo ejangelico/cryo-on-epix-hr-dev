@@ -4,7 +4,7 @@
 -- File       : RegControlEpixHR.vhd
 -- Company    : SLAC National Accelerator Laboratory
 -- Created    : 04/26/2016
--- Last update: 2020-05-13
+-- Last update: 2020-05-22
 -- Platform   : Vivado 2014.4
 -- Standard   : VHDL'93/02
 -------------------------------------------------------------------------------
@@ -442,7 +442,7 @@ begin
       adcClk         <= r.adcClk;
       saciReadoutReq <= r.asicAcqReg.saciSync;
       asicPPbe       <= r.asicAcqReg.PPbe;
-      asicPpmat      <= r.asicAcqReg.SampClkEn;
+      asicPpmat      <= r.asicAcqReg.SampClkEnPolarity;
       asicTpulse     <= r.asicAcqReg.Tpulse;
       asicStart      <= r.asicAcqReg.Start;
       asicSR0        <= r.asicAcqReg.SR0Polarity;--r.asicAcqReg.SR0;
