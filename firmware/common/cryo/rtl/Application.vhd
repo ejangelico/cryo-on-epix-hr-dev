@@ -400,8 +400,8 @@ begin
   IOBUF_DATAP_9    : IOBUF port map (O => open,   I => pllSck, IO => asicDataP(9),  T => '0');
   IOBUF_DATAP_10   : IOBUF port map (O => open,   I => pllCsL, IO => asicDataP(10), T => '0');
   --
-  IOBUF_DATAN_9    : IOBUF port map (O => open,   I => pllSdo, IO => asicDataN(9),  T => '0');
-  IOBUF_DATAN_10   : IOBUF port map (O => pllSdi, I => '0',    IO => asicDataN(10), T => '1');
+  IOBUF_DATAN_9    : IOBUF port map (O => open,   I => pllSdi, IO => asicDataN(9),  T => '0');
+  IOBUF_DATAN_10   : IOBUF port map (O => pllSdo, I => '0',    IO => asicDataN(10), T => '1');
   
   -----------------------------------------------------------------------------
   -- External 20 bit DAC IOBUF & MAPPING
