@@ -2,7 +2,7 @@
 -- File       : Application.vhd
 -- Company    : SLAC National Accelerator Laboratory
 -- Created    : 2017-04-21
--- Last update: 2020-05-13
+-- Last update: 2020-05-26
 -------------------------------------------------------------------------------
 -- Description: Application Core's Top Level
 -------------------------------------------------------------------------------
@@ -1508,7 +1508,7 @@ begin
           TPD_G              => TPD_G,
           MEMORY_INIT_FILE_G => "Si5345-RevD-Regmap-56MHz.mem",  -- Used to initialization boot ROM
           CLK_PERIOD_G       => (1.0/100.0E+6),
-          SPI_SCLK_PERIOD_G  => (1.0/10.0E+6))
+          SPI_SCLK_PERIOD_G  => (1.0/1.0E+6))
         port map(
           -- Clock and Reset
           axiClk         => appClk,
