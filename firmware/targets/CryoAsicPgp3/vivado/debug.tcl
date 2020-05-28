@@ -128,6 +128,6 @@ ConfigProbe ${ilaName} {U_App/G_ASICS[0].U_Framers/rxDataCs[*]}
 ##########################
 ## Write the port map file
 ##########################
-#WriteDebugProbes ${ilaName} ${PROJ_DIR}/images/debug_probes.ltx
+WriteDebugProbes ${ilaName} ${PROJ_DIR}/images/debug_probes.ltx
 
 
