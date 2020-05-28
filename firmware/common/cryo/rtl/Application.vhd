@@ -2,7 +2,7 @@
 -- File       : Application.vhd
 -- Company    : SLAC National Accelerator Laboratory
 -- Created    : 2017-04-21
--- Last update: 2020-05-26
+-- Last update: 2020-05-28
 -------------------------------------------------------------------------------
 -- Description: Application Core's Top Level
 -------------------------------------------------------------------------------
@@ -237,6 +237,7 @@ architecture mapping of Application is
    signal iSaciSelL            : slv(3 downto 0);
    signal iSaciClk             : sl;
    signal iSaciCmd             : sl;
+   signal iSaciRsp             : sl;
    signal boardConfig          : AppConfigType;
    signal monitoringSig        : slv(1 downto 0);
    
@@ -333,7 +334,12 @@ architecture mapping of Application is
 
    attribute keep of adcStreams        : signal is "true";
 
-    signal dummy : slv(3 downto 0);
+   attribute keep of iSaciSelL         : signal is "true";
+   attribute keep of iSaciClk          : signal is "true";
+   attribute keep of iSaciCmd          : signal is "true";
+   attribute keep of iSaciRsp          : signal is "true";
+
+   signal dummy : slv(3 downto 0);
 
 
 begin
@@ -477,6 +483,7 @@ begin
    asicSaciClk     <= iSaciClk;
    asicSaciSel     <= iSaciSelL;
    iSaciSelL(3 downto 1) <=  (others => '1');
+   iSaciRsp        <= asicSaciRsp; -- signal for csp
 
    ----------------------------------------------------------------------------
    -- Monitoring signals
