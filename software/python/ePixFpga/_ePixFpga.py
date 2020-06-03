@@ -125,7 +125,7 @@ class EpixHRGen1Cryo(pr.Device):
             ssiPrbsTxRegisters(              name='ssiPrbs3PktRegisters',              offset=0x85000000, expand=False, enabled=False),
             axi.AxiStreamMonAxiL(            name='AxiStreamMon',                      offset=0x86000000, expand=False, enabled=False, numberLanes=4),
             axi.AxiMemTester(                name='AxiMemTester',                      offset=0x87000000, expand=False, enabled=False),
-            epix.CryoAsic0p2(                name='CryoAsic0p2',                       offset=0x88000000, expand=False, enabled=False),
+            epix.CryoAsic0p2(                name='CryoAsic0',                       offset=0x88000000, expand=False, enabled=False),
             CryoAppCoreFpgaRegisters(        name="AppFpgaRegisters",                  offset=0x96000000, expand=False, enabled=False),
             powerSupplyRegisters(            name='PowerSupply',                       offset=0x89000000, expand=False, enabled=False),            
             HighSpeedExtDacRegisters(        name='HSDac',                             offset=0x8A000000, expand=False, enabled=False, HsDacEnum=HsDacEnum),
@@ -204,9 +204,159 @@ class EpixHRGen1Cryo(pr.Device):
                 
             self.root.dataWriter.open.set(False)
             pulserValue = pulserValue + 1
-            
 
     def fnInitCryo(self, dev,cmd,arg):
+        """SetTestBitmap command function"""       
+        print("Rysync cryo started")
+        self.filenameSCOPE = "./yml/cryo_config_SCOPE.yml"
+        if arg == 1:
+            self.filenameMMCM = "./yml/cryo_config_mmcm_PLLClk_448MHz.yml"
+            self.filenamePowerSupply = "./yml/cryo_config_PowerSupply_2v5.yml"
+            self.filenamePLL = "./config/pll-config/Si5345-RevD-CRYO_C01-Registers.csv"
+            self.filenameASIC = "./yml/cryo_config_ASIC_PLLClk_448MHz_RoomTemp_v0p1.yml"
+
+        if arg == 2:
+            self.filenameMMCM = "./yml/cryo_config_mmcm_PLLClk_224MHz.yml"
+            self.filenamePowerSupply = "./yml/cryo_config_PowerSupply_2v5.yml"
+            self.filenamePLL = "./config/pll-config/Si5345-RevD-CRYO_C01-Registers.csv"
+            self.filenameASIC = "./yml/cryo_config_ASIC_PLLClk_224MHz_RoomTemp_v0p1.yml"
+            
+            
+        if arg ==3:
+            self.filenameMMCM = "./yml/cryo_config_mmcm_PLLClk_448MHz.yml"
+            self.filenamePowerSupply = "./yml/cryo_config_PowerSupply_2v5.yml"
+            self.filenamePLL = "./config/pll-config/Si5345-RevD-CRYO_C01-Registers.csv"
+            self.filenameASIC = "./yml/cryo_config_ASIC_ExtClk_RoomTemp_v0p1.yml"
+
+
+        if arg != 0:
+            self.fnInitCryoScript(dev,cmd,arg)
+
+    def fnInitCryoScript(self, dev,cmd,arg):
+        """SetTestBitmap command function"""       
+        print("Init cryo script started")
+        print("En FPGA module and turns off SR0")
+        self.AppFpgaRegisters.enable.set(True)
+        self.AppFpgaRegisters.SR0Polarity.set(False)
+        self.AppFpgaRegisters.SampClkEn.set(False)
+        delay = 1.0
+
+        print("Loading MMCM configuration")
+        self.MMCMSerdesRegisters.enable.set(True)
+        self.root.readBlocks()
+        time.sleep(delay/10) 
+        self.root.LoadConfig(self.filenameMMCM)
+        print(self.filenameMMCM)
+        time.sleep(delay/10) 
+        self.root.readBlocks()
+        self.MMCMSerdesRegisters.enable.set(False)
+        time.sleep(delay) 
+        self.root.readBlocks()
+        print("Completed")
+
+        # load config that sets prog supply
+        print("Loading supply configuration")
+        self.root.LoadConfig(self.filenamePowerSupply)
+        print(self.filenamePowerSupply)
+        time.sleep(delay) 
+
+        # load config that sets PLL
+        print("Loading PLL configuration")
+        self.Pll.enable.set(True)
+        self.Pll.LoadCsvFile(self.filenamePLL)
+        print(self.filenamePLL)
+        self.numberOfAttempts = 5
+        for i in range(self.numberOfAttempts):
+            time.sleep(2*delay)
+            print("Waiting asic to stablize %d out of %d" % (i, self.numberOfAttempts))
+
+        ## takes the asic off of reset
+        print("Taking asic off of reset")
+        self.AppFpgaRegisters.enable.set(True)
+        self.AppFpgaRegisters.GlblRstPolarity.set(False)
+        time.sleep(delay) 
+        self.AppFpgaRegisters.GlblRstPolarity.set(True)
+        time.sleep(delay) 
+        self.root.readBlocks()
+        time.sleep(delay) 
+
+        ## load config for the asic
+        print("Loading timing configuration")
+        self.root.LoadConfig(self.filenameASIC)
+        print(self.filenameASIC)
+        self.numberOfAttempts = 18
+        for i in range(self.numberOfAttempts):
+            time.sleep(2*delay)
+            print("Waiting LDO to settle, attempt %d out of %d" % (i, self.numberOfAttempts))
+
+
+        ## start deserializer config for the asic
+        EN_DESERIALIZERS = True
+        if EN_DESERIALIZERS : 
+            print("Starting deserializer")
+            self.serializerSyncAttempsts = 0
+            while True:
+                #make sure idle
+                self.CryoAsic0.encoder_mode_dft.set(0)
+                self.AppFpgaRegisters.SR0Polarity.set(False)
+                time.sleep(2*delay) 
+                self.DeserRegisters.enable.set(True)
+                self.root.readBlocks()
+                time.sleep(2*delay) 
+                self.DeserRegisters.InitAdcDelay()
+                time.sleep(delay)   
+                self.DeserRegisters.Delay0.set(self.DeserRegisters.sugDelay0)
+                self.DeserRegisters.Delay1.set(self.DeserRegisters.sugDelay1)
+                self.DeserRegisters.Resync.set(True)
+                time.sleep(delay) 
+                self.DeserRegisters.Resync.set(False)
+                time.sleep(5*delay) 
+                if self.DeserRegisters.Locked0.get() and self.DeserRegisters.Locked1.get():
+                    break
+                #limits the number of attempts to get serializer synch.
+                self.serializerSyncAttempsts = self.serializerSyncAttempsts + 1
+                if self.serializerSyncAttempsts > 2:
+                    break
+
+        EN_SampClk = True
+        if EN_SampClk : 
+            print("Setting SampClk to true")
+            self.AppFpgaRegisters.enable.set(True)
+            self.root.readBlocks()
+            for i in range(2):
+                self.AppFpgaRegisters.SampClkEn.set(False)
+                time.sleep(delay) 
+                self.AppFpgaRegisters.SampClkEn.set(True)
+                self.root.readBlocks()
+                time.sleep(delay) 
+
+        EN_SR0 = True
+        EN_ALL_CRYO_ADCS = False
+        if EN_SR0 : 
+            print("Setting SR0 set to true")
+            self.AppFpgaRegisters.enable.set(True)
+            self.root.readBlocks()
+            for i in range(2):
+                self.AppFpgaRegisters.SR0Polarity.set(False)
+                time.sleep(delay) 
+                self.AppFpgaRegisters.SR0Polarity.set(True)
+                self.root.readBlocks()
+                time.sleep(delay) 
+
+            if EN_ALL_CRYO_ADCS : 
+                self.fnEnAllCryoAdcs(dev,cmd,arg)
+
+
+        BYPASS_DECODER = True
+        if BYPASS_DECODER : 
+            self.fnBypassDecoder(dev,cmd,arg)
+
+        CONFIG_SCOPE = True
+        if CONFIG_SCOPE :
+            print("Loading Pseudo Scope configuration")
+            self.root.LoadConfig(self.filenameSCOPE)
+
+    def fnInitCryo0p1(self, dev,cmd,arg):
         """SetTestBitmap command function"""       
         print("Rysync cryo started")
         self.filenameSCOPE = "./yml/cryo_config_SCOPE.yml"
@@ -276,9 +426,9 @@ class EpixHRGen1Cryo(pr.Device):
             self.filenameCJC = "./yml/cryo_config_CJC_ExtClk_500MHz.yml"
             self.filenameASIC = "./yml/cryo_config_ASIC_ExtClk_500MHz_RoomTemp_v0p1.yml"
         if arg != 0:
-            self.fnInitCryoScript(dev,cmd,arg)
+            self.fnInitCryoScript0p1(dev,cmd,arg)
 
-    def fnInitCryoScript(self, dev,cmd,arg):
+    def fnInitCryoScript0p1(self, dev,cmd,arg):
         """SetTestBitmap command function"""       
         print("Init cryo script started")
         print("En FPGA module and turns off SR0")
