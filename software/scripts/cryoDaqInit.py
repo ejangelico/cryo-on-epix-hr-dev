@@ -227,13 +227,13 @@ class Board(pyrogue.Root):
         @self.command()
         def Trigger():
             self.cmd.sendCmd(0, 0)
-            if (self.EpixHRGen1Cryo.CryoAsic0.test.get() and dataWriter.frameCount.get()):
-                pulserAmplitude = self.dataWriter.frameCount.get() #self.EpixHRGen1Cryo.CryoAsic0.Pulser.get()
-                if pulserAmplitude%1024 == 1023:
-                    pulserAmplitude = 0
-                else:
-                    pulserAmplitude += 1
-                self.EpixHRGen1Cryo.CryoAsic0.Pulser.set(pulserAmplitude)
+            #if (self.EpixHRGen1Cryo.CryoAsic0.test.get() and dataWriter.frameCount.get()):
+            #    pulserAmplitude = self.dataWriter.frameCount.get() #self.EpixHRGen1Cryo.CryoAsic0.Pulser.get()
+            #    if pulserAmplitude%1024 == 1023:
+            #        pulserAmplitude = 0
+            #    else:
+            #        pulserAmplitude += 1
+            #    self.EpixHRGen1Cryo.CryoAsic0.Pulser.set(pulserAmplitude)
 
         # Add Devices
         if ( args.type == 'kcu1500' ):
@@ -259,7 +259,7 @@ if (args.verbose): dbgData.setDebug(60, "DATA Verbose 3[{}]".format(0))
 if (args.verbose): pyrogue.streamTap(pgpL3Vc0, dbgData)
 
 # Create GUI
-appTop = QApplication(sys.argv)
+appTop = pyrogue.gui.application(sys.argv)
 guiTop = pyrogue.gui.GuiTop(group='cryoAsicGui')
 cryoAsicBoard = Board(guiTop, cmd, dataWriter, srp)
 if ( args.type == 'dataFile' or args.type == 'SIM'):

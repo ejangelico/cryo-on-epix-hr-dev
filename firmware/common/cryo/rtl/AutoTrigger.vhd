@@ -3,8 +3,6 @@
 -- Project       : EPIX Readout
 -------------------------------------------------------------------------------
 -- File          : AutoTrigger.vhd
--- Author        : Kurtis Nishimura, kurtisn@slac.stanford.edu
--- Created       : 04/08/2014
 -------------------------------------------------------------------------------
 -- Description:
 -- Generates automatic triggers
@@ -22,12 +20,14 @@
 -------------------------------------------------------------------------------
 
 LIBRARY ieee;
-use work.all;
-use work.StdRtlPkg.all;
+
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 library UNISIM;
 use UNISIM.vcomponents.all;
+
+library surf;
+use surf.StdRtlPkg.all;
 
 entity AutoTrigger is
    port (

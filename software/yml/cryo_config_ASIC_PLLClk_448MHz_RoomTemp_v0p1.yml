@@ -32,7 +32,6 @@ cryoAsicGen1:
       DM1en: False
       DM2en: False
       Pulser_Monost: 0x0
-      Pulser_SyncEn: False
       cs_LVDS_Tx: 0x1
       DCycle_en: False
       DCycle_bypass: False
@@ -123,9 +122,7 @@ cryoAsicGen1:
       PPbePolarity: False
       PPbeDelay: 0
       PPbeWidth: 0
-      PpmatPolarity: False
-      PpmatDelay: 0
-      PpmatWidth: 0
+      SampClkEn: True
       SyncPolarity: True
       SyncDelay: 0
       SyncWidth: 0

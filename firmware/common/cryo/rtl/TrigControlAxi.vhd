@@ -2,7 +2,7 @@
 -- File       : TrigControlAxi.vhd
 -- Company    : SLAC National Accelerator Laboratory
 -- Created    : 04/07/2017
--- Last update: 2019-04-23
+-- Last update: 2020-05-12
 -------------------------------------------------------------------------------
 -- Description: 
 -------------------------------------------------------------------------------
@@ -20,10 +20,11 @@ use ieee.std_logic_1164.all;
 use ieee.std_logic_arith.all;
 use ieee.std_logic_unsigned.all;
 
-use work.StdRtlPkg.all;
-use work.AxiLitePkg.all;
-use work.SsiCmdMasterPkg.all;
-use work.Pgp2bPkg.all;
+library surf;
+use surf.StdRtlPkg.all;
+use surf.AxiLitePkg.all;
+use surf.Pgp2bPkg.all;
+use surf.SsiCmdMasterPkg.all;
 
 entity TrigControlAxi is
    generic (
@@ -140,7 +141,7 @@ begin
    --   Run trigger is opCode x00
    --   DAQ trigger trails by 1 clock
    -----------------------------------
-   U_TrigPulser : entity work.SsiCmdMasterPulser
+   U_TrigPulser : entity surf.SsiCmdMasterPulser
    generic map (
       OUT_POLARITY_G => '1',
       PULSE_WIDTH_G  => 2
@@ -157,7 +158,7 @@ begin
       locRst      => sysRst              
    );
 
-   U_TrigPulserSync : entity work.Synchronizer
+   U_TrigPulserSync : entity surf.Synchronizer
    generic map(
       TPD_G          => TPD_G,
       RST_POLARITY_G => '1',
@@ -188,7 +189,7 @@ begin
    --   Any op code is a trigger, actual op
    --   code is the fiducial.
    -----------------------------------------
-   U_PgpSideBandTrigger : entity work.SynchronizerFifo
+   U_PgpSideBandTrigger : entity surf.SynchronizerFifo
    generic map (
       TPD_G        => TPD_G,
       DATA_WIDTH_G => 8
@@ -226,7 +227,7 @@ begin
    -- Run Input
    --------------------------------   
    -- Edge Detect
-   U_RunEdge : entity work.SynchronizerEdge 
+   U_RunEdge : entity surf.SynchronizerEdge 
       port map (
          clk        => appClk,
          rst        => appRst,
@@ -279,7 +280,7 @@ begin
    --------------------------------
 
    -- Edge Detect
-   U_AcqEdge : entity work.SynchronizerEdge 
+   U_AcqEdge : entity surf.SynchronizerEdge 
       port map (
          clk        => appClk,
          rst        => appRst,

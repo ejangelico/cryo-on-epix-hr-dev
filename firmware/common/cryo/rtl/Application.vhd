@@ -2,7 +2,7 @@
 -- File       : Application.vhd
 -- Company    : SLAC National Accelerator Laboratory
 -- Created    : 2017-04-21
--- Last update: 2019-05-22
+-- Last update: 2020-05-28
 -------------------------------------------------------------------------------
 -- Description: Application Core's Top Level
 -------------------------------------------------------------------------------
@@ -21,18 +21,21 @@ use ieee.std_logic_unsigned.all;
 use ieee.std_logic_arith.all;
 use ieee.numeric_std.all;
 
-use work.StdRtlPkg.all;
-use work.AxiStreamPkg.all;
-use work.EpixHrCorePkg.all;
-use work.AxiLitePkg.all;
-use work.AxiPkg.all;
-use work.Pgp2bPkg.all;
-use work.SsiPkg.all;
-use work.SsiCmdMasterPkg.all;
-use work.Ad9249Pkg.all;
-use work.Code8b10bPkg.all;
-use work.HrAdcPkg.all;
+library surf;
+use surf.StdRtlPkg.all;
+use surf.AxiStreamPkg.all;
+use surf.AxiLitePkg.all;
+use surf.AxiPkg.all;
+use surf.Pgp2bPkg.all;
+use surf.SsiPkg.all;
+use surf.SsiCmdMasterPkg.all;
+use surf.Ad9249Pkg.all;
+use surf.Code8b10bPkg.all;
 
+library epix_hr_core;
+use epix_hr_core.EpixHrCorePkg.all;
+
+use work.HrAdcPkg.all;
 use work.AppPkg.all;
 
 library unisim;
@@ -43,6 +46,8 @@ entity Application is
       TPD_G            : time            := 1 ns;
       APP_CONFIG_G     : AppConfigType   := APP_CONFIG_INIT_C;
       SIMULATION_G     : boolean         := false;
+      DDR_GEN_G        : boolean         := false;
+      TEST_SYSTEM_C00_G: boolean         := false;
       BUILD_INFO_G     : BuildInfoType;
       AXI_ERROR_RESP_G : slv(1 downto 0) := AXI_RESP_SLVERR_C;
       IODELAY_GROUP_G   : string          := "DEFAULT_GROUP");
@@ -232,6 +237,7 @@ architecture mapping of Application is
    signal iSaciSelL            : slv(3 downto 0);
    signal iSaciClk             : sl;
    signal iSaciCmd             : sl;
+   signal iSaciRsp             : sl;
    signal boardConfig          : AppConfigType;
    signal monitoringSig        : slv(1 downto 0);
    
@@ -303,16 +309,20 @@ architecture mapping of Application is
    signal dacCsbProgSupplyOut : slv(1 downto 0);
    signal dacClrbProgSupplyOut: sl;
    -- CJC
-   signal cjcRst            : slv(1 downto 0);
-   signal cjcDec            : slv(1 downto 0);
-   signal cjcInc            : slv(1 downto 0);
-   signal cjcFrqtbl         : slv(1 downto 0);
-   signal cjcRate           : slv(3 downto 0);
-   signal cjcBwSel          : slv(3 downto 0);
-   signal cjcFrqSel         : slv(7 downto 0);
-   signal cjcSfout          : slv(3 downto 0);
-   signal cjcLos            : sl;
-   signal cjcLol            : sl;
+   --signal cjcRst            : slv(1 downto 0);
+   --signal cjcDec            : slv(1 downto 0);
+   --signal cjcInc            : slv(1 downto 0);
+   --signal cjcFrqtbl         : slv(1 downto 0);
+   --signal cjcRate           : slv(3 downto 0);
+   --signal cjcBwSel          : slv(3 downto 0);
+   --signal cjcFrqSel         : slv(7 downto 0);
+   --signal cjcSfout          : slv(3 downto 0);
+   --signal cjcLos            : sl;
+   --signal cjcLol            : sl;
+   signal pllSck              : sl;
+   signal pllCsL              : sl;
+   signal pllSdo              : sl;
+   signal pllSdi              : sl;
    --
    signal adcSerial         : HrAdcSerialGroupArray(NUMBER_OF_ASICS_C-1 downto 0);
    signal asicStreams       : AxiStreamMasterArray(STREAMS_PER_ASIC_C-1 downto 0) := (others=>AXI_STREAM_MASTER_INIT_C);   
@@ -324,7 +334,12 @@ architecture mapping of Application is
 
    attribute keep of adcStreams        : signal is "true";
 
-    signal dummy : slv(3 downto 0);
+   attribute keep of iSaciSelL         : signal is "true";
+   attribute keep of iSaciClk          : signal is "true";
+   attribute keep of iSaciCmd          : signal is "true";
+   attribute keep of iSaciRsp          : signal is "true";
+
+   signal dummy : slv(3 downto 0);
 
 
 begin
@@ -363,27 +378,37 @@ begin
   -----------------------------------------------------------------------------
   -- Clock Jitter Cleaner IOBUF & MAPPING
   -----------------------------------------------------------------------------
-  IOBUF_DATAP_1 : IOBUF port map (O => open,   I => cjcFrqtbl(0), IO => asicDataP(1),  T => cjcFrqtbl(1));
-  IOBUF_DATAP_7 : IOBUF port map (O => open,   I => cjcDec(0),    IO => asicDataP(7),  T => cjcDec(1));
-  IOBUF_DATAP_8 : IOBUF port map (O => open,   I => cjcInc(0),    IO => asicDataP(8),  T => cjcInc(1));
-  IOBUF_DATAP_9 : IOBUF port map (O => open,   I => cjcFrqSel(0), IO => asicDataP(9),  T => cjcFrqSel(4));
-  IOBUF_DATAP_10: IOBUF port map (O => open,   I => cjcFrqSel(1), IO => asicDataP(10), T => cjcFrqSel(5));
-  IOBUF_DATAP_11: IOBUF port map (O => open,   I => cjcFrqSel(2), IO => asicDataP(11), T => cjcFrqSel(6));
-  IOBUF_DATAP_12: IOBUF port map (O => open,   I => cjcFrqSel(3), IO => asicDataP(12), T => cjcFrqSel(7));
-  IOBUF_DATAP_13: IOBUF port map (O => cjcLos, I => '0',          IO => asicDataP(13), T => '1');
+  --IOBUF_DATAP_1 : IOBUF port map (O => open,   I => cjcFrqtbl(0), IO => asicDataP(1),  T => cjcFrqtbl(1));
+  --IOBUF_DATAP_7 : IOBUF port map (O => open,   I => cjcDec(0),    IO => asicDataP(7),  T => cjcDec(1));
+  --IOBUF_DATAP_8 : IOBUF port map (O => open,   I => cjcInc(0),    IO => asicDataP(8),  T => cjcInc(1));
+  --IOBUF_DATAP_9 : IOBUF port map (O => open,   I => cjcFrqSel(0), IO => asicDataP(9),  T => cjcFrqSel(4));
+  --IOBUF_DATAP_10: IOBUF port map (O => open,   I => cjcFrqSel(1), IO => asicDataP(10), T => cjcFrqSel(5));
+  --IOBUF_DATAP_11: IOBUF port map (O => open,   I => cjcFrqSel(2), IO => asicDataP(11), T => cjcFrqSel(6));
+  --IOBUF_DATAP_12: IOBUF port map (O => open,   I => cjcFrqSel(3), IO => asicDataP(12), T => cjcFrqSel(7));
+  --IOBUF_DATAP_13: IOBUF port map (O => cjcLos, I => '0',          IO => asicDataP(13), T => '1');
   --
-  IOBUF_DATAN_1 : IOBUF port map (O => open,   I => cjcRst(0),    IO => asicDataN(1),  T => cjcRst(1));
-  IOBUF_DATAN_7 : IOBUF port map (O => open,   I => cjcRate(0),   IO => asicDataN(7),  T => cjcRate(2));
-  IOBUF_DATAN_8 : IOBUF port map (O => open,   I => cjcRate(1),   IO => asicDataN(8),  T => cjcRate(3));
-  IOBUF_DATAN_9 : IOBUF port map (O => open,   I => cjcBwSel(0),  IO => asicDataN(9),  T => cjcBwSel(2));
-  IOBUF_DATAN_10: IOBUF port map (O => open,   I => cjcBwSel(1),  IO => asicDataN(10), T => cjcBwSel(3));
-  IOBUF_DATAN_11: IOBUF port map (O => open,   I => cjcSfout(0),  IO => asicDataN(11), T => cjcSfout(2));
-  IOBUF_DATAN_12: IOBUF port map (O => open,   I => cjcSfout(1),  IO => asicDataN(12), T => cjcSfout(3));
-  IOBUF_DATAN_13: IOBUF port map (O => cjcLol, I => '0',          IO => asicDataN(13), T => '1');
+  --IOBUF_DATAN_1 : IOBUF port map (O => open,   I => cjcRst(0),    IO => asicDataN(1),  T => cjcRst(1));
+  --IOBUF_DATAN_7 : IOBUF port map (O => open,   I => cjcRate(0),   IO => asicDataN(7),  T => cjcRate(2));
+  --IOBUF_DATAN_8 : IOBUF port map (O => open,   I => cjcRate(1),   IO => asicDataN(8),  T => cjcRate(3));
+  --IOBUF_DATAN_9 : IOBUF port map (O => open,   I => cjcBwSel(0),  IO => asicDataN(9),  T => cjcBwSel(2));
+  --IOBUF_DATAN_10: IOBUF port map (O => open,   I => cjcBwSel(1),  IO => asicDataN(10), T => cjcBwSel(3));
+  --IOBUF_DATAN_11: IOBUF port map (O => open,   I => cjcSfout(0),  IO => asicDataN(11), T => cjcSfout(2));
+  --IOBUF_DATAN_12: IOBUF port map (O => open,   I => cjcSfout(1),  IO => asicDataN(12), T => cjcSfout(3));
+  --IOBUF_DATAN_13: IOBUF port map (O => cjcLol, I => '0',          IO => asicDataN(13), T => '1');
+  --
+  --OBUFDS_CLK    : OBUFDS port map (I  => asicRdClk,    O  => asicRoClkP(0),OB => asicRoClkN(0));      
 
-  OBUFDS_CLK     : OBUFDS port map (I  => asicRdClk,    O  => asicRoClkP(0),OB => asicRoClkN(0));
-
-
+  -----------------------------------------------------------------------------
+  -- PLL IOBUF & MAPPING
+  -----------------------------------------------------------------------------
+  OBUFDS_PLLREFCLK : OBUFDS port map (I  => asicRdClk,    O  => asicDataP(8),OB => asicDataN(8));
+  --
+  IOBUF_DATAP_9    : IOBUF port map (O => open,   I => pllSck, IO => asicDataP(9),  T => '0');
+  IOBUF_DATAP_10   : IOBUF port map (O => open,   I => pllCsL, IO => asicDataP(10), T => '0');
+  --
+  IOBUF_DATAN_9    : IOBUF port map (O => open,   I => pllSdi, IO => asicDataN(9),  T => '0');
+  IOBUF_DATAN_10   : IOBUF port map (O => pllSdo, I => '0',    IO => asicDataN(10), T => '1');
+  
   -----------------------------------------------------------------------------
   -- External 20 bit DAC IOBUF & MAPPING
   -----------------------------------------------------------------------------
@@ -400,7 +425,7 @@ begin
    ---------------------
    -- Heart beat LED  --
    ---------------------
-   U_Heartbeat : entity work.Heartbeat
+   U_Heartbeat : entity surf.Heartbeat
       generic map(
          PERIOD_IN_G => 10.0E-9
       )   
@@ -458,6 +483,7 @@ begin
    asicSaciClk     <= iSaciClk;
    asicSaciSel     <= iSaciSelL;
    iSaciSelL(3 downto 1) <=  (others => '1');
+   iSaciRsp        <= asicSaciRsp; -- signal for csp
 
    ----------------------------------------------------------------------------
    -- Monitoring signals
@@ -550,7 +576,7 @@ begin
    -- clkOut(2) : 100.00 MHz asic clock
    -- clkOut(3) : 300.00 MHz idelay control clock
    -- clkOut(4) :  50.00 MHz monitoring adc
-   U_CoreClockGen : entity work.ClockManagerUltraScale 
+   U_CoreClockGen : entity surf.ClockManagerUltraScale 
    generic map(
       TPD_G                  => 1 ns,
       TYPE_G                 => "MMCM",  -- or "PLL"
@@ -600,7 +626,7 @@ begin
    );      
 
 
-   U_RdPwrUpRst : entity work.PwrUpRst
+   U_RdPwrUpRst : entity surf.PwrUpRst
    generic map (
      SIM_SPEEDUP_G  => SIMULATION_G,
      DURATION_G     => 200000000
@@ -638,7 +664,7 @@ begin
    -- clkOut(2) : 64.00 MHz  -- 448 clock div 7
    -- clkOut(3) : 56.00 MHz  -- cryo input clock default is 56MHz
 
-   U_iserdesClockGen : entity work.ClockManagerUltraScale 
+   U_iserdesClockGen : entity surf.ClockManagerUltraScale 
    generic map(
       TPD_G                  => 1 ns,
       TYPE_G                 => "MMCM",  -- or "PLL"
@@ -697,7 +723,7 @@ begin
    ---------------------------------------------
    -- AXI Lite Async - cross clock domain     --
    ---------------------------------------------
-   U_AxiLiteAsync : entity work.AxiLiteAsync 
+   U_AxiLiteAsync : entity surf.AxiLiteAsync 
    generic map(
       TPD_G            => 1 ns,
       AXI_ERROR_RESP_G => AXI_RESP_SLVERR_C,
@@ -726,7 +752,7 @@ begin
    -- AXI Lite Crossbar for register control  --
    -- Check AppPkg.vhd for addresses          --
    ---------------------------------------------
-   U_AxiLiteCrossbar : entity work.AxiLiteCrossbar
+   U_AxiLiteCrossbar : entity surf.AxiLiteCrossbar
    generic map (
       NUM_SLAVE_SLOTS_G  => HR_FD_NUM_AXI_SLAVE_SLOTS_C,
       NUM_MASTER_SLOTS_G => HR_FD_NUM_AXI_MASTER_SLOTS_C, 
@@ -804,7 +830,7 @@ begin
    );
 
    -- synchronizers
-   U_Sync_WFDac20bitLdacL : entity work.Synchronizer     
+   U_Sync_WFDac20bitLdacL : entity surf.Synchronizer     
    port map (
       clk     => asicRdClk,
       rst     => asicRdClkRst,
@@ -849,7 +875,7 @@ begin
    --------------------------------------------
    -- SACI interface controller              --
    -------------------------------------------- 
-   U_AxiLiteSaciMaster : entity work.AxiLiteSaciMaster
+   U_AxiLiteSaciMaster : entity surf.AxiLiteSaciMaster
    generic map (
       AXIL_CLK_PERIOD_G  => 10.0E-9, -- In units of seconds
       AXIL_TIMEOUT_G     => 1.0E-3,  -- In units of seconds
@@ -926,7 +952,7 @@ begin
    monAdc.chP(3 downto 0)   <= adcMonDoutP(3 downto 0);
    monAdc.chN(3 downto 0)   <= adcMonDoutN(3 downto 0);
       
-   U_MonAdcReadout : entity work.Ad9249ReadoutGroup
+   U_MonAdcReadout : entity surf.Ad9249ReadoutGroup
    generic map (
       TPD_G             => TPD_G,
       NUM_CHANNELS_G    => 4,
@@ -960,7 +986,7 @@ begin
    -- Give a special reset to the SERDES blocks when power
    -- is turned on to ADC card.
    adcCardPowerUp <= anaPwrEn_i and digPwrEn_i;
-   U_AdcCardPowerUpRisingEdge : entity work.SynchronizerEdge
+   U_AdcCardPowerUpRisingEdge : entity surf.SynchronizerEdge
    generic map (
       TPD_G       => TPD_G)
    port map (
@@ -968,7 +994,7 @@ begin
       dataIn      => adcCardPowerUp,
       risingEdge  => adcCardPowerUpEdge
    );
-   U_AdcCardPowerUpReset : entity work.RstSync
+   U_AdcCardPowerUpReset : entity surf.RstSync
    generic map (
       TPD_G           => TPD_G,
       RELEASE_DELAY_G => 50
@@ -979,7 +1005,7 @@ begin
       syncRst  => serdesReset
    );
 
-   U_IdelayCtrlReset : entity work.RstSync
+   U_IdelayCtrlReset : entity surf.RstSync
    generic map (
       TPD_G           => TPD_G,
       RELEASE_DELAY_G => 250
@@ -993,7 +1019,7 @@ begin
    --------------------------------------------
    --     Fast ADC Config                    --
    --------------------------------------------
-   U_AdcConf : entity work.Ad9249Config
+   U_AdcConf : entity surf.Ad9249Config
    generic map (
       TPD_G             => TPD_G,
       AXIL_CLK_PERIOD_G => 10.0e-9,
@@ -1181,7 +1207,7 @@ begin
       -------------------------------------------------------
       -- ASIC AXI stream framers
       -------------------------------------------------------
-      U_AXI_PRBS : entity work.SsiPrbsTx 
+      U_AXI_PRBS : entity surf.SsiPrbsTx 
       generic map(         
          TPD_G                      => TPD_G,
          MASTER_AXI_PIPE_STAGES_G   => 1,
@@ -1208,7 +1234,7 @@ begin
          axilWriteMaster => mAxiWriteMasters(PRBS0_AXI_INDEX_C+i),
          axilWriteSlave  => mAxiWriteSlaves(PRBS0_AXI_INDEX_C+i));
       
-      U_STREAM_MUX : entity work.AxiStreamMux 
+      U_STREAM_MUX : entity surf.AxiStreamMux 
         generic map(
           TPD_G                => TPD_G,
           NUM_SLAVES_G         => 2,
@@ -1331,7 +1357,7 @@ begin
    -------------------------------------------------------
    -- AXI stream monitoring                             --
    -------------------------------------------------------
-   U_AxiSMonitor : entity work.AxiStreamMonAxiL 
+   U_AxiSMonitor : entity surf.AxiStreamMonAxiL 
    generic map(
       TPD_G           => 1 ns,
       COMMON_CLK_G    => false,  -- true if axisClk = statusClk
@@ -1360,42 +1386,51 @@ begin
    -- in order to desable the mem tester, the followint two signasl need to be wired
    --   mAxiReadMaster  <= AXI_READ_MASTER_INIT_C;
    --   mAxiWriteMaster <= AXI_WRITE_MASTER_INIT_C;
+  DDR_NOT_GEN : if (not DDR_GEN_G) generate
+     -- in order to desable the mem tester, the followint two signasl need to be wired
+     mAxiReadMaster  <= AXI_READ_MASTER_INIT_C;
+     mAxiWriteMaster <= AXI_WRITE_MASTER_INIT_C;
+     -- init unused axiLite
+     mAxiWriteSlaves(DDR_MEM_INDEX_C) <= axiLiteWriteSlaveEmptyInit(AXI_RESP_OK_C);
+     mAxiReadSlaves(DDR_MEM_INDEX_C)  <= axiLiteReadSlaveEmptyInit(AXI_RESP_OK_C);
+   end generate;
 
-   U_AxiMemTester : entity work.AxiMemTester
-   generic map (
-      TPD_G        => TPD_G,
-      START_ADDR_G => START_ADDR_C,
-      STOP_ADDR_G  => STOP_ADDR_C,
-      AXI_CONFIG_G => DDR_AXI_CONFIG_C)
-   port map (
-      -- AXI-Lite Interface
-      axilClk         => appClk,
-      axilRst         => appRst,
-      axilReadMaster  => mAxiReadMasters(DDR_MEM_INDEX_C),
-      axilReadSlave   => mAxiReadSlaves(DDR_MEM_INDEX_C),
-      axilWriteMaster => mAxiWriteMasters(DDR_MEM_INDEX_C),
-      axilWriteSlave  => mAxiWriteSlaves(DDR_MEM_INDEX_C),
-      memReady        => open,  -- status bits
-      memError        => open, -- status bits
-      -- DDR Memory Interface
-      axiClk          => sysClk,
-      axiRst          => sysRst,
-      start           => startDdrTest, -- input signal that starts the test 
-      axiWriteMaster  => mAxiWriteMaster,
-      axiWriteSlave   => mAxiWriteSlave,
-      axiReadMaster   => mAxiReadMaster,
-      axiReadSlave    => mAxiReadSlave
-   );
+   DDR_GEN : if (DDR_GEN_G) generate
+     U_AxiMemTester : entity surf.AxiMemTester
+       generic map (
+         TPD_G        => TPD_G,
+         START_ADDR_G => START_ADDR_C,
+         STOP_ADDR_G  => STOP_ADDR_C,
+         AXI_CONFIG_G => DDR_AXI_CONFIG_C)
+       port map (
+         -- AXI-Lite Interface
+         axilClk         => appClk,
+         axilRst         => appRst,
+         axilReadMaster  => mAxiReadMasters(DDR_MEM_INDEX_C),
+         axilReadSlave   => mAxiReadSlaves(DDR_MEM_INDEX_C),
+         axilWriteMaster => mAxiWriteMasters(DDR_MEM_INDEX_C),
+         axilWriteSlave  => mAxiWriteSlaves(DDR_MEM_INDEX_C),
+         memReady        => open,  -- status bits
+         memError        => open, -- status bits
+         -- DDR Memory Interface
+         axiClk          => sysClk,
+         axiRst          => sysRst,
+         start           => startDdrTest, -- input signal that starts the test 
+         axiWriteMaster  => mAxiWriteMaster,
+         axiWriteSlave   => mAxiWriteSlave,
+         axiReadMaster   => mAxiReadMaster,
+         axiReadSlave    => mAxiReadSlave
+         );
 
-   U_StartDdrTest : entity work.PwrUpRst
-   generic map (
-      DURATION_G => 10000000
-   )
-   port map (
-      clk      => appClk,
-      rstOut   => startDdrTest_n
-   );
-
+     U_StartDdrTest : entity surf.PwrUpRst
+       generic map (
+         DURATION_G => 10000000
+         )
+       port map (
+         clk      => appClk,
+         rstOut   => startDdrTest_n
+         );
+   end generate;
    --------------------------------------------
    -- Equalizer monitoring                   --
    --------------------------------------------
@@ -1444,32 +1479,58 @@ begin
    --------------------------------------------
    -- Clock Jitter Cleaner                   --
    --------------------------------------------
-  U_CJC : entity work.ClockJitterCleaner
-   generic map (
-      TPD_G              => TPD_G
-   )
-   port map(
-      sysClk            => appClk,
-      sysRst            => appRst,
-      -- CJC control
-      cjcRst            => cjcRst,
-      cjcDec            => cjcDec,
-      cjcInc            => cjcInc,
-      cjcFrqtbl         => cjcFrqtbl,
-      cjcRate           => cjcRate,
-      cjcBwSel          => cjcBwSel,
-      cjcFrqSel         => cjcFrqSel,
-      cjcSfout          => cjcSfout,
-      -- CJC Status
-      cjcLos            => cjcLos,
-      cjcLol            => cjcLol,
-      -- AXI lite slave port for register access
-      axilClk           => appClk,
-      axilRst           => appRst,
-      sAxilWriteMaster  => mAxiWriteMasters(CLK_JIT_CLR_REG_AXI_INDEX_C),
-      sAxilWriteSlave   => mAxiWriteSlaves(CLK_JIT_CLR_REG_AXI_INDEX_C),
-      sAxilReadMaster   => mAxiReadMasters(CLK_JIT_CLR_REG_AXI_INDEX_C),
-      sAxilReadSlave    => mAxiReadSlaves(CLK_JIT_CLR_REG_AXI_INDEX_C)
-   );
+  --CJC_GEN : if (TEST_SYSTEM_C00_G) generate
+  --  U_CJC : entity work.ClockJitterCleaner
+  --    generic map (
+  --      TPD_G              => TPD_G
+  --      )
+  --    port map(
+  --      sysClk            => appClk,
+  --      sysRst            => appRst,
+  --      -- CJC control
+  --      cjcRst            => cjcRst,
+  --      cjcDec            => cjcDec,
+  --      cjcInc            => cjcInc,
+  --      cjcFrqtbl         => cjcFrqtbl,
+  --      cjcRate           => cjcRate,
+  --      cjcBwSel          => cjcBwSel,
+  --      cjcFrqSel         => cjcFrqSel,
+  --      cjcSfout          => cjcSfout,
+  --      -- CJC Status
+  --      cjcLos            => cjcLos,
+  --      cjcLol            => cjcLol,
+  --      -- AXI lite slave port for register access
+  --      axilClk           => appClk,
+  --      axilRst           => appRst,
+  --      sAxilWriteMaster  => mAxiWriteMasters(CLK_JIT_CLR_REG_AXI_INDEX_C),
+  --      sAxilWriteSlave   => mAxiWriteSlaves(CLK_JIT_CLR_REG_AXI_INDEX_C),
+  --      sAxilReadMaster   => mAxiReadMasters(CLK_JIT_CLR_REG_AXI_INDEX_C),
+  --      sAxilReadSlave    => mAxiReadSlaves(CLK_JIT_CLR_REG_AXI_INDEX_C)
+  --      );
+  --  end generate;
+
+    PLL_GEN : if (TEST_SYSTEM_C00_G = false) generate
+      U_PLL : entity surf.Si5345 
+        generic map(
+          TPD_G              => TPD_G,
+          MEMORY_INIT_FILE_G => "Si5345-RevD-Regmap-56MHz.mem",  -- Used to initialization boot ROM
+          CLK_PERIOD_G       => (1.0/100.0E+6),
+          SPI_SCLK_PERIOD_G  => (1.0/1.0E+6))
+        port map(
+          -- Clock and Reset
+          axiClk         => appClk,
+          axiRst         => appRst,
+          -- AXI-Lite Interface
+          axiReadMaster  =>  mAxiReadMasters(CLK_JIT_CLR_REG_AXI_INDEX_C),
+          axiReadSlave   => mAxiReadSlaves(CLK_JIT_CLR_REG_AXI_INDEX_C),
+          axiWriteMaster => mAxiWriteMasters(CLK_JIT_CLR_REG_AXI_INDEX_C),
+          axiWriteSlave  => mAxiWriteSlaves(CLK_JIT_CLR_REG_AXI_INDEX_C),
+          -- SPI Interface
+          coreSclk       => pllSck,
+          coreSDin       => pllSdo,
+          coreSDout      => pllSdi,
+          coreCsb        => pllCsL
+          );
+      end generate;
   
 end mapping;

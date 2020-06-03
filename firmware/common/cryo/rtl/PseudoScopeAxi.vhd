@@ -27,10 +27,13 @@
 LIBRARY ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
-use work.StdRtlPkg.all;
-use work.AxiStreamPkg.all;
-use work.AxiLitePkg.all;
-use work.SsiPkg.all;
+
+library surf;
+use surf.StdRtlPkg.all;
+use surf.AxiStreamPkg.all;
+use surf.AxiLitePkg.all;
+use surf.SsiPkg.all;
+
 use work.ScopeTypes.all;
 
 entity PseudoScopeAxi is
@@ -189,7 +192,7 @@ begin
    trigger <= trigger_sel and scopeSync.scopeEnable;
 
    -- Generate edges of the possible trigger signals
-   U_RunEdge : entity work.SynchronizerEdge 
+   U_RunEdge : entity surf.SynchronizerEdge 
       port map (
          clk         => sysClk,
          rst         => sysClkRst,
@@ -224,7 +227,7 @@ begin
    
    triggerDelayed <= '1' when trigDelCnt = 0 else '0';
    
-   U_DelEdge : entity work.SynchronizerEdge 
+   U_DelEdge : entity surf.SynchronizerEdge 
       port map (
          clk         => sysClk,
          rst         => sysClkRst,

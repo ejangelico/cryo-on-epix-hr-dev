@@ -2,7 +2,7 @@
 -- File       : CryoAsicPgp3.vhd
 -- Company    : SLAC National Accelerator Laboratory
 -- Created    : 2017-04-21
--- Last update: 2019-01-17
+-- Last update: 2020-05-11
 -------------------------------------------------------------------------------
 -- Description: Firmware Target's Top Level
 -------------------------------------------------------------------------------
@@ -18,13 +18,18 @@
 library ieee;
 use ieee.std_logic_1164.all;
 
-use work.StdRtlPkg.all;
-use work.AxiPkg.all;
-use work.AxiLitePkg.all;
-use work.AxiStreamPkg.all;
-use work.EpixHrCorePkg.all;
+library surf;
+use surf.StdRtlPkg.all;
+use surf.AxiPkg.all;
+use surf.AxiLitePkg.all;
+use surf.AxiStreamPkg.all;
+use surf.SsiCmdMasterPkg.all;
+
+library epix_hr_core;
+use epix_hr_core.EpixHrCorePkg.all;
+
 use work.AppPkg.all;
-use work.SsiCmdMasterPkg.all;
+
 
 entity CryoAsicPgp3 is
    generic (
@@ -285,7 +290,7 @@ begin
          smaTxP           => smaTxP,
          smaTxN           => smaTxN);
 
-   U_Core : entity work.EpixHrCore
+   U_Core : entity epix_hr_core.EpixHrCore
       generic map (
          TPD_G        => TPD_G,
          BUILD_INFO_G => BUILD_INFO_G)
@@ -323,7 +328,6 @@ begin
          ----------------   
          -- Board IDs Ports
          snIoAdcCard      => snIoAdcCard,
-         snIoCarrier      => snIoCarrier,
          -- QSFP Ports
          qsfpRxP          => qsfpRxP,
          qsfpRxN          => qsfpRxN,

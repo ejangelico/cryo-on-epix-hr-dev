@@ -22,11 +22,12 @@
 -------------------------------------------------------------------------------
 
 LIBRARY ieee;
-use work.all;
-use work.AppPkg.all;
 use ieee.std_logic_1164.all;
 use ieee.std_logic_arith.all;
 use ieee.std_logic_unsigned.all;
+
+use work.all;
+use work.AppPkg.all;
 
 entity DacCntrl is
    generic (

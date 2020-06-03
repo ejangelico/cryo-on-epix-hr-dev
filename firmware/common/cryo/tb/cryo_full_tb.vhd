@@ -6,7 +6,7 @@
 -- Author     : Dionisio Doering  <ddoering@tid-pc94280.slac.stanford.edu>
 -- Company    : 
 -- Created    : 2017-05-22
--- Last update: 2019-11-26
+-- Last update: 2020-05-14
 -- Platform   : 
 -- Standard   : VHDL'87
 -------------------------------------------------------------------------------
@@ -22,25 +22,33 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.std_logic_unsigned.all;
 use ieee.std_logic_textio.all;
-
-library STD;
-use STD.textio.all;      
 use ieee.std_logic_arith.all;
 use ieee.numeric_std.all;
 
+library STD;
+use STD.textio.all;      
+
+library surf;
+use surf.StdRtlPkg.all;
+use surf.AxiStreamPkg.all;
+use surf.AxiLitePkg.all;
+use surf.AxiPkg.all;
+use surf.Pgp2bPkg.all;
+use surf.SsiPkg.all;
+use surf.SsiCmdMasterPkg.all;
+use surf.Ad9249Pkg.all;
+use surf.Code8b10bPkg.all;
+--use surf.BuildInfoPkg.all;
+use surf.I2cPkg.all;
+
+library epix_hr_core;
+use epix_hr_core.EpixHrCorePkg.all;
+
 use work.all;
-use work.StdRtlPkg.all;
-use work.AxiStreamPkg.all;
-use work.EpixHrCorePkg.all;
-use work.AxiLitePkg.all;
-use work.AxiPkg.all;
-use work.Pgp2bPkg.all;
-use work.SsiPkg.all;
-use work.SsiCmdMasterPkg.all;
 use work.HrAdcPkg.all;
-use work.Code8b10bPkg.all;
 use work.AppPkg.all;
-use work.BuildInfoPkg.all;
+
+
 
 library unisim;
 use unisim.vcomponents.all;
@@ -49,8 +57,8 @@ use unisim.vcomponents.all;
 
 entity cryo_full_tb is
      generic (
-      TPD_G        : time := 1 ns;
-      BUILD_INFO_G : BuildInfoType := BUILD_INFO_C;
+      TPD_G        : time := 1 ns;      
+      BUILD_INFO_G : BuildInfoType := BUILD_INFO_DEFAULT_SLV_C;
       IDLE_PATTERN_C : slv(11 downto 0) := x"03F"  -- "11 0100 0000 0111"
       );
 end cryo_full_tb;
@@ -356,7 +364,7 @@ begin  --
   -- clkOut(2) : 64.00 MHz  -- 448 clock div 7
   -- clkOut(3) : 56.00 MHz  -- cryo input clock default is 56MHz
 
-  U_TB_ClockGen : entity work.ClockManagerUltraScale 
+  U_TB_ClockGen : entity surf.ClockManagerUltraScale 
     generic map(
       TPD_G                  => 1 ns,
       TYPE_G                 => "MMCM",  -- or "PLL"
@@ -485,7 +493,7 @@ begin  --
     end loop;
   end process;
   
-  U_encoder : entity work.SspEncoder12b14b 
+  U_encoder : entity surf.SspEncoder12b14b 
    generic map (
      TPD_G          => TPD_G,
      RST_POLARITY_G => '1',
@@ -655,7 +663,7 @@ begin  --
          smaTxP           => smaTxP,
          smaTxN           => smaTxN);
 
-  U_Core : entity work.EpixHrCore
+  U_Core : entity epix_hr_core.EpixHrCore
       generic map (
          TPD_G        => TPD_G,
          BUILD_INFO_G => BUILD_INFO_G,
@@ -693,7 +701,6 @@ begin  --
          ----------------   
          -- Board IDs Ports
          snIoAdcCard      => snIoAdcCard,
-         snIoCarrier      => snIoCarrier,
          -- QSFP Ports
          qsfpRxP          => qsfpRxP,
          qsfpRxN          => qsfpRxN,

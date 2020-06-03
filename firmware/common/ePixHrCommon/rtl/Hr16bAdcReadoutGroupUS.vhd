@@ -2,7 +2,7 @@
 -- File       : Ad9249ReadoutGroup.vhd
 -- Company    : SLAC National Accelerator Laboratory
 -- Created    : 2016-05-26
--- Last update: 2018-11-16
+-- Last update: 2020-05-12
 -------------------------------------------------------------------------------
 -- Description:
 -- ADC Readout Controller
@@ -26,9 +26,11 @@ use ieee.std_logic_unsigned.all;
 library UNISIM;
 use UNISIM.vcomponents.all;
 
-use work.StdRtlPkg.all;
-use work.AxiLitePkg.all;
-use work.AxiStreamPkg.all;
+library surf;
+use surf.StdRtlPkg.all;
+use surf.AxiStreamPkg.all;
+use surf.AxiLitePkg.all;
+
 use work.HrAdcPkg.all;
 
 
@@ -181,7 +183,7 @@ architecture rtl of Hr16bAdcReadoutGroupUS is
 begin
 
    -- Regional clock reset
-   ADC_BITCLK_RST_SYNC : entity work.RstSync
+   ADC_BITCLK_RST_SYNC : entity surf.RstSync
       generic map (
          TPD_G           => TPD_G,
          RELEASE_DELAY_G => 5)
@@ -194,7 +196,7 @@ begin
    -- Synchronize adcR.locked across to axil clock domain and count falling edges on it
    -------------------------------------------------------------------------------------------------
    GenLockCounters : for i in NUM_CHANNELS_G-1 downto 0 generate
-     SynchronizerOneShotCnt_1 : entity work.SynchronizerOneShotCnt
+     SynchronizerOneShotCnt_1 : entity surf.SynchronizerOneShotCnt
        generic map (
          TPD_G          => TPD_G,
          IN_POLARITY_G  => '0',
@@ -212,7 +214,7 @@ begin
          rdClk      => axilClk,
          rdRst      => axilRst);
 
-     Synchronizer_1 : entity work.Synchronizer
+     Synchronizer_1 : entity surf.Synchronizer
        generic map (
          TPD_G    => TPD_G,
          STAGES_G => 2)
@@ -222,7 +224,7 @@ begin
          dataIn  => adcR.locked(i),
          dataOut => lockedSync(i));
 
-     SynchronizerStrmEn : entity work.Synchronizer
+     SynchronizerStrmEn : entity surf.Synchronizer
        generic map (
          TPD_G    => TPD_G,
          STAGES_G => 2)
@@ -233,7 +235,7 @@ begin
          dataOut => adcSEnSync(i));
    end generate;
 
-   Synchronizer_Resync : entity work.Synchronizer
+   Synchronizer_Resync : entity surf.Synchronizer
        generic map (
          TPD_G    => TPD_G,
          STAGES_G => 2)
@@ -467,10 +469,10 @@ begin
    end generate;
 
    -- Single fifo to synchronize adc data to the Stream clock
-   U_DataFifo : entity work.SynchronizerFifo
+   U_DataFifo : entity surf.SynchronizerFifo
       generic map (
          TPD_G        => TPD_G,
-         BRAM_EN_G    => false,
+         MEMORY_TYPE_G => "distributed",
          DATA_WIDTH_G => NUM_CHANNELS_G*NUM_BITS_C,
          ADDR_WIDTH_G => 4,
          INIT_G       => "0")
@@ -484,10 +486,10 @@ begin
          valid  => fifoDataValid,
          dout   => fifoDataOut);
 
-   U_DataFifoDebug : entity work.SynchronizerFifo
+   U_DataFifoDebug : entity surf.SynchronizerFifo
       generic map (
          TPD_G        => TPD_G,
-         BRAM_EN_G    => false,
+         MEMORY_TYPE_G => "distributed",
          DATA_WIDTH_G => NUM_CHANNELS_G*NUM_BITS_C,
          ADDR_WIDTH_G => 4,
          INIT_G       => "0")
