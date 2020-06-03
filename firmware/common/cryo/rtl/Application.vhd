@@ -2,7 +2,7 @@
 -- File       : Application.vhd
 -- Company    : SLAC National Accelerator Laboratory
 -- Created    : 2017-04-21
--- Last update: 2020-05-13
+-- Last update: 2020-05-28
 -------------------------------------------------------------------------------
 -- Description: Application Core's Top Level
 -------------------------------------------------------------------------------
@@ -237,6 +237,7 @@ architecture mapping of Application is
    signal iSaciSelL            : slv(3 downto 0);
    signal iSaciClk             : sl;
    signal iSaciCmd             : sl;
+   signal iSaciRsp             : sl;
    signal boardConfig          : AppConfigType;
    signal monitoringSig        : slv(1 downto 0);
    
@@ -333,7 +334,12 @@ architecture mapping of Application is
 
    attribute keep of adcStreams        : signal is "true";
 
-    signal dummy : slv(3 downto 0);
+   attribute keep of iSaciSelL         : signal is "true";
+   attribute keep of iSaciClk          : signal is "true";
+   attribute keep of iSaciCmd          : signal is "true";
+   attribute keep of iSaciRsp          : signal is "true";
+
+   signal dummy : slv(3 downto 0);
 
 
 begin
@@ -400,8 +406,8 @@ begin
   IOBUF_DATAP_9    : IOBUF port map (O => open,   I => pllSck, IO => asicDataP(9),  T => '0');
   IOBUF_DATAP_10   : IOBUF port map (O => open,   I => pllCsL, IO => asicDataP(10), T => '0');
   --
-  IOBUF_DATAN_9    : IOBUF port map (O => open,   I => pllSdo, IO => asicDataN(9),  T => '0');
-  IOBUF_DATAN_10   : IOBUF port map (O => pllSdi, I => '0',    IO => asicDataN(10), T => '1');
+  IOBUF_DATAN_9    : IOBUF port map (O => open,   I => pllSdi, IO => asicDataN(9),  T => '0');
+  IOBUF_DATAN_10   : IOBUF port map (O => pllSdo, I => '0',    IO => asicDataN(10), T => '1');
   
   -----------------------------------------------------------------------------
   -- External 20 bit DAC IOBUF & MAPPING
@@ -477,6 +483,7 @@ begin
    asicSaciClk     <= iSaciClk;
    asicSaciSel     <= iSaciSelL;
    iSaciSelL(3 downto 1) <=  (others => '1');
+   iSaciRsp        <= asicSaciRsp; -- signal for csp
 
    ----------------------------------------------------------------------------
    -- Monitoring signals
@@ -1508,7 +1515,7 @@ begin
           TPD_G              => TPD_G,
           MEMORY_INIT_FILE_G => "Si5345-RevD-Regmap-56MHz.mem",  -- Used to initialization boot ROM
           CLK_PERIOD_G       => (1.0/100.0E+6),
-          SPI_SCLK_PERIOD_G  => (1.0/10.0E+6))
+          SPI_SCLK_PERIOD_G  => (1.0/1.0E+6))
         port map(
           -- Clock and Reset
           axiClk         => appClk,
