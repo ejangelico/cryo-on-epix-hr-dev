@@ -84,7 +84,7 @@ cryoAsicGen1:
       En_BankClk_Bk1_LVDS: False
       En_SerClk_out_Bk0_LVDS: True
       En_SerClk_out_Bk1_LVDS: True
-      rtrimLVDS_b0: 0x3
+      rtrimLVDS_b0: 0x2
       SACItristateLVDS_bit: False
       VrefGen_B0_1v2: 0x3
       VrefGen_Br0_1v2: 0x3
