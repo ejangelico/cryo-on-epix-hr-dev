@@ -225,7 +225,7 @@ class EpixHRGen1Cryo(pr.Device):
         if arg ==3:
             self.filenameMMCM = "./yml/cryo_config_mmcm_PLLClk_448MHz.yml"
             self.filenamePowerSupply = "./yml/cryo_config_PowerSupply_2v5.yml"
-            self.filenamePLL = "./config/pll-config/Si5345-RevD-CRYO_C01-Registers.csv"
+            self.filenamePLL = "./config/pll-config/Si5345-RevD-CRYO_C01-56MHzIn448MHzOut_Project-Registers.csv"
             self.filenameASIC = "./yml/cryo_config_ASIC_ExtClk_RoomTemp_v0p1.yml"
 
 
@@ -236,6 +236,8 @@ class EpixHRGen1Cryo(pr.Device):
         """SetTestBitmap command function"""       
         print("Init cryo script started")
         print("En FPGA module and turns off SR0")
+        self.DeserRegisters.enable.set(True)
+        self.DeserRegisters.Resync.set(True)
         self.AppFpgaRegisters.enable.set(True)
         self.AppFpgaRegisters.SR0Polarity.set(False)
         self.AppFpgaRegisters.SampClkEn.set(False)
@@ -292,7 +294,18 @@ class EpixHRGen1Cryo(pr.Device):
 
         ## start deserializer config for the asic
         EN_DESERIALIZERS = True
-        if EN_DESERIALIZERS : 
+        if EN_DESERIALIZERS :
+            EN_SampClk = True
+            if EN_SampClk : 
+                print("Setting SampClk to true")
+                self.AppFpgaRegisters.enable.set(True)
+                self.root.readBlocks()
+                for i in range(2):
+                    self.AppFpgaRegisters.SampClkEn.set(False)
+                    time.sleep(delay) 
+                    self.AppFpgaRegisters.SampClkEn.set(True)
+                    self.root.readBlocks()
+                    time.sleep(delay) 
             print("Starting deserializer")
             self.serializerSyncAttempsts = 0
             while True:
@@ -318,17 +331,6 @@ class EpixHRGen1Cryo(pr.Device):
                 if self.serializerSyncAttempsts > 2:
                     break
 
-        EN_SampClk = True
-        if EN_SampClk : 
-            print("Setting SampClk to true")
-            self.AppFpgaRegisters.enable.set(True)
-            self.root.readBlocks()
-            for i in range(2):
-                self.AppFpgaRegisters.SampClkEn.set(False)
-                time.sleep(delay) 
-                self.AppFpgaRegisters.SampClkEn.set(True)
-                self.root.readBlocks()
-                time.sleep(delay) 
 
         EN_SR0 = True
         EN_ALL_CRYO_ADCS = False
@@ -594,7 +596,7 @@ class EpixHRGen1Cryo(pr.Device):
         self.PacketRegisters.decBypass.set(True)
         time.sleep(delay/10) 
         print("Setting cryo to send counter to readout")
-        self.CryoAsic0.encoder_mode_dft.set(7)
+        self.CryoAsic0.encoder_mode_dft.set(3)
         print("Enabling stream readout")
         self.PacketRegisters.enable.set(True)
         self.PacketRegisters.StreamDataMode.set(True)

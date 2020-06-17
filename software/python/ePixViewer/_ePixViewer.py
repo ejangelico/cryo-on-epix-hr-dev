@@ -421,7 +421,7 @@ class Window(QMainWindow, QObject):
         
         #exits if there is no 
         if (len(rawData)==0) :        
-            return false
+            return envData
         #removes header before displying the image
         for j in range(0,32):
             rawData.pop(0)
