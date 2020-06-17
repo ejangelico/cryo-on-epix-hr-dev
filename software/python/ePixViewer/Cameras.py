@@ -930,14 +930,32 @@ class Camera():
 
         if (samples) != ((img.shape[0]-self._Header_Length)/self._NumChPerAsic):
             imgDesc = np.zeros((self._NumChPerAsic,self._NumChPerAsic), dtype='uint16')
-            print("_descrambleEpixHRADC32x32Image: Wrong data length, Returning zeros. Data length: ", (img.shape[0]-self._Header_Length))
+            print("_descrambleCRYO64XNImage(: Wrong data length, Returning zeros. Data length: ", (img.shape[0]-self._Header_Length))
             return imgDesc
 
-        #remove header
+        #remove header and separates the two streams
         img2 = img[self._Header_Length:].reshape(samples,self._NumChPerAsic)
+        #print(img2.shape)
+        #print(self._NumChPerAsic)
 
         #descramble image
-        imgDesc = np.append(img2[:,0:self._NumChPerAsic:2].transpose(), img2[:,1:self._NumChPerAsic:2].transpose()).reshape(self._NumChPerAsic,samples)
+        #imgDesc = np.append(img2[:,0:self._NumChPerAsic:2].transpose(), img2[:,1:self._NumChPerAsic:2].transpose()).reshape(self._NumChPerAsic,samples)
+        imgDesc0 = np.append(img2[:,0:self._NumChPerAsic:16].transpose(), img2[:,2:self._NumChPerAsic:16].transpose())
+        imgDesc4 = np.append(img2[:,4:self._NumChPerAsic:16].transpose(), img2[:,6:self._NumChPerAsic:16].transpose())
+        imgDesc8 = np.append(img2[:,8:self._NumChPerAsic:16].transpose(), img2[:,10:self._NumChPerAsic:16].transpose())
+        imgDesc12 = np.append(img2[:,12:self._NumChPerAsic:16].transpose(), img2[:,14:self._NumChPerAsic:16].transpose())
+        imgDesc1 = np.append(img2[:,1:self._NumChPerAsic:16].transpose(), img2[:,3:self._NumChPerAsic:16].transpose())
+        imgDesc5 = np.append(img2[:,5:self._NumChPerAsic:16].transpose(), img2[:,7:self._NumChPerAsic:16].transpose())
+        imgDesc9 = np.append(img2[:,9:self._NumChPerAsic:16].transpose(), img2[:,11:self._NumChPerAsic:16].transpose())
+        imgDesc13 = np.append(img2[:,13:self._NumChPerAsic:16].transpose(), img2[:,15:self._NumChPerAsic:16].transpose())
+        imgDesc = np.append(imgDesc0,imgDesc4)
+        imgDesc = np.append(imgDesc,imgDesc8)
+        imgDesc = np.append(imgDesc,imgDesc12)
+        imgDesc = np.append(imgDesc,imgDesc1)
+        imgDesc = np.append(imgDesc,imgDesc5)
+        imgDesc = np.append(imgDesc,imgDesc9)
+        imgDesc = np.append(imgDesc,imgDesc13).reshape(self._NumChPerAsic,samples)
+        #print(imgDesc.shape)
         
         # returns final image
         return imgDesc
