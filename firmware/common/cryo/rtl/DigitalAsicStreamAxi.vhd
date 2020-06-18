@@ -204,6 +204,7 @@ architecture RTL of DigitalAsicStreamAxi is
 
    signal decDataOut    : slv12Array(STREAMS_PER_ASIC_G-1 downto 0);
    signal decDataInt    : slv12Array(STREAMS_PER_ASIC_G-1 downto 0);
+   signal encDataInt    : slv14Array(STREAMS_PER_ASIC_G-1 downto 0);
    signal decValidOut   : slv(STREAMS_PER_ASIC_G-1 downto 0);
    signal decSof        : slv(STREAMS_PER_ASIC_G-1 downto 0);
    signal decEof        : slv(STREAMS_PER_ASIC_G-1 downto 0);
@@ -211,6 +212,7 @@ architecture RTL of DigitalAsicStreamAxi is
    signal decCodeError  : slv(STREAMS_PER_ASIC_G-1 downto 0);
    signal decDispError  : slv(STREAMS_PER_ASIC_G-1 downto 0);
    
+   signal dFifoWrEn         : slv(STREAMS_PER_ASIC_G-1 downto 0);
    signal dFifoRd           : slv(STREAMS_PER_ASIC_G-1 downto 0);
    signal dFifoEofe         : slv(STREAMS_PER_ASIC_G-1 downto 0);
    signal dFifoEof          : slv(STREAMS_PER_ASIC_G-1 downto 0);
@@ -324,17 +326,20 @@ begin
          dispError   => decDispError(i)
          );
 
-     decDataBitReorder : process(s, decDataOut)
+     DataBitReorder : process(s, decDataOut)
      begin
        if s.decDataBitOrder = '0' then
          decDataInt(i) <= decDataOut(i);
+         encDataInt(i) <= adcStreams(i).tData(13 downto 0);
        else
          decDataInt(i) <= bitReverse(decDataOut(i));
+         encDataInt(i) <= bitReverse(adcStreams(i).tData(13 downto 0));
        end if;
      end process;
    
      -- disable decoder in test mode (fake ASIC data)
      iRxValid(i) <= adcStreams(i).tValid and not testModeSync(i);
+     dFifoWrEn(i) <= decValidOut(i) or s.forceAdcData;
    
      -- async fifo for data
      -- for synchronization and small data pipeline
@@ -350,7 +355,7 @@ begin
          -- Resets
          rst               => rxRst,
          wr_clk            => rxClk,
-         wr_en             => decValidOut(i),
+         wr_en             => dFifoWrEn(i),
          din(11 downto 0)  => decDataInt(i),
          din(12)           => decEofe(i),
          din(13)           => decEof(i),
@@ -378,7 +383,7 @@ begin
          rst               => rxRst,
          wr_clk            => rxClk,
          wr_en             => iRxValid(i),
-         din(13 downto 0)  => adcStreams(i).tData(13 downto 0),
+         din(13 downto 0)  => encDataInt(i),
          din(14)           => '0', --decEofe(i),
          din(15)           => '0', --decEof(i),
          din(16)           => '0', --decSof(i),

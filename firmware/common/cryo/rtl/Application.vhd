@@ -2,7 +2,7 @@
 -- File       : Application.vhd
 -- Company    : SLAC National Accelerator Laboratory
 -- Created    : 2017-04-21
--- Last update: 2020-05-28
+-- Last update: 2020-06-17
 -------------------------------------------------------------------------------
 -- Description: Application Core's Top Level
 -------------------------------------------------------------------------------
@@ -1476,38 +1476,6 @@ begin
       dacCsb         => dacCsbProgSupplyOut,
       dacClrb        => dacClrbProgSupplyOut
    );
-   --------------------------------------------
-   -- Clock Jitter Cleaner                   --
-   --------------------------------------------
-  --CJC_GEN : if (TEST_SYSTEM_C00_G) generate
-  --  U_CJC : entity work.ClockJitterCleaner
-  --    generic map (
-  --      TPD_G              => TPD_G
-  --      )
-  --    port map(
-  --      sysClk            => appClk,
-  --      sysRst            => appRst,
-  --      -- CJC control
-  --      cjcRst            => cjcRst,
-  --      cjcDec            => cjcDec,
-  --      cjcInc            => cjcInc,
-  --      cjcFrqtbl         => cjcFrqtbl,
-  --      cjcRate           => cjcRate,
-  --      cjcBwSel          => cjcBwSel,
-  --      cjcFrqSel         => cjcFrqSel,
-  --      cjcSfout          => cjcSfout,
-  --      -- CJC Status
-  --      cjcLos            => cjcLos,
-  --      cjcLol            => cjcLol,
-  --      -- AXI lite slave port for register access
-  --      axilClk           => appClk,
-  --      axilRst           => appRst,
-  --      sAxilWriteMaster  => mAxiWriteMasters(CLK_JIT_CLR_REG_AXI_INDEX_C),
-  --      sAxilWriteSlave   => mAxiWriteSlaves(CLK_JIT_CLR_REG_AXI_INDEX_C),
-  --      sAxilReadMaster   => mAxiReadMasters(CLK_JIT_CLR_REG_AXI_INDEX_C),
-  --      sAxilReadSlave    => mAxiReadSlaves(CLK_JIT_CLR_REG_AXI_INDEX_C)
-  --      );
-  --  end generate;
 
     PLL_GEN : if (TEST_SYSTEM_C00_G = false) generate
       U_PLL : entity surf.Si5345 

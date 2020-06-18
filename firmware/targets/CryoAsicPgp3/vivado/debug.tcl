@@ -94,7 +94,7 @@ SetDebugCoreClk ${ilaName} {U_App/byteClk}
 #ConfigProbe ${ilaName} {U_App/U_MonAdcReadout/GEN_ULTRASCALE_AD9249.U_AD9249_0/adcBitClkR}
 
 #ConfigProbe ${ilaName} {U_App/G_ASICS[0].U_AXI_ASIC/GEN_ULTRASCALE_HRADC.U_HrADC_0/GenData[0].U_DATA_DESERIALIZER/adcDV4R[*]}
-ConfigProbe ${ilaName} {U_App/G_ASICS[0].U_AXI_ASIC/GEN_ULTRASCALE_HRADC.U_HrADC_0/GenData[0].U_DATA_DESERIALIZER/adcDV7R[*]}
+#ConfigProbe ${ilaName} {U_App/G_ASICS[0].U_AXI_ASIC/GEN_ULTRASCALE_HRADC.U_HrADC_0/GenData[0].U_DATA_DESERIALIZER/adcDV7R[*]}
 #ConfigProbe ${ilaName} {U_App/G_ASICS[0].U_AXI_ASIC/GEN_ULTRASCALE_HRADC.U_HrADC_0/GenData[1].U_DATA_DESERIALIZER/adcDV4R[*]}
 #ConfigProbe ${ilaName} {U_App/G_ASICS[0].U_AXI_ASIC/GEN_ULTRASCALE_HRADC.U_HrADC_0/GenData[1].U_DATA_DESERIALIZER/adcDV7R[*]}
 #ConfigProbe ${ilaName} {U_App/G_ASICS[0].U_AXI_ASIC/GEN_ULTRASCALE_HRADC.U_HrADC_0/adcData[*]}
@@ -102,11 +102,11 @@ ConfigProbe ${ilaName} {U_App/G_ASICS[0].U_AXI_ASIC/GEN_ULTRASCALE_HRADC.U_HrADC
 #ConfigProbe ${ilaName} {U_App/G_ASICS[0].U_AXI_ASIC/GEN_ULTRASCALE_HRADC.U_HrADC_0/adcR[*]}
 
 
-ConfigProbe ${ilaName} {U_App/iAsicAcq}
-ConfigProbe ${ilaName} {U_App/iSaciSelL[0]}
-ConfigProbe ${ilaName} {U_App/iSaciClk}
-ConfigProbe ${ilaName} {U_App/iSaciCmd}
-ConfigProbe ${ilaName} {U_App/iSaciRsp}
+#ConfigProbe ${ilaName} {U_App/iAsicAcq}
+#ConfigProbe ${ilaName} {U_App/iSaciSelL[0]}
+#ConfigProbe ${ilaName} {U_App/iSaciClk}
+#ConfigProbe ${ilaName} {U_App/iSaciCmd}
+#ConfigProbe ${ilaName} {U_App/iSaciRsp}
 #
 ConfigProbe ${ilaName} {U_App/G_ASICS[0].U_Framers/s[*]}
 ConfigProbe ${ilaName} {U_App/G_ASICS[0].U_Framers/rxDataCs[*]}
