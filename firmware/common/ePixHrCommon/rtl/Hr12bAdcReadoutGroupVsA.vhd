@@ -308,7 +308,7 @@ begin
        port map(
          clk     => byteClk,
          rst     => adcBitRst,
-         dataIn  => adcR.streamPattern1,
+         dataIn  => axilR.streamPattern1,
          dataOut => streamPattern1Sync);
 
   SynchronizerIDLEPattern2 : entity surf.SynchronizerVector 
@@ -319,7 +319,7 @@ begin
        port map(
          clk     => byteClk,
          rst     => adcBitRst,
-         dataIn  => adcR.streamPattern2,
+         dataIn  => axilR.streamPattern2,
          dataOut => streamPattern2Sync);
 
   SynchronizerIDLEPattern3 : entity surf.SynchronizerVector 
@@ -330,7 +330,7 @@ begin
        port map(
          clk     => byteClk,
          rst     => adcBitRst,
-         dataIn  => adcR.streamPattern3,
+         dataIn  => axilR.streamPattern3,
          dataOut => streamPattern3Sync);
 
   SynchronizerIDLEPattern4 : entity surf.SynchronizerVector 
@@ -341,7 +341,7 @@ begin
        port map(
          clk     => byteClk,
          rst     => adcBitRst,
-         dataIn  => adcR.streamPattern4,
+         dataIn  => axilR.streamPattern4,
          dataOut => streamPattern4Sync); 
    -------------------------------------------------------------------------------------------------
    -- AXIL Interface
@@ -501,7 +501,7 @@ begin
    -------------------------------------------------------------------------------------------------
    -- ADC Byte Clocked Logic
    -------------------------------------------------------------------------------------------------
-   adcComb : process (adcData, adcFrame, adcR, dataValid, adcSEnSync, resync, restartBERTsync) is
+   adcComb : process (adcData, adcFrame, adcR, dataValid, adcSEnSync, resync, restartBERTsync, streamPattern1Sync, streamPattern2Sync, streamPattern3Sync, streamPattern4Sync) is
       variable v : AdcRegType;
    begin
      v := adcR;

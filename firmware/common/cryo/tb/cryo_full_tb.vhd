@@ -6,7 +6,7 @@
 -- Author     : Dionisio Doering  <ddoering@tid-pc94280.slac.stanford.edu>
 -- Company    : 
 -- Created    : 2017-05-22
--- Last update: 2020-05-14
+-- Last update: 2020-06-18
 -- Platform   : 
 -- Standard   : VHDL'87
 -------------------------------------------------------------------------------
@@ -538,17 +538,17 @@ begin  --
 
   sysRst_n   <= not sysRst;
 
-  asicDataP(0) <=     serDataFromFile;
-  asicDataN(0) <= not serDataFromFile;
---  asicDataP(0) <=     serialDataOut1;
---  asicDataN(0) <= not serialDataOut1;
+--  asicDataP(0) <=     serDataFromFile;
+--  asicDataN(0) <= not serDataFromFile;
+  asicDataP(0) <=     serialDataOut1;
+  asicDataN(0) <= not serialDataOut1;
 --  asicDataP(0) <= fClkP;
 --  asicDataN(0) <= fClkN;
 --  
-  asicDataP(3) <=     serDataFromFile;
-  asicDataN(3) <= not serDataFromFile;
---  asicDataP(3) <=     serialDataOut2;
---  asicDataN(3) <= not serialDataOut2;
+--  asicDataP(3) <=     serDataFromFile;
+--  asicDataN(3) <= not serDataFromFile;
+  asicDataP(3) <=     serialDataOut2;
+  asicDataN(3) <= not serialDataOut2;
 
   asicDataP(2) <= fClkP;
   asicDataN(2) <= fClkN;

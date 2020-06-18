@@ -326,7 +326,7 @@ begin
          dispError   => decDispError(i)
          );
 
-     DataBitReorder : process(s, decDataOut)
+     DataBitReorder : process(s, decDataOut, adcStreams)
      begin
        if s.decDataBitOrder = '0' then
          decDataInt(i) <= decDataOut(i);

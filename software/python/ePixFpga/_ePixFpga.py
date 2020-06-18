@@ -2223,10 +2223,10 @@ class AsicDeserHr12bRegisters(pr.Device):
       self.add(pr.RemoteVariable(name='LockErrors1',  description='LockErrors',     offset=0x00000034, bitSize=16, bitOffset=0,  base=pr.UInt, disp = '{}', mode='RO'))
       self.add(pr.RemoteVariable(name='Locked1',      description='Locked',         offset=0x00000034, bitSize=1,  bitOffset=16, base=pr.Bool, mode='RO'))
 
-      self.add(pr.RemoteVariable(name='streamIDLEPattern1',  description='IDLE Pattern 1',     offset=0x00000060, bitSize=14, bitOffset=0,  base=pr.UInt, disp = '{}', mode='RW'))
-      self.add(pr.RemoteVariable(name='streamIDLEPattern2',  description='IDLE Pattern 2',     offset=0x00000064, bitSize=14, bitOffset=0,  base=pr.UInt, disp = '{}', mode='RW'))
-      self.add(pr.RemoteVariable(name='streamIDLEPattern3',  description='IDLE Pattern 3',     offset=0x00000068, bitSize=14, bitOffset=0,  base=pr.UInt, disp = '{}', mode='RW'))
-      self.add(pr.RemoteVariable(name='streamIDLEPattern4',  description='IDLE Pattern 4',     offset=0x0000006C, bitSize=14, bitOffset=0,  base=pr.UInt, disp = '{}', mode='RW'))
+      self.add(pr.RemoteVariable(name='streamIDLEPattern1',  description='IDLE Pattern 1',     offset=0x00000060, bitSize=14, bitOffset=0,  base=pr.UInt, disp = '{:#x}', mode='RW'))
+      self.add(pr.RemoteVariable(name='streamIDLEPattern2',  description='IDLE Pattern 2',     offset=0x00000064, bitSize=14, bitOffset=0,  base=pr.UInt, disp = '{:#x}', mode='RW'))
+      self.add(pr.RemoteVariable(name='streamIDLEPattern3',  description='IDLE Pattern 3',     offset=0x00000068, bitSize=14, bitOffset=0,  base=pr.UInt, disp = '{:#x}', mode='RW'))
+      self.add(pr.RemoteVariable(name='streamIDLEPattern4',  description='IDLE Pattern 4',     offset=0x0000006C, bitSize=14, bitOffset=0,  base=pr.UInt, disp = '{:#x}', mode='RW'))
       
       for i in range(0, 2):
          self.add(pr.RemoteVariable(name='IserdeseOutA'+str(i),   description='IserdeseOut'+str(i),  offset=0x00000080+i*4, bitSize=16, bitOffset=0, base=pr.UInt,  disp = '{:#x}', mode='RO'))

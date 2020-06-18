@@ -11,4 +11,4 @@
 # Setup environment
 source /afs/slac.stanford.edu/g/reseng/vol26/anaconda/miniconda3/etc/profile.d/conda.sh
 
-conda activate rogue_ePixHR
+conda activate rogue_4.10.16
