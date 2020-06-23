@@ -308,9 +308,10 @@ begin
      --------------------------------------------------------------------------
      Dec12b14b_U : entity surf.SspDecoder12b14b 
        generic map (
-         TPD_G          => TPD_G,
-         RST_POLARITY_G => '1',
-         RST_ASYNC_G    => false)
+         TPD_G                => TPD_G,
+         RST_POLARITY_G       => '1',
+         RST_ASYNC_G          => false,
+         BRK_FRAME_ON_ERROR_G => false)
        port map (
          clk         => rxClk,
          rst         => rxRst,
