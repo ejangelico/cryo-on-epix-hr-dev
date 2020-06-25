@@ -7,15 +7,15 @@ cryoAsicGen1:
       enable: True
       TPS_DAC: 0x3c
       TPS_GR: 0x1
-      TPSMux: 0x0
+      TPSMux: 0xe
       Bias_TPS_Buffer: 0x5
       Bias_TPS: 0x4
       Bias_TPS_DAC: 0x4
       Bias_LVDS_Rx: 0x3
       Bias_LVDS_Tx: 0x0
       RbiasEn: False
-      Pulser: 0x0e0
-      test: False
+      Pulser: 0x370
+      test: True
       atest: False
       hrtest: False
       sbatest: False
@@ -52,7 +52,7 @@ cryoAsicGen1:
       SAH_VcmBuf_B0: 0x0
       SigBuf_B0: 0x0
       ADC_VrefBuf_B0: 0x0
-      ADC_B0: 0x0
+      ADC_B0: 0x3
       ADC_VcmBuf_B0: 0x0
       bamp: 0x4
       bleak: 0x2
@@ -88,14 +88,14 @@ cryoAsicGen1:
       SACItristateLVDS_bit: False
       VrefGen_B0_1v2: 0x3
       VrefGen_Br0_1v2: 0x3
-      VrefGen_T0_1v2: 0x7
-      VrefGen_Tc0_1v2: 0x7
+      VrefGen_T0_1v2: 0xf
+      VrefGen_Tc0_1v2: 0xf
       VrefGen_Tr0_1v2: 0x0
       VrefBuf_Ext_B0_1v2: 0x3
       VcmBuf_Ext_B0_1v2: 0x0
       FE_Amp_B0_1v2: 0x2
       bifb: 0x3
-      bbaseref: 0x2
+      bbaseref: 0x3
       blcoarse: 0x6
       ctrl_pulser: False
       Pulser_Bias_DAC_b0: 0x4
