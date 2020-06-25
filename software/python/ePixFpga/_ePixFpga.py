@@ -549,7 +549,7 @@ class EpixHRGen1Cryo(pr.Device):
         self.CryoAsic0.encoder_mode_dft.set(0) # makes sure idle will be set
         self.PacketRegisters.enable.set(True)
         self.PacketRegisters.decBypass.set(False)
-        self.PacketRegisters.StreamDataMode.set(False)
+        self.PacketRegisters.StreamDataMode.set(True)
 
         self.AppFpgaRegisters.enable.set(True)
         self.AppFpgaRegisters.SR0Polarity.set(False)
@@ -594,13 +594,7 @@ class EpixHRGen1Cryo(pr.Device):
         self.PacketRegisters.enable.set(True)
         self.root.readBlocks()
         self.PacketRegisters.decBypass.set(True)
-        time.sleep(delay/10) 
-        print("Setting cryo to send counter to readout")
-        self.CryoAsic0.encoder_mode_dft.set(3)
-        print("Enabling stream readout")
-        self.PacketRegisters.enable.set(True)
-        self.PacketRegisters.StreamDataMode.set(True)
-        self.PacketRegisters.decDataBitOrder.set(True)
+        self.PacketRegisters.decDataBitOrder.set(False)
 
     def fnSendAdcData(self, dev,cmd,arg):
         print("Sends adc data in stream mode")
@@ -609,13 +603,15 @@ class EpixHRGen1Cryo(pr.Device):
         self.root.readBlocks()
         time.sleep(delay/10) 
         print("Setting cryo to send counter to readout")
-        self.CryoAsic0.encoder_mode_dft.set(1)
+        self.CryoAsic0.encoder_mode_dft.set(0)
         time.sleep(delay/10) 
         print("Enabling stream readout")
         self.PacketRegisters.StreamDataMode.set(True)
         self.PacketRegisters.decDataBitOrder.set(True)
         self.PacketRegisters.decBypass.set(False)
-        self.CryoAsic0.encoder_mode_dft.set(0)
+        self.AppFpgaRegisters.SR0Polarity.set(False)
+        time.sleep(delay/20) 
+        self.AppFpgaRegisters.SR0Polarity.set(True)
 
 
     def fnSetWaveform(self, dev,cmd,arg):
@@ -2223,10 +2219,10 @@ class AsicDeserHr12bRegisters(pr.Device):
       self.add(pr.RemoteVariable(name='LockErrors1',  description='LockErrors',     offset=0x00000034, bitSize=16, bitOffset=0,  base=pr.UInt, disp = '{}', mode='RO'))
       self.add(pr.RemoteVariable(name='Locked1',      description='Locked',         offset=0x00000034, bitSize=1,  bitOffset=16, base=pr.Bool, mode='RO'))
 
-      self.add(pr.RemoteVariable(name='streamIDLEPattern1',  description='IDLE Pattern 1',     offset=0x00000060, bitSize=14, bitOffset=0,  base=pr.UInt, disp = '{:#x}', mode='RW'))
-      self.add(pr.RemoteVariable(name='streamIDLEPattern2',  description='IDLE Pattern 2',     offset=0x00000064, bitSize=14, bitOffset=0,  base=pr.UInt, disp = '{:#x}', mode='RW'))
-      self.add(pr.RemoteVariable(name='streamIDLEPattern3',  description='IDLE Pattern 3',     offset=0x00000068, bitSize=14, bitOffset=0,  base=pr.UInt, disp = '{:#x}', mode='RW'))
-      self.add(pr.RemoteVariable(name='streamIDLEPattern4',  description='IDLE Pattern 4',     offset=0x0000006C, bitSize=14, bitOffset=0,  base=pr.UInt, disp = '{:#x}', mode='RW'))
+#      self.add(pr.RemoteVariable(name='streamIDLEPattern1',  description='IDLE Pattern 1',     offset=0x00000060, bitSize=14, bitOffset=0,  base=pr.UInt, disp = '{:#x}', mode='RW'))
+#      self.add(pr.RemoteVariable(name='streamIDLEPattern2',  description='IDLE Pattern 2',     offset=0x00000064, bitSize=14, bitOffset=0,  base=pr.UInt, disp = '{:#x}', mode='RW'))
+#      self.add(pr.RemoteVariable(name='streamIDLEPattern3',  description='IDLE Pattern 3',     offset=0x00000068, bitSize=14, bitOffset=0,  base=pr.UInt, disp = '{:#x}', mode='RW'))
+#      self.add(pr.RemoteVariable(name='streamIDLEPattern4',  description='IDLE Pattern 4',     offset=0x0000006C, bitSize=14, bitOffset=0,  base=pr.UInt, disp = '{:#x}', mode='RW'))
       
       for i in range(0, 2):
          self.add(pr.RemoteVariable(name='IserdeseOutA'+str(i),   description='IserdeseOut'+str(i),  offset=0x00000080+i*4, bitSize=16, bitOffset=0, base=pr.UInt,  disp = '{:#x}', mode='RO'))
