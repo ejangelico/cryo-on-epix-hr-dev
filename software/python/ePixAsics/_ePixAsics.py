@@ -1288,23 +1288,52 @@ class CryoAsic0p2(pr.Device):
         # A command can also be a call to a local function with local scope.
         # The command object and the arg are passed
 
-        self.add(
-            pr.LocalCommand(name='ClearMatrix',description='Clear configuration bits of all channels', function=self.fnClearMatrix))
+        #self.add(
+        #    pr.LocalCommand(name='ClearMatrix',description='Clear configuration bits of all channels', function=self.fnClearMatrix))
 
         self.add(
-            pr.LocalCommand(name='SetChannelBitmap',description='Set channel bitmap of the matrix', function=self.fnSetChannelBitmap))
+            pr.LocalCommand(name='SetChannels',description='Set all 64 channels based on csv file.', function=self.fnSetChannelsCsv))
         
-        self.add(
-            pr.LocalCommand(name='GetChannelBitmap',description='Get channel bitmap of the matrix', function=self.fnGetChannelBitmap))
+        #self.add(
+        #    pr.LocalCommand(name='GetChannelBitmap',description='Get channel bitmap of the matrix', function=self.fnGetChannelBitmap))
 
-        self.add(
-            pr.LocalCommand(name='rawGetChannelValuep',description='Get channel value', function=self.fnReadChannel))
+        #self.add(
+        #    pr.LocalCommand(name='rawGetChannelValuep',description='Get channel value', function=self.fnReadChannel))
 
 
 
-    def fnSetChannelBitmap(self, dev,cmd,arg):
-        """SetChannelBitmap command function"""
-        print("Warning: Function not implemented.")             
+    def fnSetChannelsCsv(self, dev,cmd,arg):
+        """Set Channels function"""
+        print("Set Channels function")
+        
+        addrSize = 4
+        #set r0mode in order to have saci cmd to work properly on legacy firmware
+        #self.root.Epix10ka.EpixFpgaRegisters.AsicR0Mode.set(True)
+
+        if (self.enable.get()):
+            self.reportCmd(dev,cmd,arg)
+            if not isinstance(arg, str):
+               arg = ''
+            if len(arg) > 0:
+               self.filename = arg
+            else:
+               self.filename = QFileDialog.getOpenFileName(self.root.guiTop, 'Open File', '', 'csv file (*.csv);; Any (*.*)')
+            # in PyQt5 QFileDialog returns a tuple
+            if usingPyQt5:
+               self.filename = self.filename[0]
+            if os.path.splitext(self.filename)[1] == '.csv':
+                vectCfg = np.genfromtxt(self.filename, delimiter=',')
+                if vectCfg.shape == (64,1):
+                    for x in range (64):
+                            self._rawWrite(0x00006001*addrSize, x)
+                            self._rawWrite(0x00005000*addrSize, (int(vectCfg[x])))
+                    self._rawWrite(0x00000000*addrSize,0)
+                else:
+                    print('csv file must be 64x1 pixels')
+            else:
+                print("Not csv file : ", self.filename)
+        else:
+            print("Warning: ASIC enable is set to False!")      
 
 
     def fnGetChannelBitmap(self, dev,cmd,arg):
@@ -1492,7 +1521,8 @@ class CryoAsic0p2b(pr.Device):
 
     def fnSetChannelBitmap(self, dev,cmd,arg):
         """SetChannelBitmap command function"""
-        print("Warning: Function not implemented.")             
+        print("Warning: Function not implemented.")
+        fnSetChannelsCsvitmap
 
 
     def fnGetChannelBitmap(self, dev,cmd,arg):
