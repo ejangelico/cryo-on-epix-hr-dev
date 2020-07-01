@@ -44,7 +44,7 @@ PAYLOAD_TS           = 7360
 cameraType            = 'cryo64xN'
 bitMask               = 0xffff
 PLOT_IMAGE            = True
-PLOT_ADC9_VS_N        = True
+PLOT_ADC9_VS_N        = False
 PLOT_IMAGE_DARKSUB    = False
 PLOT_IMAGE_DARK       = False
 PLOT_IMAGE_HEATMAP    = False
@@ -56,9 +56,29 @@ SAVEHDF5              = False
 # Dark images
 ##################################################
 
-filename = '/u1/ddoering/data/cryo0p2/roomTemp/pulsingChannels/cryo_data_allChannelsButOneAtATime_pulse_channel_config_0x0029.dat'
-filename = '/u1/ddoering/data/cryo0p2/roomTemp/pulsingChannels/cryo_data_allChannelsButOneAtATime_pulse_channel_config_0x0329.dat'
 filename = '/u1/ddoering/data/cryo0p2/roomTemp/NoiseAndPeakingTime/06262020/cryo_fullChainData_allChannels_pulse_channelConfig_0x02a9_analogMon_ch6.dat'
+filename = '/u1/ddoering/data/cryo-c01/Cryo_v2_nEXO_Varinat/Board_SN2/Full_Chain/Baseline/Room/T3_Baseline_CTS_448MHz_4CHs/CH0-CH3_CH32-CH35/CH0_CH3_CH32-CH35_tp0u6s_bl380_ADUs_8192.dat'
+filename = '/u1/ddoering/data/cryo-c01/Cryo_v2_nEXO_Varinat/Board_SN2/Full_Chain/Baseline/Room/T3_Baseline_CTS_448MHz_4CHs/CH0-CH3_CH32-CH35/CH0_CH3_CH32-CH35_tp0u6s_bl380_ADUs_81920.dat'
+filename = '/u1/ddoering/data/cryo-c01/Cryo_v2_nEXO_Varinat/Board_SN2/Full_Chain/Baseline/Room/T3_Baseline_CTS_448MHz_4CHs/CH0-CH3_CH32-CH35/CH0_CH3_CH32-CH35_tp1u2s_bl380_ADUs_8192.dat'
+filename = '/u1/ddoering/data/cryo-c01/Cryo_v2_nEXO_Varinat/Board_SN2/Full_Chain/Baseline/Room/T3_Baseline_CTS_448MHz_4CHs/CH0-CH3_CH32-CH35/CH0_CH3_CH32-CH35_tp1u2s_bl380_ADUs_81920.dat'
+filename = '/u1/ddoering/data/cryo-c01/Cryo_v2_nEXO_Varinat/Board_SN2/Full_Chain/Baseline/Room/T3_Baseline_CTS_448MHz_4CHs/CH0-CH3_CH32-CH35/CH0_CH3_CH32-CH35_tp2u4s_bl380_ADUs_8192.dat'
+filename = '/u1/ddoering/data/cryo-c01/Cryo_v2_nEXO_Varinat/Board_SN2/Full_Chain/Baseline/Room/T3_Baseline_CTS_448MHz_4CHs/CH0-CH3_CH32-CH35/CH0_CH3_CH32-CH35_tp2u4s_bl380_ADUs_81920.dat'
+filename = '/u1/ddoering/data/cryo-c01/Cryo_v2_nEXO_Varinat/Board_SN2/Full_Chain/Baseline/Room/T3_Baseline_CTS_448MHz_4CHs/CH0-CH3_CH32-CH35/CH0_CH3_CH32-CH35_tp3u6s_bl380_ADUs_8192.dat'
+filename = '/u1/ddoering/data/cryo-c01/Cryo_v2_nEXO_Varinat/Board_SN2/Full_Chain/Baseline/Room/T3_Baseline_CTS_448MHz_4CHs/CH0-CH3_CH32-CH35/CH0_CH3_CH32-CH35_tp3u6s_bl380_ADUs_81920.dat'
+#
+filename = '/u1/ddoering/data/cryo-c01/Cryo_v2_nEXO_Varinat/Board_SN2/Full_Chain/Baseline/Room/T5_Baseline_CTS_448MHz_8CHs/CH0_CH3_CH32-CH35_g3x0_tp0u6s_bl250_ADUs_24C_8192.dat'
+filename = '/u1/ddoering/data/cryo-c01/Cryo_v2_nEXO_Varinat/Board_SN2/Full_Chain/Baseline/Room/T5_Baseline_CTS_448MHz_8CHs/CH0_CH3_CH32-CH35_g3x0_tp0u6s_bl250_ADUs_24C_81920.dat'
+filename = '/u1/ddoering/data/cryo-c01/Cryo_v2_nEXO_Varinat/Board_SN2/Full_Chain/Baseline/Room/T5_Baseline_CTS_448MHz_8CHs/CH0_CH3_CH32-CH35_g3x0_tp1u2s_bl250_ADUs_24C_8192.dat'
+filename = '/u1/ddoering/data/cryo-c01/Cryo_v2_nEXO_Varinat/Board_SN2/Full_Chain/Baseline/Room/T5_Baseline_CTS_448MHz_8CHs/CH0_CH3_CH32-CH35_g3x0_tp1u2s_bl250_ADUs_24C_81920.dat'
+filename = '/u1/ddoering/data/cryo-c01/Cryo_v2_nEXO_Varinat/Board_SN2/Full_Chain/Baseline/Room/T5_Baseline_CTS_448MHz_8CHs/CH0_CH3_CH32-CH35_g3x0_tp2u4s_bl250_ADUs_24C_8192.dat'
+filename = '/u1/ddoering/data/cryo-c01/Cryo_v2_nEXO_Varinat/Board_SN2/Full_Chain/Baseline/Room/T5_Baseline_CTS_448MHz_8CHs/CH0_CH3_CH32-CH35_g3x0_tp2u4s_bl250_ADUs_24C_81920.dat'
+filename = '/u1/ddoering/data/cryo-c01/Cryo_v2_nEXO_Varinat/Board_SN2/Full_Chain/Baseline/Room/T5_Baseline_CTS_448MHz_8CHs/CH0_CH3_CH32-CH35_g3x0_tp3u6s_bl250_ADUs_24C_8192.dat'
+filename = '/u1/ddoering/data/cryo-c01/Cryo_v2_nEXO_Varinat/Board_SN2/Full_Chain/Baseline/Room/T5_Baseline_CTS_448MHz_8CHs/CH0_CH3_CH32-CH35_g3x0_tp3u6s_bl250_ADUs_24C_81920.dat'
+#
+filename = '/u1/ddoering/data/cryo0p2/roomTemp/pulsingChannels/cryo_data_allChannelsButOneAtATime_pulse_channel_config_0x0329.dat'
+filename = '/u1/ddoering/data/cryo0p2/roomTemp/pulsingChannels/cryo_data_allChannelsButOneAtATime_pulse_channel_config_0x0029.dat'
+
+filename = '/u1/ddoering/data/cryo-c01/Board_SN2/Full_Chain/Baseline/Room/T4_Baseline_CTS_224MHz_All_CHs/All_CHs_0x02a1_tp0u6s_bl300_ADUs_81920.dat'
 f = open(filename, mode = 'rb')
 
 file_header = [0]
@@ -192,6 +212,74 @@ if PLOT_ADC9_VS_N :
     plt.legend()
     plt.show()
 
+
+#%% baseline statistics
+datasetIndex = 0
+adcData = imgDesc
+
+configFileName = "CRYO_ASIC_SN00_Room_Gain_3x_pt_1p2us_"
+baselineGoal = 300
+globalSettings = 0x0025
+bltrimStep = 60
+baselineInitSettings = 5
+
+globalSettingsVector = np.ones((64,)) * globalSettings
+baselineSetting      = np.zeros((64,))
+baselineGoalVector   = np.ones((64,)) * baselineGoal
+
+baselineAvg = np.mean(adcData[datasetIndex],axis=1)
+
+baselineSetting = baselineInitSettings + np.round((baselineAvg - baselineGoalVector)/bltrimStep)
+
+compositeSettings = globalSettingsVector + (baselineSetting*128)
+
+#np.savetxt(os.path.splitext(filename)[0] +  "_baselineStats" + ".csv", np.transpose([baselineAvg, baselineStd]), fmt='%3.3f', delimiter=',', newline='\n')
+np.savetxt(configFileName +  ".csv", compositeSettings, fmt='%d', delimiter=',', newline='\n')
+
+
+
+#%% baseline statistics
+datasetIndex = 0
+adcData = imgDesc
+baselineAvg = np.mean(adcData[datasetIndex],axis=1)
+baselineStd = np.std(adcData[datasetIndex],axis=1)
+print(baselineAvg.shape)
+np.savetxt(os.path.splitext(filename)[0] +  "_baselineStats" + ".csv", np.transpose([baselineAvg, baselineStd]), fmt='%3.3f', delimiter=',', newline='\n')
+
+plt.figure(0)
+plt.plot(baselineAvg)
+plt.xlabel('Channel number')
+plt.ylabel('Channel average')
+plt.show()
+
+plt.figure(1)
+print(baselineAvg.shape)
+plt.plot(baselineStd)
+plt.xlabel('Channel number')
+plt.ylabel('Channel standard deviation')
+plt.show()
+
+
+#%%
+channel = 0
+localDataSet = adcData[datasetIndex,channel]
+print(localDataSet.shape)
+mu = np.mean(localDataSet)
+sigma = np.std(localDataSet)
+print("Array mean =  %f, std = %f" % (mu, sigma))
+
+num_bins = 32
+fig, ax = plt.subplots()
+n, bins, patches = ax.hist(localDataSet, num_bins, density=2)
+y = ((1 / (np.sqrt(2 * np.pi) * sigma)) * np.exp(-0.5 * (1 / sigma * (bins - mu))**2))
+ax.plot(bins, y, '--')
+ax.set_xlabel('ADC value [ADU]')
+ax.set_ylabel('Probability density')
+ax.set_title(r'Histogram of channel #%d: $\mu=%3.2f$, $\sigma=%3.2f$' %(channel, mu, sigma))
+
+# Tweak spacing to prevent clipping of ylabel
+
+plt.show()
 
 #%%
 #show first image
