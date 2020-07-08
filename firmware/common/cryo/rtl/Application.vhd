@@ -2,7 +2,7 @@
 -- File       : Application.vhd
 -- Company    : SLAC National Accelerator Laboratory
 -- Created    : 2017-04-21
--- Last update: 2020-06-17
+-- Last update: 2020-07-07
 -------------------------------------------------------------------------------
 -- Description: Application Core's Top Level
 -------------------------------------------------------------------------------
@@ -178,6 +178,9 @@ architecture mapping of Application is
    signal bitClk         : sl;
    signal byteClk        : sl;
    signal deserClk       : sl;
+   signal bitClkB        : sl;
+   signal byteClkB       : sl;
+   signal deserClkB      : sl;
    signal asicRdClk      : sl;
    signal idelayCtrlClk  : sl;
    signal appRst         : sl;
@@ -325,7 +328,7 @@ architecture mapping of Application is
    signal pllSdi              : sl;
    --
    signal adcSerial         : HrAdcSerialGroupArray(NUMBER_OF_ASICS_C-1 downto 0);
-   signal asicStreams       : AxiStreamMasterArray(STREAMS_PER_ASIC_C-1 downto 0) := (others=>AXI_STREAM_MASTER_INIT_C);   
+   signal asicStreams       : AxiStreamMasterArray(STREAMS_PER_ASIC_C-1 downto 0) := (others=>AXI_STREAM_MASTER_INIT_C);
 
    attribute keep of appClk            : signal is "true";
    attribute keep of asicRdClk         : signal is "true";
@@ -339,7 +342,7 @@ architecture mapping of Application is
    attribute keep of iSaciCmd          : signal is "true";
    attribute keep of iSaciRsp          : signal is "true";
 
-   signal dummy : slv(3 downto 0);
+   signal dummy : slv(5 downto 0);
 
 
 begin
@@ -525,7 +528,7 @@ begin
       iSaciSelL(1)        when boardConfig.epixhrDbgSel2 = "01010" else
       asicRdClk           when boardConfig.epixhrDbgSel2 = "01011" else
       --bitClk            when boardConfig.epixhrDbgSel2 = "01100" else
-      byteClk             when boardConfig.epixhrDbgSel2 = "01101" else
+      byteClkB            when boardConfig.epixhrDbgSel2 = "01101" else
       WFDac20bitDin_i     when boardConfig.epixhrDbgSel1 = "01110" else
       WFDac20bitSclk_i    when boardConfig.epixhrDbgSel1 = "01111" else
       WFDac20bitSyncL_i   when boardConfig.epixhrDbgSel1 = "10000" else
@@ -718,6 +721,58 @@ begin
       axilReadSlave   => mAxiReadSlaves(PLL2REGS_AXI_INDEX_C),
       axilWriteMaster => mAxiWriteMasters(PLL2REGS_AXI_INDEX_C),
       axilWriteSlave  => mAxiWriteSlaves(PLL2REGS_AXI_INDEX_C)
+      );
+
+     ------------------------------------------
+   -- Generate clocks from 156.25 MHz PGP  --
+   ------------------------------------------
+   -- clkIn     : 448.00 MHz PGP
+   -- clkOut(0) : 112.00 MHz -- 448 clock div 4
+   -- clkOut(1) : 64.00 MHz  -- 448 clock div 7
+
+
+   U_iserdesClockGenB : entity surf.ClockManagerUltraScale 
+   generic map(
+      TPD_G                  => 1 ns,
+      TYPE_G                 => "MMCM",  -- or "PLL"
+      INPUT_BUFG_G           => true,
+      FB_BUFG_G              => true,
+      RST_IN_POLARITY_G      => '1',     -- '0' for active low
+      NUM_CLOCKS_G           => 2,
+      -- MMCM attributes
+      BANDWIDTH_G            => "OPTIMIZED",
+      CLKIN_PERIOD_G         => 2.23,    -- Input period in ns );
+      DIVCLK_DIVIDE_G        => 1,
+      CLKFBOUT_MULT_F_G      => 1.0,
+      CLKFBOUT_MULT_G        => 2,
+      CLKOUT0_DIVIDE_G       => 8,
+      CLKOUT0_PHASE_G        => 0.0,
+      CLKOUT0_DUTY_CYCLE_G   => 0.5,
+      CLKOUT0_RST_HOLD_G     => 3,
+      CLKOUT0_RST_POLARITY_G => '1',
+      CLKOUT1_DIVIDE_G       => 14,
+      CLKOUT1_PHASE_G        => 0.0,
+      CLKOUT1_DUTY_CYCLE_G   => 0.5,
+      CLKOUT1_RST_HOLD_G     => 3,
+      CLKOUT1_RST_POLARITY_G => '1')
+   port map(
+      clkIn           => bitClkB,
+      rstIn           => sysRst,
+      clkOut(0)       => deserClkB,
+      clkOut(1)       => byteClkB,
+      rstOut(0)       => dummy(4),
+      rstOut(1)       => dummy(5),
+      locked          => open
+      );
+
+   IBUFDS_serclk : IBUFDS
+    generic map (
+      DQS_BIAS => "FALSE" -- (FALSE, TRUE)
+      )
+    port map (
+      O => bitClkB,
+      I => adcSerial(0).dClkP, 
+      IB => adcSerial(0).dClkN 
       );
    
    ---------------------------------------------
@@ -1260,8 +1315,8 @@ begin
 
    adcSerial(0).fClkP  <= asicDataP(2);
    adcSerial(0).fClkN  <= asicDataN(2);
-   adcSerial(0).dClkP  <= asicDataP(5);
-   adcSerial(0).dClkN  <= asicDataN(5);
+   adcSerial(0).dClkP  <= asicDataP(1);
+   adcSerial(0).dClkN  <= asicDataN(1);
    adcSerial(0).chP(0) <= asicDataP(0);
    adcSerial(0).chN(0) <= asicDataN(0);
    adcSerial(0).chP(1) <= asicDataP(3);
@@ -1298,9 +1353,9 @@ begin
         axilWriteSlave  => mAxiWriteSlaves(CRYO_ASIC0_READOUT_AXI_INDEX_C+i),
         axilReadMaster  => mAxiReadMasters(CRYO_ASIC0_READOUT_AXI_INDEX_C+i),
         axilReadSlave   => mAxiReadSlaves(CRYO_ASIC0_READOUT_AXI_INDEX_C+i),
-        bitClk          => bitClk,
-        byteClk         => byteClk,
-        deserClk        => deserClk,
+        bitClk          => bitClkB,
+        byteClk         => byteClkB,
+        deserClk        => deserClkB,
         adcClkRst       => sysRst,
         adcSerial       => adcSerial(i),
         adcStreamClk    => byteClk,--fClkP,--sysClk,
