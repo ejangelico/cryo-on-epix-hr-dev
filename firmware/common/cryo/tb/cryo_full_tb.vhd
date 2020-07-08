@@ -6,7 +6,7 @@
 -- Author     : Dionisio Doering  <ddoering@tid-pc94280.slac.stanford.edu>
 -- Company    : 
 -- Created    : 2017-05-22
--- Last update: 2020-06-18
+-- Last update: 2020-07-08
 -- Platform   : 
 -- Standard   : VHDL'87
 -------------------------------------------------------------------------------
@@ -339,6 +339,11 @@ architecture arch of cryo_full_tb is
   signal serDataFromFile: sl;
   signal chId           : slv(11 downto 0);
 
+  --CRYO model signals
+  signal cryoBitClk   : slv (1 downto 0);
+  signal cryoFrameClk : slv (1 downto 0);
+  signal cryoData     : slv (1 downto 0);
+
 signal dummy : slv(1 downto 0);
 
 begin  --
@@ -359,10 +364,10 @@ begin  --
   -- Generate clocks from 156.25 MHz PGP  --
   ------------------------------------------
   -- clkIn     : 156.25 MHz PGP
+  -- baseClk   : 896.00 MHz
   -- clkOut(0) : 448.00 MHz -- 8x cryo clock (default  56MHz)
-  -- clkOut(1) : 112.00 MHz -- 448 clock div 4
-  -- clkOut(2) : 64.00 MHz  -- 448 clock div 7
-  -- clkOut(3) : 56.00 MHz  -- cryo input clock default is 56MHz
+  -- clkOut(1) : 64.00 MHz  -- 448 clock div 7
+
 
   U_TB_ClockGen : entity surf.ClockManagerUltraScale 
     generic map(
@@ -552,8 +557,38 @@ begin  --
 
   asicDataP(2) <= fClkP;
   asicDataN(2) <= fClkN;
-  asicDataP(5) <= dClkP;
-  asicDataN(5) <= dClkN;
+  asicDataP(1) <= dClkP;
+  asicDataN(1) <= dClkN;
+
+
+  U_CRYO_ASIC : entity work.CryoAsicTopLevelModel 
+   generic map(
+      TPD_G              => TPD_G,
+      AXIL_ERR_RESP_G    => AXI_RESP_DECERR_C
+   )
+   port map(
+      clk              => asicRoClkP,
+      gRst             => asicGlblRst,
+      -- simulated data
+      analogData       => "000000000000",
+      -- saci
+      saciClk          => asicSaciClk,
+      saciSelL         => asicSaciSel(0),
+      saciCmd          => asicSaciCmd,
+      saciRsp          => asicSaciRsp,
+      -- level based control
+      SRO              => asicR0,
+      SampClkEn        => asicPpmat,
+      
+      -- data out
+      bitClk0          => cryoBitClk(0),
+      frameClk0        => cryoFrameClk(0),
+      sData0           => cryoData(0),
+      bitClk1          => cryoBitClk(1),
+      frameClk1        => cryoFrameClk(1),
+      sData1           => cryoData(1)
+      
+   );
  
   U_App : entity work.Application
       generic map (

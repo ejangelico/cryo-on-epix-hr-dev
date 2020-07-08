@@ -1,12 +1,12 @@
 -------------------------------------------------------------------------------
--- File       : EpixHr: PowerControlModule.vhd
+-- File       : CRYO ASIC top level model
 -- Company    : SLAC National Accelerator Laboratory
--- Created    : 04/07/2017
--- Last update: 2019-07-24
+-- Created    : 04/07/2019
+-- Last update: 2020-07-08
 -------------------------------------------------------------------------------
--- Description: This module enable the voltage regulators on the epix boards
--- based on saci register values. If needed syncronization modules should be
--- inserted in this module as well.
+-- Description: This module emulates the basic functionalities of the 
+-- CRYO ASIC vs.0p2
+-- 
 -------------------------------------------------------------------------------
 -- This file is part of 'SLAC Firmware Standard Library'.
 -- It is subject to the license terms in the LICENSE.txt file found in the 
@@ -22,8 +22,11 @@ use ieee.std_logic_1164.all;
 use ieee.std_logic_arith.all;
 use ieee.std_logic_unsigned.all;
 
-use work.StdRtlPkg.all;
-use work.AxiLitePkg.all;
+
+library surf;
+use surf.StdRtlPkg.all;
+use surf.AxiLitePkg.all;
+
 
 library unisim;
 use unisim.vcomponents.all;
@@ -45,7 +48,7 @@ entity CryoAsicTopLevelModel is
       saciRsp          : out sl;
       -- level based control
       SRO              : in  sl;
-      SamClkiEnable    : in  sl;
+      SampClkEn        : in  sl;
       
       -- data out
       bitClk0          : out sl;
@@ -119,7 +122,7 @@ architecture rtl of CryoAsicTopLevelModel is
   signal dummyRst        : slv(2  downto 0);
   signal s_enc_data_o    : slv(13 downto 0);
   signal s_enc_data_i    : slv(11 downto 0);
-  signal SamClkiEnable_i : slv( 1 downto 0);
+  signal SampClkEn_i     : slv( 1 downto 0);
   
 begin
 
@@ -253,8 +256,8 @@ begin
       port map (
       clk     => clk,
       rst     => gRst,
-      dataIn  => SamClkiEnable,
-      dataOut => SamClkiEnable_i(0)
+      dataIn  => SampClkEn,
+      dataOut => SampClkEn_i(0)
    );
    U_latch_SamClkiEnable_i1 : entity work.AsicLatch
    generic map (
@@ -264,8 +267,8 @@ begin
       port map (
       clk     => serClk,
       rst     => rstInt,
-      dataIn  => SamClkiEnable_i(0),
-      dataOut => SamClkiEnable_i(1)
+      dataIn  => SampClkEn_i(0),
+      dataOut => SampClkEn_i(1)
    );
 
   -----------------------------------------------------------------------------
@@ -298,7 +301,7 @@ begin
   -- clock enable
   -----------------------------------------------------------------------------
   -- gated clock to simulate adcClk at 112MHz
-  serClk_i <= serClk when SamClkiEnable_i(1) = '1'
+  serClk_i <= serClk when SampClkEn_i(1) = '1'
            else '0';
   adcClk <= adcClk_i when SRO = '1'
             else '0';
