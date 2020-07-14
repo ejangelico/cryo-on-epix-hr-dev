@@ -59,6 +59,11 @@ SAVEHDF5              = False
 filename = '/u1/ddoering/data/cryo0p2/roomTemp/pulsingChannels/cryo_data_allChannelsButOneAtATime_pulse_channel_config_0x0029.dat'
 filename = '/u1/ddoering/data/cryo0p2/roomTemp/pulsingChannels/cryo_data_allChannelsButOneAtATime_pulse_channel_config_0x0329.dat'
 filename = '/u1/ddoering/data/cryo0p2/roomTemp/NoiseAndPeakingTime/06262020/cryo_fullChainData_allChannels_pulse_channelConfig_0x02a9_analogMon_ch6.dat'
+
+filename = '/u1/ddoering/data/cryo-c01/Cryo_v2_nEXO_Varinat/Board_SN5/Full_Chain/Baseline/Cold/T0_448MHz_All_CHs_Pulsed_NoWireBond_Input_Cold/SN05_448MHz_4CHs_Top_4CHs_Bot_0x0391_tp0u6s_g1x5_acq_off_81920.dat'
+filename = '/u1/ddoering/data/cryo-c01/Cryo_v2_nEXO_Varinat/Board_SN5/Full_Chain/Baseline/Cold/T0_448MHz_All_CHs_Pulsed_NoWireBond_Input_Cold/SN05_448MHz_4CHs_Top_4CHs_Bot_0x0395_tp1u2s_g1x5_acq_off_81920.dat'
+filename = '/u1/ddoering/data/cryo-c01/Cryo_v2_nEXO_Varinat/Board_SN5/Full_Chain/Baseline/Cold/T0_448MHz_All_CHs_Pulsed_NoWireBond_Input_Cold/SN05_448MHz_4CHs_Top_4CHs_Bot_0x0399_tp2u4s_g1x5_acq_off_81920.dat'
+filename = '/u1/ddoering/data/cryo-c01/Cryo_v2_nEXO_Varinat/Board_SN5/Full_Chain/Baseline/Cold/T0_448MHz_All_CHs_Pulsed_NoWireBond_Input_Cold/SN05_448MHz_4CHs_Top_4CHs_Bot_0x039d_tp3u6s_g1x5_acq_off_81920.dat'
 f = open(filename, mode = 'rb')
 
 file_header = [0]
@@ -135,6 +140,17 @@ if(SAVEHDF5):
     
     for runNum in range(imgDesc.shape[0]):
         np.savetxt(os.path.splitext(filename)[0] + "_runNum" + str(runNum) + "_traces" + ".csv", imgDesc[runNum,:,:], fmt='%d', delimiter=',', newline='\n')
+
+#%%
+dataset = imgDesc[0]
+channelAverages = np.mean(dataset, axis=1)
+channelStd      = np.std(dataset, axis=1)
+channelStats = np.transpose([channelAverages, channelStd])
+
+np.savetxt(os.path.splitext(filename)[0] + "_baselineStats" + ".csv", channelStats, fmt='%3.3f', delimiter=',', newline='\n')
+
+
+
 
 #%%
 ##################################################
