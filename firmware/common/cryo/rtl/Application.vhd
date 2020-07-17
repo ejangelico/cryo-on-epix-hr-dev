@@ -2,7 +2,7 @@
 -- File       : Application.vhd
 -- Company    : SLAC National Accelerator Laboratory
 -- Created    : 2017-04-21
--- Last update: 2020-07-07
+-- Last update: 2020-07-15
 -------------------------------------------------------------------------------
 -- Description: Application Core's Top Level
 -------------------------------------------------------------------------------
@@ -166,6 +166,8 @@ architecture mapping of Application is
    -- ASIC signals
    constant STREAMS_PER_ASIC_C : natural := 2;
    constant INTERNAL_DAC_C     : boolean := false;
+
+   constant SACI_CLK_PERIOD_C  : real    := ite(SIMULATION_G, 0.12E-6, 0.25E-6);
 
    --heart beat signal
    signal heartBeat      : sl;
@@ -934,7 +936,7 @@ begin
    generic map (
       AXIL_CLK_PERIOD_G  => 10.0E-9, -- In units of seconds
       AXIL_TIMEOUT_G     => 1.0E-3,  -- In units of seconds
-      SACI_CLK_PERIOD_G  => 0.25E-6, -- In units of seconds
+      SACI_CLK_PERIOD_G  => SACI_CLK_PERIOD_C, -- In units of seconds
       SACI_CLK_FREERUN_G => false,
       SACI_RSP_BUSSED_G  => true,
       SACI_NUM_CHIPS_G   => NUMBER_OF_ASICS_C)

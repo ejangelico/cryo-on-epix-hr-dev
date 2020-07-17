@@ -6,7 +6,7 @@
 -- Author     : Dionisio Doering  <ddoering@tid-pc94280.slac.stanford.edu>
 -- Company    : 
 -- Created    : 2017-05-22
--- Last update: 2020-07-08
+-- Last update: 2020-07-15
 -- Platform   : 
 -- Standard   : VHDL'87
 -------------------------------------------------------------------------------
@@ -340,9 +340,18 @@ architecture arch of cryo_full_tb is
   signal chId           : slv(11 downto 0);
 
   --CRYO model signals
-  signal cryoBitClk   : slv (1 downto 0);
-  signal cryoFrameClk : slv (1 downto 0);
-  signal cryoData     : slv (1 downto 0);
+  signal cryoBitClk0       : slv (1 downto 0);
+  signal cryoFrameClk0     : slv (1 downto 0);
+  signal cryoData0         : slv (1 downto 0);
+  signal cryoBitClk1       : slv (1 downto 0);
+  signal cryoFrameClk1     : slv (1 downto 0);
+  signal cryoData1         : slv (1 downto 0);
+  signal asicSaciClkDiff   : slv (1 downto 0);
+  signal asicSaciCmdDiff   : slv (1 downto 0);
+  signal asicSaciRspDiff   : slv (1 downto 0);
+  signal asicR0Diff        : slv (1 downto 0);
+  signal asicSampClkEnDiff : slv (1 downto 0);
+
 
 signal dummy : slv(1 downto 0);
 
@@ -560,6 +569,42 @@ begin  --
   asicDataP(1) <= dClkP;
   asicDataN(1) <= dClkN;
 
+  ----------------------------------------------
+  -- wiring for the ASIC model
+  ----------------------------------------------
+  U_SACIclk : OBUFDS
+      port map (
+         O  => asicSaciClkDiff(0),  
+         OB => asicSaciClkDiff(1),  
+         I  => asicSaciClk);
+
+  U_SACIcmd : OBUFDS
+      port map (
+         O  => asicSaciCmdDiff(0),  
+         OB => asicSaciCmdDiff(1),  
+         I  => asicSaciCmd);
+  
+  U_SACIrsp : IBUFDS
+      port map (
+         I  => asicSaciRspDiff(0),  
+         IB => asicSaciRspDiff(1),  
+         O  => asicSaciRsp);
+
+  U_ASICR0 : OBUFDS
+      port map (
+         O  => asicR0Diff(0),  
+         OB => asicR0Diff(1),  
+         I  => asicR0);
+
+  U_ASICSampClkEn : OBUFDS
+      port map (
+         O  => asicSampClkEnDiff(0),  
+         OB => asicSampClkEnDiff(1),  
+         I  => asicPpmat);
+  ----------------------------------------------
+  -- ASIC model
+  ----------------------------------------------
+
 
   U_CRYO_ASIC : entity work.CryoAsicTopLevelModel 
    generic map(
@@ -567,28 +612,29 @@ begin  --
       AXIL_ERR_RESP_G    => AXI_RESP_DECERR_C
    )
    port map(
-      clk              => asicRoClkP,
-      gRst             => asicGlblRst,
-      -- simulated data
-      analogData       => "000000000000",
-      -- saci
-      saciClk          => asicSaciClk,
-      saciSelL         => asicSaciSel(0),
-      saciCmd          => asicSaciCmd,
-      saciRsp          => asicSaciRsp,
+     ROclk(0)         => asicRoClkP(0),
+     ROclk(1)         => asicRoClkN(0),
+     pGR              => asicGlblRst,
+     -- simulated data
+     analogData       => "000000000000",
+     -- saci
+     SACIclk          => asicSaciClkDiff,
+     SACIsel          => asicSaciSel(0),
+     SACIcmd          => asicSaciCmdDiff,
+     SACIrsp          => asicSaciRspDiff,
       -- level based control
-      SRO              => asicR0,
-      SampClkEn        => asicPpmat,
+     pPulse           => asicACQ,      
+     pStartRO         => asicR0Diff,
+     SampClkEn        => asicSampClkEnDiff, --asicPpmat,
       
-      -- data out
-      bitClk0          => cryoBitClk(0),
-      frameClk0        => cryoFrameClk(0),
-      sData0           => cryoData(0),
-      bitClk1          => cryoBitClk(1),
-      frameClk1        => cryoFrameClk(1),
-      sData1           => cryoData(1)
-      
-   );
+     -- data out
+     D0serClk         => cryoBitClk0,
+     D0wordClk        => cryoFrameClk0,
+     D0out            => cryoData0,
+     D1serClk         => cryoBitClk1,
+     D1wordClk        => cryoFrameClk1,
+     D1out            => cryoData1 
+   ); 
  
   U_App : entity work.Application
       generic map (
