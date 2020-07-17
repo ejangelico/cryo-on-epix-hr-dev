@@ -1085,7 +1085,9 @@ class CryoAsic0p2(pr.Device):
         # CMD = 0, Addr = 0  : Prepare for readout
         self.add(pr.RemoteCommand(name='CmdPrepForRead', description='ASIC Prepare For Readout',offset=0x00000000*addrSize, bitSize=1, bitOffset=0, function=pr.Command.touchZero, hidden=True))
         
-        CMD_1_MODE = 'RW' 
+        #CMD_1_MODE = 'RW' # 'RW' is for simulation only on CRYO 0p2'
+        CMD_1_MODE = 'RO'
+        
         # CMD = 1, Addr = XXX offset = 0xCCCCCAAA where C and command bits and A are address bits
         CMD_TYPE_1 = 0x00001000
         self.add((pr.RemoteVariable(name='RowStart',     description='Config1',  offset=(CMD_TYPE_1 + 0x01)*addrSize, bitSize=8,  bitOffset=0, base=pr.UInt, mode=CMD_1_MODE)))
