@@ -6,7 +6,7 @@
 -- Author     : Dionisio Doering  <ddoering@tid-pc94280.slac.stanford.edu>
 -- Company    : 
 -- Created    : 2017-05-22
--- Last update: 2020-07-15
+-- Last update: 2020-07-17
 -- Platform   : 
 -- Standard   : VHDL'87
 -------------------------------------------------------------------------------
@@ -612,8 +612,8 @@ begin  --
       AXIL_ERR_RESP_G    => AXI_RESP_DECERR_C
    )
    port map(
-     ROclk(0)         => asicRoClkP(0),
-     ROclk(1)         => asicRoClkN(0),
+     ROclk(0)         => asicDataP(8), --asicRoClkP(0),
+     ROclk(1)         => asicDataN(8), --asicRoClkN(0),
      pGR              => asicGlblRst,
      -- simulated data
      analogData       => "000000000000",

@@ -65,6 +65,9 @@ end entity CryoAsicTopLevelModel;
 
 architecture rtl of CryoAsicTopLevelModel is
 
+
+  constant ENCODER_C : positive := 2;
+
   -- runs on ADC clock (typical 112MHz)
   type asicStateType is (DELAY_ST, RUNNING_ST);
 
@@ -163,6 +166,11 @@ architecture rtl of CryoAsicTopLevelModel is
   --
   signal clk56MHz        : sl;
   signal asicRst         : sl;
+  -- ASIC Gbps Ports
+  signal asicDataP   : slv(ENCODER_C-1 downto 0) := (others => '0');
+  signal asicDataN   : slv(ENCODER_C-1 downto 0) := (others => '1');
+  signal serData     : slv2Array(ENCODER_C-1 downto 0)  := (others => (others => '0'));
+  signal serialOut   : slv(ENCODER_C-1 downto 0)        := (others => '0');
   --
   signal asicRstL        : sl;
   signal saciClk_i       : sl;
@@ -183,16 +191,18 @@ architecture rtl of CryoAsicTopLevelModel is
   signal SRO_En          : sl;
   signal adcClk_i        : sl;
   signal adcClk          : sl;
-  signal rstInt          : sl := '1';
-  signal s_enc_valid_i   : sl := '0';
-  signal s_mode_i        : slv(2  downto 0) := "001";
+  signal rstSerClk       : sl := '1';
+  signal s_enc_valid     : sl := '0';
+  signal s_mode          : slv(2  downto 0) := "001";
   signal data_i          : slv(11 downto 0) := (others => '0');
   signal data_o          : slv(11 downto 0);
   signal serClk          : sl;
   signal serClk_i        : sl;
-  signal colCk           : sl;
+  signal colClk          : sl;
   signal sampClk_i       : sl;
   signal dummyRst        : slv(2  downto 0);
+  signal enc_din         : slv12Array(ENCODER_C-1 downto 0)  := (others => (others => '0'));
+  signal enc_dout        : slv14Array(ENCODER_C-1 downto 0)  := (others => (others => '0'));
   signal s_enc_data_o    : slv(13 downto 0);
   signal s_enc_data_i    : slv(11 downto 0);
   signal SampClkEnSE     : sl;
@@ -272,7 +282,7 @@ begin
       clkIn           => clk56MHz,      -- 56MHz
       rstIn           => asicRst,
       clkOut(0)       => serClk,        -- 448MHz
-      rstOut(0)       => rstInt,
+      rstOut(0)       => rstSerClk,
       locked          => open
    );
 
@@ -300,7 +310,7 @@ begin
       IS_I_INVERTED => '0'    -- Optional inversion for I
    )
    port map (
-      O => colCk,     -- 1-bit output: Buffer
+      O => colClk,     -- 1-bit output: Buffer
       CE => '1',        -- 1-bit input: Buffer enable
       CLR => '0',       -- 1-bit input: Asynchronous clear (saci rst??)
       I => serClk_i      -- 1-bit input: Buffer
@@ -318,13 +328,13 @@ begin
       O => sampClk_i,    -- 1-bit output: Buffer
       CE => '1',        -- 1-bit input: Buffer enable
       CLR => '0',       -- 1-bit input: Asynchronous clear (saci rst??)
-      I => colCk      -- 1-bit input: Buffer
+      I => colClk      -- 1-bit input: Buffer
    );
 
   -----------------------------------------------------------------------------
   -- LATCHES
   -----------------------------------------------------------------------------
-  -- latche for SR0  
+  -- latche for SRO  
   U_latch_SRO : entity work.AsicLatch
    generic map (
       TPD_G          => TPD_G,
@@ -332,7 +342,7 @@ begin
      )
       port map (
       clk     => sampClk_i,
-      rst     => rstInt,
+      rst     => rstSerClk,
       dataIn  => SRO,
       dataOut => SRO_l8MHz
    );
@@ -344,12 +354,12 @@ begin
      )
       port map (
       clk     => sampClk_i,
-      rst     => rstInt,
+      rst     => rstSerClk,
       dataIn  => SRO_l8MHz,
       dataOut => SRO_En
    );
 
-  s_enc_valid_i <= SRO_En;
+  s_enc_valid <= SRO_En;
 
   -- latches for SamClkiEnable_i
   U_latch_SamClkiEnable_i0 : entity work.AsicLatch
@@ -370,7 +380,7 @@ begin
      )
       port map (
       clk     => serClk,
-      rst     => rstInt,
+      rst     => rstSerClk,
       dataIn  => SampClkEn_i(0),
       dataOut => SampClkEn_i(1)
       );
@@ -514,13 +524,106 @@ begin
   -- digital back end
   -----------------------------------------------------------------------------
   --
+  enc_din(0) <= x"F00";
+  enc_din(1) <= x"F11";
+  s_mode     <= saciR.cfg_reg_16(7 downto 5);
+  
+  GEN_DIGITAL_BACKEND_ENCODERS :
+  for i in ENCODER_C-1 downto 0 generate                                                              
+    u_ssp_enc12b14b_ext : entity work.ssp_enc12b14b_ext_sim
+      port map(
+        start_ro  => SRO,
+        clk_i     => colClk,            
+        rst_n_i   => asicRstL,
+        valid_i   => s_enc_valid,       
+        mode_i    => s_mode,            
+        data_i    => enc_din(i),
+        data_o    => enc_dout(i)
+        );
+    
+    U_Serializer : entity surf.AsyncGearbox
+      generic map (
+        TPD_G          => TPD_G,
+        SLAVE_WIDTH_G  => 14,
+        MASTER_WIDTH_G => 2)
+      port map (
+        -- Slave Interface
+        slaveClk   => colClk,  -- serClkDiv7
+        slaveRst   => '0',
+        slaveValid => '1',
+        slaveData  => enc_dout(i),
+        -- Master Interface
+        masterClk  => serClk,
+        masterRst  => rstSerClk,
+        masterData => serData(i));
+  
+    U_ODDR : ODDRE1
+      port map (
+        C  => serClk,
+        SR => rstSerClk,
+        D1 => serData(i)(0),
+        D2 => serData(i)(1),
+        Q  => serialOut(i));
+  
+    U_OBUFDS : OBUFDS
+      port map (
+        I  => serialOut(i),
+        O  => asicDataP(i),  -- ASIC carrier pinout not finalized yet (01JUNE2020)
+        OB => asicDataN(i));  -- ASIC carrier pinout not finalized yet (01JUNE2020)
+
+  end generate GEN_DIGITAL_BACKEND_ENCODERS;
+
+  -----------------------------------------------------------------------------
+  -- clock enable
+  -----------------------------------------------------------------------------
+  -- gated clock to simulate adcClk at 112MHz
+  serClk_i <= serClk when SampClkEn_i(1) = '1'
+            else '0';
+  adcClk <= adcClk_i when SRO = '1'
+            else '0';
+
+
+  U_OBUFDS_D0wordClk : OBUFDS
+    port map (
+      I  => colClk,
+      O  => D0wordClk(0),  
+      OB => D0wordClk(1)); 
+
+  U_OBUFDS_D1wordClk : OBUFDS
+    port map (
+      I  => colClk,
+      O  => D1wordClk(0),  
+      OB => D1wordClk(1)); 
+  
+  U_OBUFDS_D0serClk : OBUFDS
+    port map (
+      I  => serClk_i,
+      O  => D0serClk(0),  
+      OB => D0serClk(1)); 
+
+  U_OBUFDS_D1serClk : OBUFDS
+    port map (
+      I  => serClk_i,
+      O  => D1serClk(0),  
+      OB => D1serClk(1)); 
+
+  -------------------------------------------
+  --mapping output ports
+  -------------------------------------------
+  D0out(0) <= asicDataP(0);
+  D0out(1) <= asicDataN(0);
+
+  D1out(0) <= asicDataP(1);
+  D1out(1) <= asicDataN(1);
+
+  
 --  u_ssp_enc12b14b_ext : entity work.ssp_enc12b14b_ext
 --    port map(
 --      start_ro  => SRO,
---      clk_i     => colCk,                -- needs updating
+--      clk_i     => colClk,                -- needs updating
 --      rst_n_i   => asicRstL,
 --      valid_i   => s_enc_valid_i,       -- needs updating
---      mode_i    => s_mode_i,            
+--      mode_i    => s_mode,            
 --      data_i    => s_enc_data_i,
 --      data_o    => s_enc_data_o
 --    );
@@ -536,21 +639,12 @@ begin
 --        data_o    => sData0
 --    );
 
-  -- -----------------------------------------------------------------------------
-  -- -- clock enable
-  -- -----------------------------------------------------------------------------
-  -- -- gated clock to simulate adcClk at 112MHz
-  -- serClk_i <= serClk when SampClkEn_i(1) = '1'
-  --          else '0';
-  -- adcClk <= adcClk_i when SRO = '1'
-  --           else '0';
-
 
   -- -----------------------------------------------------------------------------
   -- -- SubBanck clock (derived from ADC clock)
   -- -----------------------------------------------------------------------------
   -- -- sequential process
-  -- seq : process (adcClk, rstInt) is
+  -- seq : process (adcClk, rstSerClk) is
   -- begin
   --   if (rising_edge(adcClk)) then
   --     r <= rin after TPD_G;
