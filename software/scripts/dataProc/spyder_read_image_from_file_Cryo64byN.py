@@ -50,7 +50,7 @@ PLOT_IMAGE_DARK       = False
 PLOT_IMAGE_HEATMAP    = False
 PLOT_SET_HISTOGRAM    = False
 PLOT_ADC_VS_N         = False
-SAVEHDF5              = False
+SAVEHDF5              = True
 
 ##################################################
 # Dark images
@@ -64,6 +64,16 @@ filename = '/u1/ddoering/data/cryo-c01/Cryo_v2_nEXO_Varinat/Board_SN5/Full_Chain
 filename = '/u1/ddoering/data/cryo-c01/Cryo_v2_nEXO_Varinat/Board_SN5/Full_Chain/Baseline/Cold/T0_448MHz_All_CHs_Pulsed_NoWireBond_Input_Cold/SN05_448MHz_4CHs_Top_4CHs_Bot_0x0395_tp1u2s_g1x5_acq_off_81920.dat'
 filename = '/u1/ddoering/data/cryo-c01/Cryo_v2_nEXO_Varinat/Board_SN5/Full_Chain/Baseline/Cold/T0_448MHz_All_CHs_Pulsed_NoWireBond_Input_Cold/SN05_448MHz_4CHs_Top_4CHs_Bot_0x0399_tp2u4s_g1x5_acq_off_81920.dat'
 filename = '/u1/ddoering/data/cryo-c01/Cryo_v2_nEXO_Varinat/Board_SN5/Full_Chain/Baseline/Cold/T0_448MHz_All_CHs_Pulsed_NoWireBond_Input_Cold/SN05_448MHz_4CHs_Top_4CHs_Bot_0x039d_tp3u6s_g1x5_acq_off_81920.dat'
+
+
+filename = '/u1/ddoering/data/cryo-c01/Cryo_v2_nEXO_Varinat/Board_SN2/Full_Chain/Baseline/Cold/T10_Baseline_CTS_448MHz_CHs_DirectPath_Cdet_CH0_CH1_NoWirebond_High_Supply/SN2_448MHz_Cdet_150pF_CH_0_CTS_3u6s_Cdet_VDD_Ana_Mon_HighSupply_LDO3_1v11.dat'
+#filename = '/u1/ddoering/data/cryo-c01/Cryo_v2_nEXO_Varinat/Board_SN2/Full_Chain/Baseline/Cold/T10_Baseline_CTS_448MHz_CHs_DirectPath_Cdet_CH0_CH1_NoWirebond_High_Supply/SN2_448MHz_Cdet_150pF_CH_1_CTS_3u6s_Cdet_VDD_Ana_Mon_HighSupply_LDO3_1v11.dat'
+#filename = '/u1/ddoering/data/cryo-c01/Cryo_v2_nEXO_Varinat/Board_SN2/Full_Chain/Baseline/Cold/T10_Baseline_CTS_448MHz_CHs_DirectPath_Cdet_CH0_CH1_NoWirebond_High_Supply/SN2_448MHz_Cdet_150pF_CH_3_CTS_3u6s_Cdet_VDD_Ana_Mon_HighSupply_LDO3_1v11.dat'
+
+#filename = '/u1/ddoering/data/cryo-c01/Cryo_v2_nEXO_Varinat/Board_SN2/Full_Chain/Baseline/Room/T10_Baseline_CTS_448MHz_CHs_DirectPath_Cdet_CH0_CH1_NoWirebond_High_Supply/SN2_448MHz_Cdet_150pF_CH_0_CTS_3u6s_Cdet_VDD_Ana_Mon_HighSupply_LDO3_1v13.dat'
+#filename = '/u1/ddoering/data/cryo-c01/Cryo_v2_nEXO_Varinat/Board_SN2/Full_Chain/Baseline/Room/T10_Baseline_CTS_448MHz_CHs_DirectPath_Cdet_CH0_CH1_NoWirebond_High_Supply/SN2_448MHz_Cdet_150pF_CH_1_CTS_3u6s_Cdet_VDD_Ana_Mon_HighSupply_LDO3_1v13.dat'
+#filename = '/u1/ddoering/data/cryo-c01/Cryo_v2_nEXO_Varinat/Board_SN2/Full_Chain/Baseline/Room/T10_Baseline_CTS_448MHz_CHs_DirectPath_Cdet_CH0_CH1_NoWirebond_High_Supply/SN2_448MHz_Cdet_150pF_CH_3_CTS_3u6s_Cdet_VDD_Ana_Mon_HighSupply_LDO3_1v13.dat'
+
 f = open(filename, mode = 'rb')
 
 file_header = [0]
