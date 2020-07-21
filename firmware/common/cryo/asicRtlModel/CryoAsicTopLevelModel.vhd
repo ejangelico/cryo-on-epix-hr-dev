@@ -2,7 +2,7 @@
 -- File       : CRYO ASIC top level model
 -- Company    : SLAC National Accelerator Laboratory
 -- Created    : 04/07/2019
--- Last update: 2020-07-17
+-- Last update: 2020-07-21
 -------------------------------------------------------------------------------
 -- Description: This module emulates the basic functionalities of the 
 -- CRYO ASIC vs.0p2
@@ -568,8 +568,8 @@ begin
     U_OBUFDS : OBUFDS
       port map (
         I  => serialOut(i),
-        O  => asicDataP(i),  -- ASIC carrier pinout not finalized yet (01JUNE2020)
-        OB => asicDataN(i));  -- ASIC carrier pinout not finalized yet (01JUNE2020)
+        O  => asicDataP(i),  
+        OB => asicDataN(i));  
 
   end generate GEN_DIGITAL_BACKEND_ENCODERS;
 

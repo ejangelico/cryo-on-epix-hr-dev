@@ -6,7 +6,7 @@
 -- Author     : Dionisio Doering  <ddoering@tid-pc94280.slac.stanford.edu>
 -- Company    : 
 -- Created    : 2017-05-22
--- Last update: 2020-07-17
+-- Last update: 2020-07-21
 -- Platform   : 
 -- Standard   : VHDL'87
 -------------------------------------------------------------------------------
@@ -554,15 +554,19 @@ begin  --
 
 --  asicDataP(0) <=     serDataFromFile;
 --  asicDataN(0) <= not serDataFromFile;
-  asicDataP(0) <=     serialDataOut1;
-  asicDataN(0) <= not serialDataOut1;
+--  asicDataP(0) <=     serialDataOut1;
+--  asicDataN(0) <= not serialDataOut1;
+  asicDataP(0) <= cryoData0(0);
+  asicDataN(0) <= cryoData0(1);
 --  asicDataP(0) <= fClkP;
 --  asicDataN(0) <= fClkN;
 --  
 --  asicDataP(3) <=     serDataFromFile;
 --  asicDataN(3) <= not serDataFromFile;
-  asicDataP(3) <=     serialDataOut2;
-  asicDataN(3) <= not serialDataOut2;
+--  asicDataP(3) <=     serialDataOut2;
+--  asicDataN(3) <= not serialDataOut2;
+  asicDataP(3) <= cryoData1(0);
+  asicDataN(3) <= cryoData1(1);
 
   asicDataP(2) <= fClkP;
   asicDataN(2) <= fClkN;
