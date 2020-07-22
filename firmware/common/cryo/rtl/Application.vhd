@@ -1355,9 +1355,9 @@ begin
         axilWriteSlave  => mAxiWriteSlaves(CRYO_ASIC0_READOUT_AXI_INDEX_C+i),
         axilReadMaster  => mAxiReadMasters(CRYO_ASIC0_READOUT_AXI_INDEX_C+i),
         axilReadSlave   => mAxiReadSlaves(CRYO_ASIC0_READOUT_AXI_INDEX_C+i),
-        bitClk          => bitClkB,
-        byteClk         => byteClkB,
-        deserClk        => deserClkB,
+        bitClk          => bitClk,  -- bitClkB,--change to clock if using serClk from ASIC to decode data
+        byteClk         => byteClk, -- byteClkB,--change to clock if using serClk from ASIC to decode data
+        deserClk        => deserClk,-- deserClkB,--change to clock if using serClk from ASIC to decode data
         adcClkRst       => sysRst,
         adcSerial       => adcSerial(i),
         adcStreamClk    => byteClk,--fClkP,--sysClk,
