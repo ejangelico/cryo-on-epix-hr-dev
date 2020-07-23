@@ -44,7 +44,7 @@ PAYLOAD_TS           = 7360
 cameraType            = 'cryo64xN'
 bitMask               = 0xffff
 PLOT_IMAGE            = True
-PLOT_ADC9_VS_N        = False
+PLOT_ADC9_VS_N        = True
 PLOT_IMAGE_DARKSUB    = False
 PLOT_IMAGE_DARK       = False
 PLOT_IMAGE_HEATMAP    = False
@@ -79,6 +79,27 @@ filename = '/u1/ddoering/data/cryo0p2/roomTemp/pulsingChannels/cryo_data_allChan
 filename = '/u1/ddoering/data/cryo0p2/roomTemp/pulsingChannels/cryo_data_allChannelsButOneAtATime_pulse_channel_config_0x0029.dat'
 
 filename = '/u1/ddoering/data/cryo-c01/Board_SN2/Full_Chain/Baseline/Room/T4_Baseline_CTS_224MHz_All_CHs/All_CHs_0x02a1_tp0u6s_bl300_ADUs_81920.dat'
+
+filename = '/u1/ddoering/data/cryo-c01/Cryo_v2_nEXO_Varinat/Board_SN2/Full_Chain/Baseline/Cold/T3_Baseline_448MHz_Cdet_VDD/CHs_OK_Top_0x0391_bl400ADUs_blcor0x6_bltrim7_g1x5_Tp0u6s_8192.dat'
+filename = '/u1/ddoering/data/cryo-c01/Cryo_v2_nEXO_Varinat/Board_SN2/Full_Chain/Baseline/Cold/T3_Baseline_448MHz_Cdet_VDD/CHs_OK_Top_0x0391_bl400ADUs_blcor0x6_bltrim7_g1x5_Tp0u6s_81920.dat'
+filename = '/u1/ddoering/data/cryo-c01/Cryo_v2_nEXO_Varinat/Board_SN2/Full_Chain/Baseline/Cold/T3_Baseline_448MHz_Cdet_VDD/CHs_OK_Top_0x0395_bl400ADUs_blcor0x6_bltrim7_g1x5_Tp1u2s_8192.dat'
+filename = '/u1/ddoering/data/cryo-c01/Cryo_v2_nEXO_Varinat/Board_SN2/Full_Chain/Baseline/Cold/T3_Baseline_448MHz_Cdet_VDD/CHs_OK_Top_0x0395_bl400ADUs_blcor0x6_bltrim7_g1x5_Tp1u2s_81920.dat'
+filename = '/u1/ddoering/data/cryo-c01/Cryo_v2_nEXO_Varinat/Board_SN2/Full_Chain/Baseline/Cold/T3_Baseline_448MHz_Cdet_VDD/CHs_OK_Top_0x0399_bl400ADUs_blcor0x6_bltrim7_g1x5_Tp2u4s_8192.dat'
+filename = '/u1/ddoering/data/cryo-c01/Cryo_v2_nEXO_Varinat/Board_SN2/Full_Chain/Baseline/Cold/T3_Baseline_448MHz_Cdet_VDD/CHs_OK_Top_0x0399_bl400ADUs_blcor0x6_bltrim7_g1x5_Tp2u4s_81920.dat'
+filename = '/u1/ddoering/data/cryo-c01/Cryo_v2_nEXO_Varinat/Board_SN2/Full_Chain/Baseline/Cold/T3_Baseline_448MHz_Cdet_VDD/CHs_OK_Top_0x039d_bl400ADUs_blcor0x6_bltrim7_g1x5_Tp3u6s_8192.dat'
+filename = '/u1/ddoering/data/cryo-c01/Cryo_v2_nEXO_Varinat/Board_SN2/Full_Chain/Baseline/Cold/T3_Baseline_448MHz_Cdet_VDD/CHs_OK_Top_0x039d_bl400ADUs_blcor0x6_bltrim7_g1x5_Tp3u6s_81920.dat'
+
+filename = '/u1/ddoering/data/cryo-c01/Cryo_v2_nEXO_Varinat/Board_SN2/Full_Chain/Baseline/Cold/T4_Baseline_448MHz_Cdet_VDD_Top_Bot_Bank/CHs_OK_2Top_0x0391_bltrimm7_7Bot_0x0191_bltrim3_blcoars0x06_g1x5_Tp0u6s_8192.dat'
+filename = '/u1/ddoering/data/cryo-c01/Cryo_v2_nEXO_Varinat/Board_SN2/Full_Chain/Baseline/Cold/T4_Baseline_448MHz_Cdet_VDD_Top_Bot_Bank/CHs_OK_2Top_0x0395_bltrimm7_7Bot_0x0195_bltrim3_blcoars0x06_g1x5_Tp1u2s_8192.dat'
+filename = '/u1/ddoering/data/cryo-c01/Cryo_v2_nEXO_Varinat/Board_SN2/Full_Chain/Baseline/Cold/T4_Baseline_448MHz_Cdet_VDD_Top_Bot_Bank/CHs_OK_2Top_0x0399_bltrimm7_7Bot_0x0199_bltrim3_blcoars0x06_g1x5_Tp2u4s_8192.dat'
+filename = '/u1/ddoering/data/cryo-c01/Cryo_v2_nEXO_Varinat/Board_SN2/Full_Chain/Baseline/Cold/T4_Baseline_448MHz_Cdet_VDD_Top_Bot_Bank/CHs_OK_2Top_0x039d_bltrimm7_7Bot_0x019d_bltrim3_blcoars0x06_g1x5_Tp3u6s_8192.dat'
+filename = '/u1/ddoering/data/cryo-c01/Cryo_v2_nEXO_Varinat/Board_SN2/Full_Chain/Baseline/Cold/T4_Baseline_448MHz_Cdet_VDD_Top_Bot_Bank/CHs_OK_2Top_7Bot_0x0391_blcor0x5_bltrim7_g1x5_Tp0u6s_8192.dat'
+filename = '/u1/ddoering/data/cryo-c01/Cryo_v2_nEXO_Varinat/Board_SN2/Full_Chain/Baseline/Cold/T4_Baseline_448MHz_Cdet_VDD_Top_Bot_Bank/CHs_OK_2Top_7Bot_0x0395_blcor0x5_bltrim7_g1x5_Tp1u2s_8192.dat'
+filename = '/u1/ddoering/data/cryo-c01/Cryo_v2_nEXO_Varinat/Board_SN2/Full_Chain/Baseline/Cold/T4_Baseline_448MHz_Cdet_VDD_Top_Bot_Bank/CHs_OK_2Top_7Bot_0x0399_blcor0x5_bltrim7_g1x5_Tp2u4s_8192.dat'
+filename = '/u1/ddoering/data/cryo-c01/Cryo_v2_nEXO_Varinat/Board_SN2/Full_Chain/Baseline/Cold/T4_Baseline_448MHz_Cdet_VDD_Top_Bot_Bank/CHs_OK_2Top_7Bot_0x039d_blcor0x5_bltrim7_g1x5_Tp3u6s_8192.dat'
+
+
+
 f = open(filename, mode = 'rb')
 
 file_header = [0]
@@ -156,6 +177,29 @@ if(SAVEHDF5):
     for runNum in range(imgDesc.shape[0]):
         np.savetxt(os.path.splitext(filename)[0] + "_runNum" + str(runNum) + "_traces" + ".csv", imgDesc[runNum,:,:], fmt='%d', delimiter=',', newline='\n')
 
+
+#%% baseline statistics
+datasetIndex = 0
+adcData = imgDesc
+baselineAvg = np.mean(adcData[datasetIndex],axis=1)
+baselineStd = np.std(adcData[datasetIndex],axis=1)
+print(baselineAvg.shape)
+np.savetxt(os.path.splitext(filename)[0] +  "_baselineStats" + ".csv", np.transpose([baselineAvg, baselineStd]), fmt='%3.3f', delimiter=',', newline='\n')
+
+plt.figure(0)
+plt.plot(baselineAvg)
+plt.xlabel('Channel number')
+plt.ylabel('Channel average')
+plt.show()
+
+plt.figure(1)
+print(baselineAvg.shape)
+plt.plot(baselineStd)
+plt.xlabel('Channel number')
+plt.ylabel('Channel standard deviation')
+plt.show()
+
+
 #%%
 ##################################################
 #from here on we have a set of images to work with
@@ -220,8 +264,8 @@ adcData = imgDesc
 configFileName = "CRYO_ASIC_SN00_Room_Gain_3x_pt_1p2us_"
 baselineGoal = 300
 globalSettings = 0x0025
-bltrimStep = 60
-baselineInitSettings = 5
+bltrimStep = 65
+baselineInitSettings = 0
 
 globalSettingsVector = np.ones((64,)) * globalSettings
 baselineSetting      = np.zeros((64,))
@@ -233,31 +277,11 @@ baselineSetting = baselineInitSettings + np.round((baselineAvg - baselineGoalVec
 
 compositeSettings = globalSettingsVector + (baselineSetting*128)
 
-#np.savetxt(os.path.splitext(filename)[0] +  "_baselineStats" + ".csv", np.transpose([baselineAvg, baselineStd]), fmt='%3.3f', delimiter=',', newline='\n')
 np.savetxt(configFileName +  ".csv", compositeSettings, fmt='%d', delimiter=',', newline='\n')
 
 
 
-#%% baseline statistics
-datasetIndex = 0
-adcData = imgDesc
-baselineAvg = np.mean(adcData[datasetIndex],axis=1)
-baselineStd = np.std(adcData[datasetIndex],axis=1)
-print(baselineAvg.shape)
-np.savetxt(os.path.splitext(filename)[0] +  "_baselineStats" + ".csv", np.transpose([baselineAvg, baselineStd]), fmt='%3.3f', delimiter=',', newline='\n')
 
-plt.figure(0)
-plt.plot(baselineAvg)
-plt.xlabel('Channel number')
-plt.ylabel('Channel average')
-plt.show()
-
-plt.figure(1)
-print(baselineAvg.shape)
-plt.plot(baselineStd)
-plt.xlabel('Channel number')
-plt.ylabel('Channel standard deviation')
-plt.show()
 
 
 #%%
