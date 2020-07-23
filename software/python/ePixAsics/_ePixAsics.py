@@ -1323,13 +1323,16 @@ class CryoAsic0p2(pr.Device):
                self.filename = self.filename[0]
             if os.path.splitext(self.filename)[1] == '.csv':
                 vectCfg = np.genfromtxt(self.filename, delimiter=',')
-                if vectCfg.shape == (64,1):
+                if vectCfg.shape == (64,):
                     for x in range (64):
-                            self._rawWrite(0x00006001*addrSize, x)
-                            self._rawWrite(0x00005000*addrSize, (int(vectCfg[x])))
-                    self._rawWrite(0x00000000*addrSize,0)
+                            print(x)
+                            self.RowCounter(x)
+                            self.WritePixelData(int(vectCfg[x]))
+                            #self._rawWrite(0x00006001*addrSize, x)
+                            #self._rawWrite(0x00005000*addrSize, (int(vectCfg[x])))
                 else:
                     print('csv file must be 64x1 pixels')
+                    print(vectCfg.shape)
             else:
                 print("Not csv file : ", self.filename)
         else:
