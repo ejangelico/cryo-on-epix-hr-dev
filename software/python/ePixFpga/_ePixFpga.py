@@ -1362,15 +1362,16 @@ class HighSpeedExtDacRegisters(pr.Device):
       #############################################
       # Create block / variable combinations
       #############################################
-      
+      waveformSourceEnum={0:'custom', 1:'ramp'}
+      waveformTypeEnum={0:'static value', 1:'waveform'}
       
       #Setup registers & variables
       
       self.add((
-         pr.RemoteVariable(name='WFEnabled',       description='Enable waveform generation',                        offset=0x00000000, bitSize=1,   bitOffset=0,   base=pr.Bool, mode='RW'),
+         pr.RemoteVariable(name='WFEnabled',       description='Enable waveform generation',                        offset=0x00000000, bitSize=1,   bitOffset=0,   enum=waveformTypeEnum, mode='RW'),
          pr.RemoteVariable(name='run',             description='Generates waveform when true',                      offset=0x00000000, bitSize=1,   bitOffset=1,   base=pr.Bool, mode='RW'),
          pr.RemoteVariable(name='externalUpdateEn',description='Updates value on AcqStart',                         offset=0x00000000, bitSize=1,   bitOffset=2,   base=pr.Bool, mode='RW'),
-         pr.RemoteVariable(name='waveformSource',  description='Selects between custom wf or internal ramp',        offset=0x00000000, bitSize=2,   bitOffset=3,   base=pr.UInt, mode='RW'),
+         pr.RemoteVariable(name='waveformSource',  description='Selects between custom wf or internal ramp',        offset=0x00000000, bitSize=2,   bitOffset=3,   enum=waveformSourceEnum, mode='RW'),
          pr.RemoteVariable(name='samplingCounter', description='Sampling period (>269, times 1/clock ref. 156MHz)', offset=0x00000004, bitSize=12,  bitOffset=0,   base=pr.UInt, disp = '{:#x}', mode='RW'),
          pr.RemoteVariable(name='DacValue',        description='Set a fixed value for the DAC',                     offset=0x00000008, bitSize=20,  bitOffset=0,   base=pr.UInt, disp = '{:#x}', mode='RW'),
          pr.RemoteVariable(name='DacCh',           description='Set a fixed value for the DAC',                     offset=0x00000008, bitSize=3,   bitOffset=20,  base=pr.UInt, disp = '{:#x}', mode='RW')
