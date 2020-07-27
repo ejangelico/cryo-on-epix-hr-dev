@@ -7,11 +7,11 @@ cryoAsicGen1:
       enable: True
       TPS_DAC: 0x3c
       TPS_GR: 0x1
-      TPSMux: 0xe
+      TPSMux: 0x8
       Bias_TPS_Buffer: 0x5
       Bias_TPS: 0x4
       Bias_TPS_DAC: 0x4
-      Bias_LVDS_Rx: 0x3
+      Bias_LVDS_Rx: 0x0
       Bias_LVDS_Tx: 0x0
       RbiasEn: False
       Pulser: 0x370
@@ -57,7 +57,7 @@ cryoAsicGen1:
       bamp: 0x4
       bleak: 0x2
       brstVref: 0x4
-      SAH_Ctrl_Visel: False
+      SAH_Ctrl_Visel: True
       ADC_Ocen_Bk0: True
       ADC_Ocen_Bk1: True
       VrefBuffExt_En_Bk0: True
@@ -101,6 +101,10 @@ cryoAsicGen1:
       Pulser_Bias_DAC_b0: 0x4
       PP_Pulser_Bias_DAC: True
       Pulser_Bias_Monost_b0: 0x3
+      ensdps: False
+      enrefps: False
+      Ana_Mon_Cal: False
+      ADC_B3B2: 0x2
       CRYO_ID: 0x0
     AppFpgaRegisters:
       enable: True
