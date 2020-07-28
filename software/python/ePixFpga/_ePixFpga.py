@@ -165,23 +165,23 @@ class EpixHRGen1Cryo(pr.Device):
             dacRangeValue = 65536
             dacStep = 1
         self.root.dataWriter.enable.set(True)
-        self.root.dataWriter.open.set(False)
-        self.currentFilename = self.root.dataWriter.dataFile.get()
-        self.currentFrameCount = self.root.dataWriter.frameCount.get()
+        self.root.dataWriter.Close()
+        self.currentFilename = self.root.dataWriter.DataFile.get()
+        self.currentFrameCount = self.root.dataWriter.FrameCount.get()
         dacValue = 1
         self.HSDac.enable.set(True)
 #        for i in range(64):
 #            self.HSDac.DacValue.set(dacValue*1024-1)
         for i in range(dacRangeValue):
             self.HSDac.DacValue.set(dacValue-1)
-            self.root.dataWriter.dataFile.set(self.currentFilename +"_"+ str(i)+".dat")
-            self.root.dataWriter.open.set(True)
+            self.root.dataWriter.DataFile.set(self.currentFilename +"_"+ str(i)+".dat")
+            self.root.dataWriter.Open()
             for j in range(10):
                 self.root.Trigger()
                 time.sleep(0.001) 
             time.sleep(0.003) 
                 
-            self.root.dataWriter.open.set(False)
+            self.root.dataWriter.Close()
             dacValue = dacValue + dacStep
 
     def fnLinTestCryo(self, dev,cmd,arg):
