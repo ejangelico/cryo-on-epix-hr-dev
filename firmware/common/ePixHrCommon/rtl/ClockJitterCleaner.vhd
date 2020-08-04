@@ -2,7 +2,7 @@
 -- File       : Cryo ASIC: ClockJitterCleaner.vhd
 -- Company    : SLAC National Accelerator Laboratory
 -- Created    : 04/07/2017
--- Last update: 2020-05-12
+-- Last update: 2020-08-03
 -------------------------------------------------------------------------------
 -- Description: This module enables to set all registers asssociated with the
 -- clock jitter clean part at the cryo adapter board.
@@ -129,7 +129,6 @@ begin
       v.cjcReg.Lol := cjcLol;
       v.cjcReg.Los := cjcLos;
       
-      v.sAxilReadSlave.rdata := (others => '0');
       axiSlaveWaitTxn(regCon, sAxilWriteMaster, sAxilReadMaster, v.sAxilWriteSlave, v.sAxilReadSlave);
 
       -- all registers for the present module
