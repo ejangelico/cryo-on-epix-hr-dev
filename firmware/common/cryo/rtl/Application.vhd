@@ -2,7 +2,7 @@
 -- File       : Application.vhd
 -- Company    : SLAC National Accelerator Laboratory
 -- Created    : 2017-04-21
--- Last update: 2020-07-15
+-- Last update: 2020-08-04
 -------------------------------------------------------------------------------
 -- Description: Application Core's Top Level
 -------------------------------------------------------------------------------
@@ -668,7 +668,8 @@ begin
    -- clkOut(1) : 112.00 MHz -- 448 clock div 4
    -- clkOut(2) : 64.00 MHz  -- 448 clock div 7
    -- clkOut(3) : 56.00 MHz  -- cryo input clock default is 56MHz
-
+  -- 45.875 =>base clock of 896MHz or 2MSPS
+  -- 41.000 =>base clock of 800MHz or 1.79MSPS
    U_iserdesClockGen : entity surf.ClockManagerUltraScale 
    generic map(
       TPD_G                  => 1 ns,
@@ -681,7 +682,7 @@ begin
       BANDWIDTH_G            => "OPTIMIZED",
       CLKIN_PERIOD_G         => 6.4,    -- Input period in ns );
       DIVCLK_DIVIDE_G        => 8,
-      CLKFBOUT_MULT_F_G      => 45.875,
+      CLKFBOUT_MULT_F_G      => 41.000,
       CLKFBOUT_MULT_G        => 5,
       CLKOUT0_DIVIDE_F_G     => 1.0,
       CLKOUT0_DIVIDE_G       => 2,
