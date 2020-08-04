@@ -294,7 +294,7 @@ class Window(QMainWindow, QObject):
         print('File name: ', path)
         if path:
             image = QImage(path)
-            self.mainImageDisp.update_figure(image)
+            self.mainImageDisp.update_figure(image, plotImageTranspose = self.cbPlotImageTranspose.isChecked())
 #            pp = QtGui.QPixmap.fromImage(image)
 #            self.label.setPixmap(pp.scaled(
 #                    self.label.size(),
@@ -359,7 +359,7 @@ class Window(QMainWindow, QObject):
         #self.image = QtGui.QImage(_8bitImg.repeat(4), self.imgTool.imgWidth, self.imgTool.imgHeight, QtGui.QImage.Format_RGB32)
         
         #pp = QtGui.QPixmap.fromImage(self.image)
-        self.mainImageDisp.update_figure(_8bitImg, contrast=[self.imageScaleMax, self.imageScaleMin], autoScale = False)
+        self.mainImageDisp.update_figure(_8bitImg, contrast=[self.imageScaleMax, self.imageScaleMin], autoScale = False, plotImageTranspose = self.cbPlotImageTranspose.isChecked())
         #self.label.setPixmap(pp.scaled(self.label.size(),QtCore.Qt.KeepAspectRatio,QtCore.Qt.SmoothTransformation))
         #self.label.adjustSize()
         # updates the frame number
@@ -472,15 +472,21 @@ class Window(QMainWindow, QObject):
    
         #full line plot
         if (self.imgTool.imgDark_isSet):
-            #self.ImgDarkSub        
-            self.lineDisplay1.update_plot(self.cbHorizontalLineEnabled.isChecked(),  "Horizontal", 'r', self.ImgDarkSub[self.mouseY,:], 
+            #self.ImgDarkSub
+            if ((self.ImgDarkSub.shape[0] > self.mouseY)and(self.ImgDarkSub.shape[1] > self.mouseX)):
+                self.lineDisplay1.update_plot(self.cbHorizontalLineEnabled.isChecked(),  "Horizontal", 'r', self.ImgDarkSub[self.mouseY,:], 
                                             self.cbVerticalLineEnabled.isChecked(),    "Vertical",   'b', self.ImgDarkSub[:,self.mouseX],
                                             self.cbpixelTimeSeriesEnabled.isChecked(), "Pixel TS",   'k', self.pixelTimeSeries)
+            else:
+                print("Invalid line plot position")
         else:
-            #self.imgDesc
-            self.lineDisplay1.update_plot(self.cbHorizontalLineEnabled.isChecked(),  "Horizontal", 'r', self.imgDesc[self.mouseY,:], 
+            #print(self.imgDesc.shape)
+            if ((self.imgDesc.shape[0] > self.mouseY)and(self.imgDesc.shape[1] > self.mouseX)):
+                self.lineDisplay1.update_plot(self.cbHorizontalLineEnabled.isChecked(),  "Horizontal", 'r', self.imgDesc[self.mouseY,:], 
                                             self.cbVerticalLineEnabled.isChecked(),    "Vertical",   'b', self.imgDesc[:,self.mouseX],
                                             self.cbpixelTimeSeriesEnabled.isChecked(), "Pixel TS",   'k', self.pixelTimeSeries)
+            else:
+                print("Invalid line plot position")
 
 
     """ Plot pixel values for multiple images """
@@ -562,7 +568,10 @@ class Window(QMainWindow, QObject):
         if (self.imgDesc != []):
             #mouseX = event.pos().x()
             #mouseY = event.pos().y()
-            self.mouseX, self.mouseY = int(event.xdata), int(event.ydata)
+            if self.cbPlotImageTranspose.isChecked():
+                self.mouseY, self.mouseX = int(event.xdata), int(event.ydata)
+            else:
+                self.mouseX, self.mouseY = int(event.xdata), int(event.ydata)
             #pixmapH = self.label.height()
             #pixmapW = self.label.width()
             #imageH = self.image.height()
@@ -590,9 +599,9 @@ class Window(QMainWindow, QObject):
             self.updateLinePlots()
             if (self.cbImageZoomEnabled.isChecked()):
                 if (self.imgTool.imgDark_isSet):
-                    self.lineDisplay1.update_figure(self.ImgDarkSub[self.mouseY-10:self.mouseY+10, self.mouseX-10:self.mouseX+10],contrast=[self.imageScaleMax, self.imageScaleMin], autoScale = False)
+                    self.lineDisplay1.update_figure(self.ImgDarkSub[self.mouseY-10:self.mouseY+10, self.mouseX-10:self.mouseX+10],contrast=[self.imageScaleMax, self.imageScaleMin], autoScale = False, plotImageTranspose = self.cbPlotImageTranspose.isChecked())
                 elif (self.imgDesc != []):
-                    self.lineDisplay1.update_figure(self.imgDesc[self.mouseY-10:self.mouseY+10, self.mouseX-10:self.mouseX+10],contrast=[self.imageScaleMax, self.imageScaleMin], autoScale = False)
+                    self.lineDisplay1.update_figure(self.imgDesc[self.mouseY-10:self.mouseY+10, self.mouseX-10:self.mouseX+10],contrast=[self.imageScaleMax, self.imageScaleMin], autoScale = False, plotImageTranspose = self.cbPlotImageTranspose.isChecked())
             
 
 
@@ -786,16 +795,22 @@ class MplCanvas(FigureCanvas):
         self.axes.set_title(self.MyTitle)        
         self.draw()
 
-    def update_figure(self, image=None, contrast=None, autoScale = True):
+    def update_figure(self, image=None, contrast=None, autoScale = True, plotImageTranspose = True):
         self.axes.cla()
         self.axes.autoscale = autoScale
+        if (plotImageTranspose):
+            localImage = np.transpose(image)
+            origin = 'lower'
+        else:
+            localImage = image
+            origin = 'upper'
 
         if (len(image)>0):
             #self.axes.gray()        
             if (contrast != None):
-                self.cax = self.axes.imshow(image, interpolation='nearest', cmap='gray',vmin=contrast[1], vmax=contrast[0])
+                self.cax = self.axes.imshow(localImage, interpolation='nearest', cmap='gray',vmin=contrast[1], vmax=contrast[0], origin = origin)
             else:
-                self.cax = self.axes.imshow(image, interpolation='nearest', cmap='gray')
+                self.cax = self.axes.imshow(localImage, interpolation='nearest', cmap='gray', origin = origin)
 
 #            if (self.fig.cbar==None):              
 #                self.fig.cbar = self.fig.colorbar(self.cax)
@@ -882,6 +897,9 @@ class TabbedCtrlCanvas(QTabWidget):
         myParent.imageScaleMinLine.setMaximumWidth(100)
         myParent.imageScaleMinLine.setMinimumWidth(50)
         myParent.imageScaleMinLine.setText(str(myParent.imageScaleMin))
+        # check boxes
+        myParent.cbPlotImageTranspose = QCheckBox('Plot image transposed')
+        myParent.cbPlotImageTranspose.setChecked(True)
         
         # set layout to tab 1
         tab1Frame = QFrame()
@@ -906,7 +924,8 @@ class TabbedCtrlCanvas(QTabWidget):
         grid.addWidget(btnSetPixelBitMask, 3, 3)
         grid.addWidget(imageScaleLabel, 4, 1)
         grid.addWidget(myParent.imageScaleMaxLine, 4, 2)
-        grid.addWidget(myParent.imageScaleMinLine,4, 3)     
+        grid.addWidget(myParent.imageScaleMinLine,4, 3)
+        grid.addWidget(myParent.cbPlotImageTranspose,4, 4)
 
         # complete tab1
         tab1.setLayout(grid)
@@ -959,9 +978,9 @@ class TabbedCtrlCanvas(QTabWidget):
         ######################################################      
 
         # check boxes
-        myParent.cbHorizontalLineEnabled = QCheckBox('Plot Horizontal Line')
+        myParent.cbHorizontalLineEnabled = QCheckBox('Plot channel vs. time')
         #
-        myParent.cbVerticalLineEnabled = QCheckBox('Plot Vertical Line')
+        myParent.cbVerticalLineEnabled = QCheckBox('Plot sample vs. channels')
         #
         myParent.cbpixelTimeSeriesEnabled = QCheckBox('Pixel Time Series Line')
         myParent.cbImageZoomEnabled = QCheckBox('Image zoom')
