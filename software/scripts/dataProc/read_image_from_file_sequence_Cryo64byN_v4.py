@@ -18,7 +18,7 @@
 # copied, modified, propagated, or distributed except according to the terms 
 # contained in the LICENSE.txt file.
 #-----------------------------------------------------------------------------
-
+import setupLibPaths
 import os, sys, time
 import numpy as np
 import ePixViewer.Cameras as cameras
@@ -33,7 +33,7 @@ import h5py
 #matplotlib.pyplot.ion()
 NUMBER_OF_PACKETS_PER_FRAME = 2
 #MAX_NUMBER_OF_FRAMES_PER_BATCH  = 1500*NUMBER_OF_PACKETS_PER_FRAME
-MAX_NUMBER_OF_FRAMES_PER_BATCH  = 1
+MAX_NUMBER_OF_FRAMES_PER_BATCH  = 4
 
 PAYLOAD_SERIAL_FRAME = 4112 #2064
 PAYLOAD_TS           = 7360
@@ -186,7 +186,15 @@ filenameroot = 'rampTest15_20bitDAC_DUNE_Ch60_224MHz_pxl61'
 filenameroot = 'rampTest16_20bitDAC_DUNE_Ch61_224MHz_pxl53'
 filenameroot = 'rampTest13_20bitDAC_DUNE_Ch61_pxl48'
 filenameroot = 'rampTest14_20bitDAC_DUNE_Ch60_pxl56'
+##
+##
+filenamepath = '/u1/cryo/data/Cryo_v2_nEXO_Varinat/Board_SN4/ADC/Room/RampTest/T0_RampTest_Room/'
+filenameroot = 'T0_RampTest_20bitDAC_Room_448MHz_CH0toCH3_CH60to63'
 
+filenamepath = '/u1/cryo/data/Cryo_v2_nEXO_Varinat/Board_SN5/ADC/Cold/RampTest/T0_RampTest_20bitDAC_448MHz_Cold/'
+filenameroot = 'T0_RampTest_20bitDAC_Cold_448MHz_CH0toCH1_ADC1'
+
+frame_index = 2
 
 for j in range(0, 16):
     for i in range(j*int(65536/16), (j+1)*int(65536/16), 1):
@@ -194,11 +202,12 @@ for j in range(0, 16):
         print(filename)
         f = open(filename, mode = 'rb')
         newImage = getData(f)
+        print(newImage.shape)
         if i == j*int(65536/16):
             imgList = newImage[0]
         else:
-            if len(newImage)>0:
-                imgList = np.concatenate((imgList, newImage[0]),0)
+            if newImage.shape[0]>frame_index:
+                imgList = np.concatenate((imgList, newImage[frame_index]),0)
 
 
     #LAST PARAMETER DEPENDS ON NUMBER OF SAMPLES ACQUIRED
@@ -208,7 +217,7 @@ for j in range(0, 16):
     if(SAVEHDF5):
         print("Saving Hdf5")
         #h5_filename = os.path.splitext(filename)[0]+".hdf5"
-        h5_filename = filenameroot+".hdf5"
+        h5_filename = filenameroot+("_frame_%d"%frame_index)+".hdf5"
         if j==0:
             f = h5py.File(h5_filename, "w")
         else:
