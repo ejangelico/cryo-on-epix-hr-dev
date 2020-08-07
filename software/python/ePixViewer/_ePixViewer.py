@@ -648,30 +648,32 @@ class EventReader(rogue.interfaces.stream.Slave):
         ## enter debug mode
         #print("\n---------------------------------\n-\n- Entering DEBUG mode _acceptFrame \n-\n-\n--------------------------------- ")
         #pdb.set_trace()
-        
-        self.lastFrame = frame
-        # reads entire frame
-        p = bytearray(self.lastFrame.getPayload())
-        self.lastFrame.read(p,0)
-        if (PRINT_VERBOSE): print('_accepted p[',self.numAcceptedFrames, ']: ', p[0:10])
-        if (PRINT_VERBOSE): print('Length of accpeted frame: ' , len(p)) 
-        self.frameDataArray[self.numAcceptedFrames%4][:] = p#bytearray(self.lastFrame.getPayload())
-        self.numAcceptedFrames += 1
+        p = bytearray(frame.getPayload())
+        if len(p) < 64:
+            print("Minimum Frame size is invalid")
+        else:            
+            self.lastFrame = frame
+            # reads entire frame
+            self.lastFrame.read(p,0)
+            if (PRINT_VERBOSE): print('_accepted p[',self.numAcceptedFrames, ']: ', p[0:10])
+            if (PRINT_VERBOSE): print('Length of accpeted frame: ' , len(p)) 
+            self.frameDataArray[self.numAcceptedFrames%4][:] = p#bytearray(self.lastFrame.getPayload())
+            self.numAcceptedFrames += 1
 
-        VcNum =  p[0] & 0xF    
+            VcNum =  p[0] & 0xF    
 
-        if (time.clock_gettime(0)-self.lastTime)>1:
-            self.lastTime = time.clock_gettime(0)
-            if ((VcNum == self.VIEW_PSEUDOSCOPE_ID)):
-                if (PRINT_VERBOSE): print('Decoding PseudoScopeData')
-                self.parent.processPseudoScopeFrameTrigger.emit()
-            elif (VcNum == self.VIEW_MONITORING_DATA_ID):
-                if (PRINT_VERBOSE): print('Decoding Monitoring Data')
-                self.parent.processMonitoringFrameTrigger.emit()
-            elif (VcNum == 0):
-                if (PRINT_VERBOSE): print('Decoding ASIC Data')
-                if (((self.numAcceptedFrames == self.frameIndex) or (self.frameIndex == 0)) and (self.numAcceptedFrames%self.numSkipFrames==0)): 
-                    self.parent.processFrameTrigger.emit()
+            if (time.clock_gettime(0)-self.lastTime)>1:
+                self.lastTime = time.clock_gettime(0)
+                if ((VcNum == self.VIEW_PSEUDOSCOPE_ID)):
+                    if (PRINT_VERBOSE): print('Decoding PseudoScopeData')
+                    self.parent.processPseudoScopeFrameTrigger.emit()
+                elif (VcNum == self.VIEW_MONITORING_DATA_ID):
+                    if (PRINT_VERBOSE): print('Decoding Monitoring Data')
+                    self.parent.processMonitoringFrameTrigger.emit()
+                elif (VcNum == 0):
+                    if (PRINT_VERBOSE): print('Decoding ASIC Data')
+                    if (((self.numAcceptedFrames == self.frameIndex) or (self.frameIndex == 0)) and (self.numAcceptedFrames%self.numSkipFrames==0)): 
+                        self.parent.processFrameTrigger.emit()
 
 
     def _processFrame(self):

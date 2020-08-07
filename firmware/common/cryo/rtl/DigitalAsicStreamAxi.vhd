@@ -732,7 +732,8 @@ begin
                  end if;
                      
                  if dFifoEofe /= VECTOR_OF_ZEROS_C(STREAMS_PER_ASIC_G-1 downto 0) or sv.frmSize /= s.asicDataReq then
-                   ssiSetUserEofe(AXI_STREAM_CONFIG_I_C, sv.axisMaster, '1');
+                   --removed to prevent short package transmissions
+                   --ssiSetUserEofe(AXI_STREAM_CONFIG_I_C, sv.axisMaster, '1');
                    sv.eofError := s.eofError + 1;
                  else
                    sv.frmCnt := s.frmCnt + 1;
