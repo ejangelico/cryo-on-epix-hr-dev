@@ -245,6 +245,42 @@ class EpixHRGen1Cryo(pr.Device):
             self.filenamePLL = "./config/pll-config/Si5345-RevD-CRYO_C01-56MHzIn448MHzOut_Project-Registers.csv"
             self.filenameASIC = "./yml/cryo_config_ASIC_ExtClk_DUNETemp_v0p1.yml"
 
+        if arg == 7:
+            self.filenameMMCM = "./yml/cryo_config_mmcm_PLLClk_448MHz.yml"
+            self.filenamePowerSupply = "./yml/cryo_config_PowerSupply_2v5.yml"
+            self.filenamePLL = "./config/pll-config/Si5345-RevD-CRYO_C01-50MHzIn50MHzOut_Project-Registers.csv"
+            self.filenameASIC = "./yml/cryo_config_ASIC_PLLClk_448MHz_RoomTemp_v0p1.yml"
+
+        if arg == 8:
+            self.filenameMMCM = "./yml/cryo_config_mmcm_PLLClk_224MHz.yml"
+            self.filenamePowerSupply = "./yml/cryo_config_PowerSupply_2v5.yml"
+            self.filenamePLL = "./config/pll-config/Si5345-RevD-CRYO_C01-50MHzIn50MHzOut_Project-Registers.csv"
+            self.filenameASIC = "./yml/cryo_config_ASIC_PLLClk_224MHz_RoomTemp_v0p1.yml"
+            
+        if arg == 9:
+            self.filenameMMCM = "./yml/cryo_config_mmcm_PLLClk_448MHz.yml"
+            self.filenamePowerSupply = "./yml/cryo_config_PowerSupply_2v5.yml"
+            self.filenamePLL = "./config/pll-config/Si5345-RevD-CRYO_C01-50MHzIn400MHzOut_Project-Registers.csv"
+            self.filenameASIC = "./yml/cryo_config_ASIC_ExtClk_RoomTemp_v0p1.yml"
+
+        if arg == 10:
+            self.filenameMMCM = "./yml/cryo_config_mmcm_PLLClk_448MHz.yml"
+            self.filenamePowerSupply = "./yml/cryo_config_PowerSupply_2v5.yml"
+            self.filenamePLL = "./config/pll-config/Si5345-RevD-CRYO_C01-46MHzIn46MHzOut_Project-Registers.csv"
+            self.filenameASIC = "./yml/cryo_config_ASIC_PLLClk_448MHz_RoomTemp_v0p1.yml"
+
+        if arg == 11:
+            self.filenameMMCM = "./yml/cryo_config_mmcm_PLLClk_224MHz.yml"
+            self.filenamePowerSupply = "./yml/cryo_config_PowerSupply_2v5.yml"
+            self.filenamePLL = "./config/pll-config/Si5345-RevD-CRYO_C01-46MHzIn46MHzOut_Project-Registers.csv"
+            self.filenameASIC = "./yml/cryo_config_ASIC_PLLClk_224MHz_RoomTemp_v0p1.yml"
+            
+        if arg == 12:
+            self.filenameMMCM = "./yml/cryo_config_mmcm_PLLClk_448MHz.yml"
+            self.filenamePowerSupply = "./yml/cryo_config_PowerSupply_2v5.yml"
+            self.filenamePLL = "./config/pll-config/Si5345-RevD-CRYO_C01-46MHzIn368MHzOut_Project-Registers.csv"
+            self.filenameASIC = "./yml/cryo_config_ASIC_ExtClk_RoomTemp_v0p1.yml"
+
         if arg != 0:
             self.fnInitCryoScript(dev,cmd,arg)
 
