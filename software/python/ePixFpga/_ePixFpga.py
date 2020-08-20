@@ -228,54 +228,67 @@ class EpixHRGen1Cryo(pr.Device):
             self.filenameASIC = "./yml/cryo_config_ASIC_ExtClk_RoomTemp_v0p1.yml"
 
         if arg == 4:
+            self.filenameMMCM = "./yml/cryo_config_mmcm_PLLClk_224MHz.yml"
+            self.filenamePowerSupply = "./yml/cryo_config_PowerSupply_2v5.yml"
+            self.filenamePLL = "./config/pll-config/Si5345-RevD-CRYO_C01-56MHzIn224MHzOut_Project-Registers.csv"
+            self.filenameASIC = "./yml/cryo_config_ASIC_ExtClk_RoomTemp_v0p1.yml"
+
+
+        if arg == 101:
             self.filenameMMCM = "./yml/cryo_config_mmcm_PLLClk_448MHz.yml"
             self.filenamePowerSupply = "./yml/cryo_config_PowerSupply_2v5.yml"
             self.filenamePLL = "./config/pll-config/Si5345-RevD-CRYO_C01-Registers.csv"
             self.filenameASIC = "./yml/cryo_config_ASIC_PLLClk_448MHz_DUNETemp_v0p1.yml"
 
-        if arg == 5:
+        if arg == 102:
             self.filenameMMCM = "./yml/cryo_config_mmcm_PLLClk_224MHz.yml"
             self.filenamePowerSupply = "./yml/cryo_config_PowerSupply_2v5.yml"
             self.filenamePLL = "./config/pll-config/Si5345-RevD-CRYO_C01-Registers.csv"
             self.filenameASIC = "./yml/cryo_config_ASIC_PLLClk_224MHz_DUNETemp_v0p1.yml"
 
-        if arg == 6:
+        if arg == 103:
             self.filenameMMCM = "./yml/cryo_config_mmcm_PLLClk_448MHz.yml"
             self.filenamePowerSupply = "./yml/cryo_config_PowerSupply_2v5.yml"
             self.filenamePLL = "./config/pll-config/Si5345-RevD-CRYO_C01-56MHzIn448MHzOut_Project-Registers.csv"
             self.filenameASIC = "./yml/cryo_config_ASIC_ExtClk_DUNETemp_v0p1.yml"
 
-        if arg == 7:
+        if arg == 104:
+            self.filenameMMCM = "./yml/cryo_config_mmcm_PLLClk_224MHz.yml"
+            self.filenamePowerSupply = "./yml/cryo_config_PowerSupply_2v5.yml"
+            self.filenamePLL = "./config/pll-config/Si5345-RevD-CRYO_C01-56MHzIn224MHzOut_Project-Registers.csv"
+            self.filenameASIC = "./yml/cryo_config_ASIC_ExtClk_DUNETemp_v0p1.yml"
+
+        if arg == 200:
             self.filenameMMCM = "./yml/cryo_config_mmcm_PLLClk_448MHz.yml"
             self.filenamePowerSupply = "./yml/cryo_config_PowerSupply_2v5.yml"
             self.filenamePLL = "./config/pll-config/Si5345-RevD-CRYO_C01-50MHzIn50MHzOut_Project-Registers.csv"
             self.filenameASIC = "./yml/cryo_config_ASIC_PLLClk_448MHz_RoomTemp_v0p1.yml"
 
-        if arg == 8:
+        if arg == 201:
             self.filenameMMCM = "./yml/cryo_config_mmcm_PLLClk_224MHz.yml"
             self.filenamePowerSupply = "./yml/cryo_config_PowerSupply_2v5.yml"
             self.filenamePLL = "./config/pll-config/Si5345-RevD-CRYO_C01-50MHzIn50MHzOut_Project-Registers.csv"
             self.filenameASIC = "./yml/cryo_config_ASIC_PLLClk_224MHz_RoomTemp_v0p1.yml"
             
-        if arg == 9:
+        if arg == 202:
             self.filenameMMCM = "./yml/cryo_config_mmcm_PLLClk_448MHz.yml"
             self.filenamePowerSupply = "./yml/cryo_config_PowerSupply_2v5.yml"
             self.filenamePLL = "./config/pll-config/Si5345-RevD-CRYO_C01-50MHzIn400MHzOut_Project-Registers.csv"
             self.filenameASIC = "./yml/cryo_config_ASIC_ExtClk_RoomTemp_v0p1.yml"
 
-        if arg == 10:
+        if arg == 211:
             self.filenameMMCM = "./yml/cryo_config_mmcm_PLLClk_448MHz.yml"
             self.filenamePowerSupply = "./yml/cryo_config_PowerSupply_2v5.yml"
             self.filenamePLL = "./config/pll-config/Si5345-RevD-CRYO_C01-46MHzIn46MHzOut_Project-Registers.csv"
             self.filenameASIC = "./yml/cryo_config_ASIC_PLLClk_448MHz_RoomTemp_v0p1.yml"
 
-        if arg == 11:
+        if arg == 212:
             self.filenameMMCM = "./yml/cryo_config_mmcm_PLLClk_224MHz.yml"
             self.filenamePowerSupply = "./yml/cryo_config_PowerSupply_2v5.yml"
             self.filenamePLL = "./config/pll-config/Si5345-RevD-CRYO_C01-46MHzIn46MHzOut_Project-Registers.csv"
             self.filenameASIC = "./yml/cryo_config_ASIC_PLLClk_224MHz_RoomTemp_v0p1.yml"
             
-        if arg == 12:
+        if arg == 213:
             self.filenameMMCM = "./yml/cryo_config_mmcm_PLLClk_448MHz.yml"
             self.filenamePowerSupply = "./yml/cryo_config_PowerSupply_2v5.yml"
             self.filenamePLL = "./config/pll-config/Si5345-RevD-CRYO_C01-46MHzIn368MHzOut_Project-Registers.csv"
