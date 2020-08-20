@@ -104,7 +104,7 @@ cryoAsicGen1:
       CRYO_ID: 0x0
     AppFpgaRegisters:
       enable: True
-      Version: 0x1
+      Version: 0x2
       GlblRstPolarity: True
       GlblRstDelay: 0
       GlblRstWidth: 0

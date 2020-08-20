@@ -7,7 +7,7 @@ cryoAsicGen1:
       enable: True
       TPS_DAC: 0x3c
       TPS_GR: 0x1
-      TPSMux: 0x8
+      TPSMux: 0x0
       Bias_TPS_Buffer: 0x5
       Bias_TPS: 0x4
       Bias_TPS_DAC: 0x4
@@ -57,7 +57,7 @@ cryoAsicGen1:
       bamp: 0x4
       bleak: 0x2
       brstVref: 0x4
-      SAH_Ctrl_Visel: True
+      SAH_Ctrl_Visel: False
       ADC_Ocen_Bk0: True
       ADC_Ocen_Bk1: True
       VrefBuffExt_En_Bk0: True
@@ -108,7 +108,7 @@ cryoAsicGen1:
       CRYO_ID: 0x0
     AppFpgaRegisters:
       enable: True
-      Version: 0x1
+      Version: 0x2
       GlblRstPolarity: True
       GlblRstDelay: 0
       GlblRstWidth: 0

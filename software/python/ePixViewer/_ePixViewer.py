@@ -777,13 +777,13 @@ class MplCanvas(FigureCanvas):
 
         self.axes.cla()
         for arg in args:
-            if (argIndex == 0):
+            if (argIndex%4 == 0):
                 lineEnabled = arg
-            if (argIndex == 1):
+            if (argIndex%4 == 1):
                 lineName = arg
-            if (argIndex == 2):
+            if (argIndex%4 == 2):
                 lineColor = arg
-            if (argIndex == 3):
+            if (argIndex%4 == 3):
                 ##if (PRINT_VERBOSE): print(lineName)
                 if (lineEnabled):
                     l = arg #[random.randint(0, 10) for i in range(4)]
@@ -791,8 +791,9 @@ class MplCanvas(FigureCanvas):
                     #self.axes.set_xticks(np.arange(0, len(l), 20))
                     #self.axes.set_yticks(np.arange(0, 2., 0.25))
                     self.axes.plot(l, lineColor)
+                    self.axes.text(0.2,argIndex/20, 'std %f' % (np.std(l)),horizontalalignment='center', verticalalignment='center', transform=self.axes.transAxes)
                     self.axes.grid()
-                argIndex = -1
+                #argIndex = -1
             argIndex = argIndex + 1    
         self.axes.set_title(self.MyTitle)        
         self.draw()

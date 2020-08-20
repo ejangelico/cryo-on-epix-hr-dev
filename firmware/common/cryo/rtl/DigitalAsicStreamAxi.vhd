@@ -721,7 +721,13 @@ begin
                sv.axisMaster.tData(16*STREAMS_PER_ASIC_G-1 downto 0) := dFifoExtData;                           
                sv.dFifoRd := (others=>'1');                       
                sv.stCnt := s.stCnt + 1;
-               if ((dFifoEof /= VECTOR_OF_ZEROS_C(STREAMS_PER_ASIC_G-1 downto 0) or dFifoEofe /= VECTOR_OF_ZEROS_C(STREAMS_PER_ASIC_G-1 downto 0)) or s.stCnt = s.asicDataReq) then 
+
+               if dFifoEofe /= VECTOR_OF_ZEROS_C(STREAMS_PER_ASIC_G-1 downto 0) then
+                   --ssiSetUserEofe(AXI_STREAM_CONFIG_I_C, sv.axisMaster, '1');
+                   sv.eofError := s.eofError + 1;
+               end if;
+                   
+               if (dFifoEof /= VECTOR_OF_ZEROS_C(STREAMS_PER_ASIC_G-1 downto 0) or s.stCnt = s.asicDataReq) then 
                  sv.frmSize := toSlv(s.stCnt, 32);
                  sv.stCnt := 0;
                  if s.frmMax <= sv.frmSize then
@@ -730,23 +736,13 @@ begin
                  if s.frmMin >= sv.frmSize then
                    sv.frmMin := sv.frmSize;
                  end if;
-                     
-                 if dFifoEofe /= VECTOR_OF_ZEROS_C(STREAMS_PER_ASIC_G-1 downto 0) or sv.frmSize /= s.asicDataReq then
-                   --removed to prevent short package transmissions
-                   --ssiSetUserEofe(AXI_STREAM_CONFIG_I_C, sv.axisMaster, '1');
-                   sv.eofError := s.eofError + 1;
-                 else
-                   sv.frmCnt := s.frmCnt + 1;
-                 end if;
+
+                 sv.frmCnt := s.frmCnt + 1;
+
                  sv.axisMaster.tLast := '1';
+
                  --change of state is required if running in frame mode
-                 if s.streamDataMode = '0' then
-                   sv.state := IDLE_S;
-                 else
-                   if s.stCnt = s.asicDataReq then
-                     sv.state := IDLE_S;
-                   end if;
-                 end if;
+                 sv.state := IDLE_S;
                end if;               
              end if;
            end if;

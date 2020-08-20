@@ -96,7 +96,7 @@ cryoAsicGen1:
       FE_Amp_B0_1v2: 0x3
       bifb: 0x5
       bbaseref: 0x4
-      blcoarse: 0x4
+      blcoarse: 0x3
       ctrl_pulser: False
       Pulser_Bias_DAC_b0: 0x4
       PP_Pulser_Bias_DAC: True
@@ -108,7 +108,7 @@ cryoAsicGen1:
       CRYO_ID: 0x0
     AppFpgaRegisters:
       enable: True
-      Version: 0x1
+      Version: 0x2
       GlblRstPolarity: True
       GlblRstDelay: 0
       GlblRstWidth: 0

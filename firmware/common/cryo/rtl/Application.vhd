@@ -2,7 +2,7 @@
 -- File       : Application.vhd
 -- Company    : SLAC National Accelerator Laboratory
 -- Created    : 2017-04-21
--- Last update: 2020-08-04
+-- Last update: 2020-08-11
 -------------------------------------------------------------------------------
 -- Description: Application Core's Top Level
 -------------------------------------------------------------------------------
@@ -167,7 +167,8 @@ architecture mapping of Application is
    constant STREAMS_PER_ASIC_C : natural := 2;
    constant INTERNAL_DAC_C     : boolean := false;
 
-   constant SACI_CLK_PERIOD_C  : real    := ite(SIMULATION_G, 0.12E-6, 0.25E-6);
+   constant SACI_CLK_PERIOD_C   : real  := ite(SIMULATION_G, 0.12E-6, 0.25E-6);
+   constant CRYO_BASECLK_MULT_C : real  := 45.875;
 
    --heart beat signal
    signal heartBeat      : sl;
@@ -668,9 +669,10 @@ begin
    -- clkOut(1) : 112.00 MHz -- 448 clock div 4
    -- clkOut(2) : 64.00 MHz  -- 448 clock div 7
    -- clkOut(3) : 56.00 MHz  -- cryo input clock default is 56MHz
-  -- 45.875 =>base clock of 896MHz or 2MSPS
-  -- 41.000 =>base clock of 800MHz or 1.79MSPS
-   U_iserdesClockGen : entity surf.ClockManagerUltraScale 
+   -- 45.875 =>base clock of 896MHz or 2MSPS
+   -- 41.000 =>base clock of 800MHz or 1.79MSPS
+   -- 37.625 =>base clock of 734MHz or 1.63MSPS
+     U_iserdesClockGen : entity surf.ClockManagerUltraScale 
    generic map(
       TPD_G                  => 1 ns,
       TYPE_G                 => "MMCM",  -- or "PLL"
@@ -682,7 +684,7 @@ begin
       BANDWIDTH_G            => "OPTIMIZED",
       CLKIN_PERIOD_G         => 6.4,    -- Input period in ns );
       DIVCLK_DIVIDE_G        => 8,
-      CLKFBOUT_MULT_F_G      => 41.000,
+      CLKFBOUT_MULT_F_G      => CRYO_BASECLK_MULT_C,
       CLKFBOUT_MULT_G        => 5,
       CLKOUT0_DIVIDE_F_G     => 1.0,
       CLKOUT0_DIVIDE_G       => 2,
