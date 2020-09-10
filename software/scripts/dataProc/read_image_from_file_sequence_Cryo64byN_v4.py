@@ -43,7 +43,7 @@ PAYLOAD_TS           = 7360
 ##################################################
 cameraType            = 'cryo64xN'
 bitMask               = 0xffff
-PLOT_IMAGE            = True
+PLOT_IMAGE            = False
 PLOT_ADC9_VS_N        = False
 PLOT_IMAGE_DARKSUB    = False
 PLOT_IMAGE_DARK       = False
@@ -194,7 +194,37 @@ filenameroot = 'T0_RampTest_20bitDAC_Room_448MHz_CH0toCH3_CH60to63'
 filenamepath = '/u1/cryo/data/Cryo_v2_nEXO_Varinat/Board_SN5/ADC/Cold/RampTest/T0_RampTest_20bitDAC_448MHz_Cold/'
 filenameroot = 'T0_RampTest_20bitDAC_Cold_448MHz_CH0toCH1_ADC1'
 
-frame_index = 2
+filenamepath = '/u1/cryo/data/Cryo_v2_nEXO_Varinat/Board_SN5/ADC/Room/RampTest/T0_448MHz_20bitDAC_Room_Trig10/'
+filenameroot = 'SN05_RampTest_20bitDAC_448MHz_ADC2Top_ADC2Bot_Trig10'
+
+filenamepath = '/u1/cryo/data/Cryo_v2_nEXO_Varinat/Board_SN5/ADC/Room/RampTest/T1_448MHz_20bitDAC_Room_Trig5/'
+filenameroot = 'SN05_RampTest_20bitDAC_448MHz_ADC2Top_ADC2Bot_Trig5'
+
+#filenamepath = '/u1/cryo/data/Cryo_v2_nEXO_Varinat/Board_SN5/ADC/Room/RampTest/T2_224MHz_20bitDAC_Room_Trig5/'
+#filenameroot = 'SN05_RampTest_20bitDAC_448MHz_CH4ADC2Top_CH59ADC2Bot_Trig5'
+
+filenamepath = '/u1/cryo/data/Cryo_v2_nEXO_Varinat/Board_SN5/ADC/Room/RampTest/T3_448MHz_20bitDAC_Room_Trig5/'
+filenameroot = 'SN05_RampTest_20bitDAC_448MHz_CH4ADC2Top_CH59ADC2Bot_Trig5'
+
+filenamepath = '/u1/cryo/data/Cryo_v2_nEXO_Varinat/Board_SN5/ADC/Room/RampTest/T4_448MHz_20bitDAC_Room_Trig5/'
+filenameroot = 'T4_SN05_RampTest_20bitDAC_448MHz_CH4ADC2Top_CH59ADC2Bot_Trig5'
+
+filenamepath = '/u1/cryo/data/Cryo_v2_nEXO_Varinat/Board_SN5/ADC/Cold/RampTest_Cold/T2_448MHz_20bitDAC_Cold_Trig5/'
+filenameroot = 'T2_SN5_448MHz_CH4ADC2Top_CH59ADC2Bot_Trig5'
+
+filenamepath = '/u1/cryo/data/Cryo_v2_nEXO_Varinat/Board_SN5/ADC/Cold/RampTest_Cold/T3_448MHz_20bitDAC_Cold_Trig5/'
+filenameroot = 'T3_SN5_448MHz_CH0ADC1Top_CH63ADC1Bot_Trig5'
+
+filenamepath = '/u1/cryo/data/Cryo_v2_nEXO_Varinat/Board_SN5/ADC/Cold/RampTest_Cold/T4_448MHz_20bitDAC_Cold_Trig5/'
+filenameroot = 'T4_SN5_448MHz_CH28ADC8Top_CH35ADC8Bot_Trig5_65535'
+
+filenamepath = '/u1/cryo/data/Cryo_v2_nEXO_Varinat/Board_SN5/ADC/Cold/RampTest_Cold/T5_224MHz_20bitDAC_Cold_Trig5/'
+filenameroot = 'T5_SN5_224MHz_CH4ADC2Top_CH59ADC2Bot_Trig5'
+
+filenamepath = '/u1/cryo/data/Cryo_v2_nEXO_Varinat/Board_SN5/ADC/Cold/RampTest_Cold/T6_224MHz_20bitDAC_Cold_Trig5/'
+filenameroot = 'T6_SN5_224MHz_CH4ADC2Top_CH59ADC2Bot_Trig5_ADCB2B3_0x3'
+
+frame_index = 1
 
 for j in range(0, 16):
     for i in range(j*int(65536/16), (j+1)*int(65536/16), 1):
@@ -202,6 +232,10 @@ for j in range(0, 16):
         print(filename)
         f = open(filename, mode = 'rb')
         newImage = getData(f)
+        if not len(newImage):
+            print("padding image")
+            newImage = np.zeros((5,64,128))
+                        
         print(newImage.shape)
         if i == j*int(65536/16):
             imgList = newImage[0]
