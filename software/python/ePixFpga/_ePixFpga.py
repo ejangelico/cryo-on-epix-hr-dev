@@ -702,6 +702,463 @@ class EpixHRGen1Cryo(pr.Device):
             np.savetxt(self.filename[0], readBack, fmt='%d', delimiter=',', newline='\n')
 
 
+#######################################################
+#
+# CRYO FEMB
+#
+#######################################################
+
+class KCU105FEMBCryo(pr.Device):
+    def __init__(self, **kwargs):
+        if 'description' not in kwargs:
+            kwargs['description'] = "HR Gen1 FPGA"
+      
+        trigChEnum={0:'TrigReg', 1:'ThresholdChA', 2:'ThresholdChB', 3:'AcqStart', 4:'AsicAcq', 5:'AsicR0', 6:'AsicRoClk', 7:'AsicPpmat', 8:'AsicPpbe', 9:'AsicSync', 10:'AsicGr', 11:'AsicSaciSel0', 12:'AsicSaciSel1'}
+        inChaEnum={0:'Off', 0:'Asic0TpsMux', 1:'Asic1TpsMux'}
+        inChbEnum={0:'Off', 0:'Asic0TpsMux', 1:'Asic1TpsMux'}
+        HsDacEnum={0:'None', 1:'DAC A (SE)', 2:'DAC B (Diff)', 3:'DAC A & DAC B'}
+      
+        super(self.__class__, self).__init__(**kwargs)
+        self.add((
+            # core registers
+            axi.AxiVersion(offset=0x00000000),          
+            # app registers
+            MMCM7Registers(                  name='MMCM7Registers',                    offset=0x80000000, expand=False, enabled=False),
+            MMCM7Registers(                  name='MMCMSerdesRegisters',               offset=0x97000000, expand=False, enabled=False),
+            TriggerRegisters(                name="TriggerRegisters",                  offset=0x81000000, expand=False, enabled=False),
+            ssiPrbsTxRegisters(              name='ssiPrbs0PktRegisters',              offset=0x00040000, expand=False, enabled=False),
+            epix.CryoAsic0p2(                name='CryoAsic0',                       offset=0x88000000, expand=False, enabled=False),
+            epix.CryoAsic0p2(                name='CryoAsic1',                       offset=0x88400000, expand=False, enabled=False),
+            CryoAppCoreFpgaRegisters(        name="AppFpgaRegisters",                  offset=0x96000000, expand=False, enabled=False),
+            silabs.Si5345(                   name='Pll',                               offset=0x93000000, expand=False, enabled=False, description = 'This device contains Jitter cleaner PLL'),
+            AsicDeserHr12bRegisters(         name="DeserRegisters0",                    offset=0x98000000, expand=False, enabled=False), 
+            DigitalPktRegisters(             name="PacketRegisters0",                   offset=0x99000000, expand=False, enabled=False),
+            AsicDeserHr12bRegisters(         name="DeserRegisters1",                    offset=0x94000000, expand=False, enabled=False), 
+            DigitalPktRegisters(             name="PacketRegisters1",                   offset=0x95000000, expand=False, enabled=False)
+            ))
+
+        self.add(pr.LocalCommand(name='SetWaveform',         description='Set test waveform for high speed DAC', function=self.fnSetWaveform))
+        self.add(pr.LocalCommand(name='GetWaveform',         description='Get test waveform for high speed DAC', function=self.fnGetWaveform))
+        self.add(pr.LocalCommand(name='InitCryo',            description='[routine, asic0, asic1]', value=[0,0,0], function=self.fnInitCryo))
+        self.add(pr.LocalCommand(name='ReSyncCryo',          description='Generates the sequence necessary to resync asic',   function=self.fnReSyncCryo))
+        self.add(pr.LocalCommand(name='EnAllCryoAdcs',       description='Generates the sequence necessary to resync asic',   function=self.fnEnAllCryoAdcs))
+        self.add(pr.LocalCommand(name='BypassDecoder',       description='Generates the sequence necessary to resync asic',   function=self.fnBypassDecoder))
+        self.add(pr.LocalCommand(name='SendAdcData',         description='Generates the sequence necessary to send adc data', function=self.fnSendAdcData))
+        self.add(pr.LocalCommand(name='rampTestToFile',      description='Generates the sequence necessary to send adc data', function=self.fnRampTestCryo))
+        self.add(pr.LocalCommand(name='linearityTestToFile', description='Pulser used to check linearity via scope and adc' , function=self.fnLinTestCryo))
+
+
+    def fnRampTestCryo(self, dev,cmd,arg):
+        """SetTestBitmap command function"""       
+        print("Rysync cryo started")
+        print(arg)
+        DAC_TYPE = "20bitDAC"
+        if DAC_TYPE == "20bitDAC":
+            dacRangeValue = 65536
+            dacStep = 8
+        else:
+            dacRangeValue = 65536
+            dacStep = 1
+        self.root.dataWriter.enable.set(True)
+        self.root.dataWriter.Close()
+        self.currentFilename = self.root.dataWriter.DataFile.get()
+        self.currentFrameCount = self.root.dataWriter.FrameCount.get()
+        dacValue = 1
+        self.HSDac.enable.set(True)
+#        for i in range(64):
+#            self.HSDac.DacValue.set(dacValue*1024-1)
+        for i in range(dacRangeValue):
+            self.HSDac.DacValue.set(dacValue-1)
+            self.root.dataWriter.DataFile.set(self.currentFilename +"_"+ str(i)+".dat")
+            self.root.dataWriter.Open()
+            for j in range(10):
+                self.root.Trigger()
+                time.sleep(0.001) 
+            time.sleep(0.003) 
+                
+            self.root.dataWriter.Close()
+            dacValue = dacValue + dacStep
+
+    def fnLinTestCryo(self, dev,cmd,arg):
+        """SetTestBitmap command function"""       
+        print("Rysync cryo started")
+        print(arg)
+        self.root.dataWriter.enable.set(True)
+        self.root.dataWriter.open.set(False)
+        self.currentFilename = self.root.dataWriter.dataFile.get()
+        self.currentFrameCount = self.root.dataWriter.frameCount.get()
+        pulserValue = 1        
+        for i in range(1024):
+            self.CryoAsic0.Pulser.set(pulserValue-1)
+            self.root.dataWriter.dataFile.set(self.currentFilename +"_"+ str(i)+".dat")
+            self.root.dataWriter.open.set(True)
+            for j in range(20):
+                self.root.Trigger()
+                time.sleep(0.001) 
+            time.sleep(0.003) 
+                
+            self.root.dataWriter.open.set(False)
+            pulserValue = pulserValue + 1
+
+    def fnInitCryo(self, dev,cmd,arg):
+        """SetTestBitmap command function"""       
+        print("Initialization routine for CRYO started")
+        arguments = np.asarray(arg)
+        if arguments[0] == 1:
+            self.filenameMMCM = "./yml/cryo_config_mmcm_PLLClk_448MHz.yml"
+            self.filenamePLL = "./config/pll-config/Si5345-RevD-CRYO_C01-Registers.csv"
+            self.filenameASIC0 = "./yml/cryo_config_ASIC_PLLClk_448MHz_RoomTemp_v0p1.yml"
+            self.filenameASIC1 = "./yml/cryo_config_ASIC_PLLClk_448MHz_RoomTemp_v0p1.yml"
+
+        if arguments[0] == 2:
+            self.filenameMMCM = "./yml/cryo_config_mmcm_PLLClk_224MHz.yml"
+            self.filenamePLL = "./config/pll-config/Si5345-RevD-CRYO_C01-Registers.csv"
+            self.filenameASIC0 = "./yml/cryo_config_ASIC_PLLClk_224MHz_RoomTemp_v0p1.yml"
+            self.filenameASIC1 = "./yml/cryo_config_ASIC_PLLClk_224MHz_RoomTemp_v0p1.yml"
+            
+        if arguments[0] == 3:
+            self.filenameMMCM = "./yml/cryo_config_mmcm_PLLClk_448MHz.yml"
+            self.filenamePLL = "./config/pll-config/Si5345-RevD-CRYO_C01-56MHzIn448MHzOut_Project-Registers.csv"
+            self.filenameASIC0 = "./yml/cryo_config_ASIC_ExtClk_RoomTemp_v0p1.yml"
+            self.filenameASIC1 = "./yml/cryo_config_ASIC_ExtClk_RoomTemp_v0p1.yml"
+
+        if arguments[0] == 4:
+            self.filenameMMCM = "./yml/FEMB_KCU105_cryo_config_mmcm_PLLClk_224MHz.yml"
+            self.filenamePLL = "./config/pll-config/FEMB_Si5345-RevD-CRYO_C01-56MHzIn224MHzOut_Project-Registers.csv"
+            self.filenameASIC0 = "./yml/FEMB_KCU105_cryo_config_ASIC_ExtClk_RoomTemp_asic0.yml"
+            self.filenameASIC1 = "./yml/FEMB_KCU105_cryo_config_ASIC_ExtClk_RoomTemp_asic1.yml"
+
+        if arguments[0] == 101:
+            self.filenameMMCM = "./yml/cryo_config_mmcm_PLLClk_448MHz.yml"
+            self.filenamePLL = "./config/pll-config/Si5345-RevD-CRYO_C01-Registers.csv"
+            self.filenameASIC0 = "./yml/cryo_config_ASIC_PLLClk_448MHz_DUNETemp_v0p1.yml"
+            self.filenameASIC1 = "./yml/cryo_config_ASIC_PLLClk_448MHz_DUNETemp_v0p1.yml"
+
+        if arguments[0] == 102:
+            self.filenameMMCM = "./yml/cryo_config_mmcm_PLLClk_224MHz.yml"
+            self.filenamePLL = "./config/pll-config/Si5345-RevD-CRYO_C01-Registers.csv"
+            self.filenameASIC0 = "./yml/cryo_config_ASIC_PLLClk_224MHz_DUNETemp_v0p1.yml"
+            self.filenameASIC1 = "./yml/cryo_config_ASIC_PLLClk_224MHz_DUNETemp_v0p1.yml"
+
+        if arguments[0] == 103:
+            self.filenameMMCM = "./yml/cryo_config_mmcm_PLLClk_448MHz.yml"
+            self.filenamePLL = "./config/pll-config/Si5345-RevD-CRYO_C01-56MHzIn448MHzOut_Project-Registers.csv"
+            self.filenameASIC0 = "./yml/cryo_config_ASIC_ExtClk_DUNETemp_v0p1.yml"
+            self.filenameASIC1 = "./yml/cryo_config_ASIC_ExtClk_DUNETemp_v0p1.yml"
+
+        if arguments[0] == 104:
+            self.filenameMMCM = "./yml/cryo_config_mmcm_PLLClk_224MHz.yml"
+            self.filenamePowerSupply = "./yml/cryo_config_PowerSupply_2v5.yml"
+            self.filenamePLL = "./config/pll-config/Si5345-RevD-CRYO_C01-56MHzIn224MHzOut_Project-Registers.csv"
+            self.filenameASIC0 = "./yml/cryo_config_ASIC_ExtClk_DUNETemp_v0p1.yml"
+            self.filenameASIC1 = "./yml/cryo_config_ASIC_ExtClk_DUNETemp_v0p1.yml"
+
+        if arguments[0] == 200:
+            self.filenameMMCM = "./yml/cryo_config_mmcm_PLLClk_448MHz.yml"
+            self.filenamePowerSupply = "./yml/cryo_config_PowerSupply_2v5.yml"
+            self.filenamePLL = "./config/pll-config/Si5345-RevD-CRYO_C01-50MHzIn50MHzOut_Project-Registers.csv"
+            self.filenameASIC0 = "./yml/cryo_config_ASIC_PLLClk_448MHz_RoomTemp_v0p1.yml"
+            self.filenameASIC1 = "./yml/cryo_config_ASIC_PLLClk_448MHz_RoomTemp_v0p1.yml"
+
+        if arguments[0] == 201:
+            self.filenameMMCM = "./yml/cryo_config_mmcm_PLLClk_224MHz.yml"
+            self.filenamePowerSupply = "./yml/cryo_config_PowerSupply_2v5.yml"
+            self.filenamePLL = "./config/pll-config/Si5345-RevD-CRYO_C01-50MHzIn50MHzOut_Project-Registers.csv"
+            self.filenameASIC0 = "./yml/cryo_config_ASIC_PLLClk_224MHz_RoomTemp_v0p1.yml"
+            self.filenameASIC1 = "./yml/cryo_config_ASIC_PLLClk_224MHz_RoomTemp_v0p1.yml"
+            
+        if arg == 202:
+            self.filenameMMCM = "./yml/cryo_config_mmcm_PLLClk_448MHz.yml"
+            self.filenamePLL = "./config/pll-config/Si5345-RevD-CRYO_C01-50MHzIn400MHzOut_Project-Registers.csv"
+            self.filenameASIC0 = "./yml/cryo_config_ASIC_ExtClk_RoomTemp_v0p1.yml"
+            self.filenameASIC1 = "./yml/cryo_config_ASIC_ExtClk_RoomTemp_v0p1.yml"
+
+        if arguments[0] == 211:
+            self.filenameMMCM = "./yml/cryo_config_mmcm_PLLClk_448MHz.yml"
+            self.filenamePLL = "./config/pll-config/Si5345-RevD-CRYO_C01-46MHzIn46MHzOut_Project-Registers.csv"
+            self.filenameASIC0 = "./yml/cryo_config_ASIC_PLLClk_448MHz_RoomTemp_v0p1.yml"
+            self.filenameASIC1 = "./yml/cryo_config_ASIC_PLLClk_448MHz_RoomTemp_v0p1.yml"
+
+        if arguments[0] == 212:
+            self.filenameMMCM = "./yml/cryo_config_mmcm_PLLClk_224MHz.yml"
+            self.filenamePLL = "./config/pll-config/Si5345-RevD-CRYO_C01-46MHzIn46MHzOut_Project-Registers.csv"
+            self.filenameASIC0 = "./yml/cryo_config_ASIC_PLLClk_224MHz_RoomTemp_v0p1.yml"
+            self.filenameASIC1 = "./yml/cryo_config_ASIC_PLLClk_224MHz_RoomTemp_v0p1.yml"
+            
+        if arguments[0] == 213:
+            self.filenameMMCM = "./yml/cryo_config_mmcm_PLLClk_448MHz.yml"
+            self.filenamePLL = "./config/pll-config/Si5345-RevD-CRYO_C01-46MHzIn368MHzOut_Project-Registers.csv"
+            self.filenameASIC0 = "./yml/cryo_config_ASIC_ExtClk_RoomTemp_v0p1.yml"
+            self.filenameASIC1 = "./yml/cryo_config_ASIC_ExtClk_RoomTemp_v0p1.yml"
+
+        if arguments[0] != 0:
+            self.fnInitCryoScript(dev,cmd,arg)
+
+    def fnInitCryoScript(self, dev,cmd,arg):
+        """SetTestBitmap command function"""       
+        print("Init cryo script started")
+        print("En FPGA module and turns off SR0")
+        self.DeserRegisters0.enable.set(True)
+        self.DeserRegisters0.Resync.set(True)
+        self.DeserRegisters1.enable.set(True)
+        self.DeserRegisters1.Resync.set(True)
+        self.AppFpgaRegisters.enable.set(True)
+        self.AppFpgaRegisters.SR0Polarity.set(False)
+        self.AppFpgaRegisters.SampClkEn.set(False)
+        delay = 1.0
+
+        print("Loading MMCM configuration")
+        self.MMCMSerdesRegisters.enable.set(True)
+        self.root.readBlocks()
+        time.sleep(delay/10) 
+        self.root.LoadConfig(self.filenameMMCM)
+        print(self.filenameMMCM)
+        time.sleep(delay/10) 
+        self.root.readBlocks()
+        self.MMCMSerdesRegisters.enable.set(False)
+        time.sleep(delay) 
+        self.root.readBlocks()
+        print("Completed")
+
+        # load config that sets PLL
+        print("Loading PLL configuration")
+        self.Pll.enable.set(True)
+        self.Pll.LoadCsvFile(self.filenamePLL)
+        print(self.filenamePLL)
+        self.numberOfAttempts = 5
+        for i in range(self.numberOfAttempts):
+            time.sleep(2*delay)
+            print("Waiting asic to stablize %d out of %d" % (i, self.numberOfAttempts))
+        # do it twice but better to check pll locked flag
+        self.Pll.LoadCsvFile(self.filenamePLL)
+        print(self.filenamePLL)
+        self.numberOfAttempts = 5
+        for i in range(self.numberOfAttempts):
+            time.sleep(2*delay)
+            print("Waiting asic to stablize %d out of %d" % (i, self.numberOfAttempts))
+
+        ## takes the asic off of reset
+        print("Taking asic off of reset")
+        self.AppFpgaRegisters.enable.set(True)
+        self.AppFpgaRegisters.GlblRstPolarity.set(False)
+        time.sleep(delay) 
+        self.AppFpgaRegisters.GlblRstPolarity.set(True)
+        time.sleep(delay) 
+        self.root.readBlocks()
+        time.sleep(delay) 
+
+        ## load config for the asic
+        print("Loading timing configuration")
+        if arg[1] != 0:
+            self.root.LoadConfig(self.filenameASIC0)
+            print(self.filenameASIC0)
+            for i in range(5):
+                self.root.readBlocks()
+        if arg[2] != 0:
+            self.root.LoadConfig(self.filenameASIC1)
+            print(self.filenameASIC1)
+            for i in range(5):
+                self.root.readBlocks()
+
+        self.numberOfAttempts = 18
+        for i in range(self.numberOfAttempts):
+            time.sleep(2*delay)
+            print("Waiting LDO to settle, attempt %d out of %d" % (i, self.numberOfAttempts))
+
+
+        ## start deserializer config for the asic
+        EN_DESERIALIZERS = True
+        if EN_DESERIALIZERS :
+            EN_SampClk = True
+            if EN_SampClk : 
+                print("Setting SampClk to true")
+                self.AppFpgaRegisters.enable.set(True)
+                self.root.readBlocks()
+                for i in range(2):
+                    self.AppFpgaRegisters.SampClkEn.set(False)
+                    time.sleep(delay) 
+                    self.AppFpgaRegisters.SampClkEn.set(True)
+                    self.root.readBlocks()
+                    time.sleep(delay) 
+            print("Starting deserializer")
+            self.serializerSyncAttempsts = 0
+            while True:
+                #make sure idle
+                self.CryoAsic0.encoder_mode_dft.set(0)
+                self.AppFpgaRegisters.SR0Polarity.set(False)
+                time.sleep(2*delay) 
+                self.DeserRegisters0.enable.set(True)
+                self.root.readBlocks()
+                time.sleep(2*delay) 
+                self.DeserRegisters0.InitAdcDelay()
+                time.sleep(delay)   
+                self.DeserRegisters0.Delay0.set(self.DeserRegisters0.sugDelay0)
+                self.DeserRegisters0.Delay1.set(self.DeserRegisters0.sugDelay1)
+                self.DeserRegisters0.Resync.set(True)
+                time.sleep(delay) 
+                self.DeserRegisters0.Resync.set(False)
+                time.sleep(5*delay) 
+                if self.DeserRegisters0.Locked0.get() and self.DeserRegisters0.Locked1.get():
+                    break
+                #limits the number of attempts to get serializer synch.
+                self.serializerSyncAttempsts = self.serializerSyncAttempsts + 1
+                if self.serializerSyncAttempsts > 2:
+                    break
+            while True:
+                #make sure idle
+                self.CryoAsic1.encoder_mode_dft.set(0)
+                self.AppFpgaRegisters.SR0Polarity.set(False)
+                time.sleep(2*delay) 
+                self.DeserRegisters1.enable.set(True)
+                self.root.readBlocks()
+                time.sleep(2*delay) 
+                self.DeserRegisters1.InitAdcDelay()
+                time.sleep(delay)   
+                self.DeserRegisters1.Delay0.set(self.DeserRegisters1.sugDelay0)
+                self.DeserRegisters1.Delay1.set(self.DeserRegisters1.sugDelay1)
+                self.DeserRegisters1.Resync.set(True)
+                time.sleep(delay) 
+                self.DeserRegisters1.Resync.set(False)
+                time.sleep(5*delay) 
+                if self.DeserRegisters1.Locked0.get() and self.DeserRegisters1.Locked1.get():
+                    break
+                #limits the number of attempts to get serializer synch.
+                self.serializerSyncAttempsts = self.serializerSyncAttempsts + 1
+                if self.serializerSyncAttempsts > 2:
+                    break
+
+        if arg[1] != 0:
+            self.PacketRegisters0.enable.set(True)
+            self.PacketRegisters0.decBypass.set(False)
+            self.PacketRegisters0.decDataBitOrder.set(True)
+            self.PacketRegisters0.StreamDataMode.set(True)
+        if arg[2] != 0:            
+            self.PacketRegisters1.enable.set(True)
+            self.PacketRegisters1.decBypass.set(False)
+            self.PacketRegisters1.decDataBitOrder.set(True)
+            self.PacketRegisters1.StreamDataMode.set(True)
+
+        EN_SR0 = True
+        EN_ALL_CRYO_ADCS = False
+        if EN_SR0 : 
+            print("Setting SR0 set to true")
+            self.AppFpgaRegisters.enable.set(True)
+            self.root.readBlocks()
+            for i in range(2):
+                self.AppFpgaRegisters.SR0Polarity.set(False)
+                time.sleep(delay) 
+                self.AppFpgaRegisters.SR0Polarity.set(True)
+                self.root.readBlocks()
+                time.sleep(delay) 
+
+            if EN_ALL_CRYO_ADCS : 
+                self.fnEnAllCryoAdcs(dev,cmd,arg)
+
+
+        BYPASS_DECODER = True
+        if BYPASS_DECODER : 
+            self.fnBypassDecoder(dev,cmd,arg)
+
+
+    def fnReSyncCryo(self, dev,cmd,arg):
+        """SetTestBitmap command function"""       
+        print("Rysync cryo started")
+        delay = 1.0
+        self.CryoAsic0.enable.set(True)
+        self.CryoAsic0.SubBnkEn.set(0x0808) #keeps only two needed adcs
+        self.CryoAsic0.encoder_mode_dft.set(0) # makes sure idle will be set
+        self.PacketRegisters0.enable.set(True)
+        self.PacketRegisters0.decBypass.set(False)
+        self.PacketRegisters0.StreamDataMode.set(True)
+        self.PacketRegisters1.enable.set(True)
+        self.PacketRegisters1.decBypass.set(False)
+        self.PacketRegisters1.StreamDataMode.set(True)
+
+        self.AppFpgaRegisters.enable.set(True)
+        self.AppFpgaRegisters.SR0Polarity.set(False)
+        time.sleep(2*delay) 
+        self.DeserRegisters.enable.set(True)
+        time.sleep(2*delay) 
+        if arg == 0 :
+            self.DeserRegisters.InitAdcDelay()
+            time.sleep(delay)   
+            self.DeserRegisters.Delay0.set(self.DeserRegisters.sugDelay0)
+            self.DeserRegisters.Delay1.set(self.DeserRegisters.sugDelay1)
+        self.DeserRegisters.Resync.set(True)
+        time.sleep(delay) 
+        self.DeserRegisters.Resync.set(False)
+        time.sleep(5*delay)        
+        self.AppFpgaRegisters.SR0Polarity.set(True)
+
+    def fnEnAllCryoAdcs(self, dev,cmd,arg):
+        """SetTestBitmap command function"""       
+        print("Enabling all cryo ADCs")
+        delay = 1.0
+        self.CryoAsic0.SubBnkEn.set(0x080a)
+        time.sleep(delay/10) 
+        self.CryoAsic0.SubBnkEn.set(0x080f)
+        time.sleep(delay/10) 
+        self.CryoAsic0.SubBnkEn.set(0x08af)
+        time.sleep(delay/10) 
+        self.CryoAsic0.SubBnkEn.set(0x08ff)
+        time.sleep(delay/10) 
+        self.CryoAsic0.SubBnkEn.set(0x0aff)
+        time.sleep(delay/10) 
+        self.CryoAsic0.SubBnkEn.set(0x0fff)
+        time.sleep(delay/10) 
+        self.CryoAsic0.SubBnkEn.set(0xafff)
+        time.sleep(delay/10) 
+        self.CryoAsic0.SubBnkEn.set(0xffff)
+        time.sleep(delay/10) 
+
+    def fnBypassDecoder(self, dev,cmd,arg):
+        print("Bypass decoder and enable counter")
+        delay = 1.0
+        self.PacketRegisters.enable.set(True)
+        self.root.readBlocks()
+        self.PacketRegisters.decBypass.set(True)
+        self.PacketRegisters.decDataBitOrder.set(False)
+
+    def fnSendAdcData(self, dev,cmd,arg):
+        print("Sends adc data in stream mode")
+        delay = 1.0
+        self.PacketRegisters.enable.set(True)
+        self.root.readBlocks()
+        time.sleep(delay/10) 
+        print("Setting cryo to send counter to readout")
+        self.CryoAsic0.encoder_mode_dft.set(0)
+        time.sleep(delay/10) 
+        print("Enabling stream readout")
+        self.PacketRegisters.StreamDataMode.set(True)
+        self.PacketRegisters.decDataBitOrder.set(True)
+        self.PacketRegisters.decBypass.set(False)
+        self.AppFpgaRegisters.SR0Polarity.set(False)
+        time.sleep(delay/20) 
+        self.AppFpgaRegisters.SR0Polarity.set(True)
+
+
+    def fnSetWaveform(self, dev,cmd,arg):
+        """SetTestBitmap command function"""       
+        self.filename = QFileDialog.getOpenFileName(self.root.guiTop, 'Open File', '', 'csv file (*.csv);; Any (*.*)')
+        if os.path.splitext(self.filename[0])[1] == '.csv':
+            waveform = np.genfromtxt(self.filename[0], delimiter=',', dtype='uint32')
+            if waveform.shape == (4096,):
+                for x in range (0, 4096):
+                    self.waveformMem._rawWrite(offset = (x * 4),data =  int(waveform[x]))
+                    #self.waveformMem._rawWrite(offset = (x * 4),data =  int(waveform[x]))
+            else:
+                print('wrong csv file format')
+
+    def fnGetWaveform(self, dev,cmd,arg):
+        """GetTestBitmap command function"""
+        self.filename = QFileDialog.getSaveFileName(self.root.guiTop, 'Open File', '', 'csv file (*.csv);; Any (*.*)')
+        if os.path.splitext(self.filename[0])[1] == '.csv':
+            readBack = np.zeros((4096),dtype='uint32')
+            for x in range (0, 4096):
+                readBack[x] = self.waveformMem._rawRead(offset = (x * 4))
+                #readBack[x] = self.waveformMem.Mem[x].get()
+            np.savetxt(self.filename[0], readBack, fmt='%d', delimiter=',', newline='\n')
+
 
 #######################################################
 #
