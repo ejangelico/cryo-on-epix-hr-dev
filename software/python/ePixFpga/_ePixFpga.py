@@ -176,7 +176,7 @@ class EpixHRGen1Cryo(pr.Device):
             self.HSDac.DacValue.set(dacValue-1)
             self.root.dataWriter.DataFile.set(self.currentFilename +"_"+ str(i)+".dat")
             self.root.dataWriter.Open()
-            for j in range(10):
+            for j in range(5):
                 self.root.Trigger()
                 time.sleep(0.001) 
             time.sleep(0.003) 
