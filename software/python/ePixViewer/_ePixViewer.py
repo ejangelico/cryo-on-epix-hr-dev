@@ -565,7 +565,7 @@ class Window(QMainWindow, QObject):
                 qp.drawLine(x-2 , y+2, x+2 , y-2)
 
     def mouseClickedOnImage(self, event):
-        if (self.imgDesc != []):
+        if (self.imgDesc != [] and isinstance(event.xdata,int) and isinstance(event.ydata,int)):
             #mouseX = event.pos().x()
             #mouseY = event.pos().y()
             if self.cbPlotImageTranspose.isChecked():

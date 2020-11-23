@@ -817,10 +817,10 @@ class KCU105FEMBCryo(pr.Device):
             self.filenameASIC1 = "./yml/cryo_config_ASIC_PLLClk_224MHz_RoomTemp_v0p1.yml"
             
         if arguments[0] == 3:
-            self.filenameMMCM = "./yml/cryo_config_mmcm_PLLClk_448MHz.yml"
-            self.filenamePLL = "./config/pll-config/Si5345-RevD-CRYO_C01-56MHzIn448MHzOut_Project-Registers.csv"
-            self.filenameASIC0 = "./yml/cryo_config_ASIC_ExtClk_RoomTemp_v0p1.yml"
-            self.filenameASIC1 = "./yml/cryo_config_ASIC_ExtClk_RoomTemp_v0p1.yml"
+            self.filenameMMCM = "./yml/FEMB_KCU105_cryo_config_mmcm_PLLClk_448MHz.yml"
+            self.filenamePLL = "./config/pll-config/FEMB_Si5345-RevD-CRYO_C01-56MHzIn448MHzOut_Project-Registers.csv"
+            self.filenameASIC0 = "./yml/FEMB_KCU105_cryo_config_ASIC_ExtClk_RoomTemp_asic0.yml"
+            self.filenameASIC1 = "./yml/FEMB_KCU105_cryo_config_ASIC_ExtClk_RoomTemp_asic1.yml"
 
         if arguments[0] == 4:
             self.filenameMMCM = "./yml/FEMB_KCU105_cryo_config_mmcm_PLLClk_224MHz.yml"
@@ -2751,9 +2751,9 @@ class AsicDeserHr12bRegisters(pr.Device):
          self.add(pr.RemoteVariable(name='IserdeseOutA'+str(i),   description='IserdeseOut'+str(i),  offset=0x00000080+i*4, bitSize=16, bitOffset=0, base=pr.UInt,  disp = '{:#x}', mode='RO'))
          self.add(pr.RemoteVariable(name='IserdeseOutB'+str(i),   description='IserdeseOut'+str(i),  offset=0x00000080+i*4, bitSize=16, bitOffset=16, base=pr.UInt, disp = '{:#x}', mode='RO'))
 
-      self.add(pr.RemoteVariable(name='BERTRst',      description='Restart BERT',         offset=0x000000A0, bitSize=1,  bitOffset=1, base=pr.Bool, mode='RW'))      
+      self.add(pr.RemoteVariable(name='IDLECounterRst',      description='Restart BERT',         offset=0x000000A0, bitSize=1,  bitOffset=1, base=pr.Bool, mode='RW'))      
       for i in range(0, 2):
-         self.add(pr.RemoteVariable(name='BERTCounter'+str(i),   description='Counter value.'+str(i),  offset=0x000000A4+i*8, bitSize=44, bitOffset=0, base=pr.UInt,  disp = '{}', mode='RO'))
+         self.add(pr.RemoteVariable(name='IDLECounter'+str(i),   description='Counter value.'+str(i),  offset=0x000000A4+i*8, bitSize=44, bitOffset=0, base=pr.UInt,  disp = '{}', mode='RO'))
 
       self.add(AsicDeser14bDataRegisters(name='14bData_ser0',      offset=0x00000100, expand=False))
       self.add(AsicDeser14bDataRegisters(name='14bData_ser1',      offset=0x00000200, expand=False))
