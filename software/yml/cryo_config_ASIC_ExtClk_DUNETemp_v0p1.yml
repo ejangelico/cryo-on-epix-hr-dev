@@ -54,7 +54,7 @@ cryoAsicGen1:
       ADC_VrefBuf_B0: 0x0
       ADC_B0: 0x3
       ADC_VcmBuf_B0: 0x3
-      bamp: 0x7
+      bamp: 0x5
       bleak: 0x5
       brstVref: 0x4
       SAH_Ctrl_Visel: False
@@ -95,7 +95,7 @@ cryoAsicGen1:
       VcmBuf_Ext_B0_1v2: 0x2
       FE_Amp_B0_1v2: 0x3
       bifb: 0x5
-      bbaseref: 0x3
+      bbaseref: 0x2
       blcoarse: 0x5
       ctrl_pulser: False
       Pulser_Bias_DAC_b0: 0x4
