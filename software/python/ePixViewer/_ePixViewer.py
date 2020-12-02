@@ -588,7 +588,7 @@ class Window(QMainWindow, QObject):
             # clear the pixel time sereis every time the pixel of interest is changed
             self.clearPixelTimeSeriesLinePlot()
     
-            #print('Raw mouse coordinates: {},{}'.format(mouseX, mouseY))
+            print('Raw mouse coordinates: {},{}'.format(mouseX, mouseY))
             #print('Pixel map dimensions: {},{}'.format(pixmapW, pixmapH))
             #print('Image dimensions: {},{}'.format(imageW, imageH))
             print('Pixel[{},{}] = {}'.format(self.mouseX, self.mouseY, self.mousePixelValue))

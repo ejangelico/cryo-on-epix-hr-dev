@@ -1055,7 +1055,7 @@ class KCU105FEMBCryo(pr.Device):
                 self.fnEnAllCryoAdcs(dev,cmd,arg)
 
 
-        BYPASS_DECODER = True
+        BYPASS_DECODER = False
         if BYPASS_DECODER : 
             self.fnBypassDecoder(dev,cmd,arg)
 
@@ -1114,24 +1114,32 @@ class KCU105FEMBCryo(pr.Device):
     def fnBypassDecoder(self, dev,cmd,arg):
         print("Bypass decoder and enable counter")
         delay = 1.0
-        self.PacketRegisters.enable.set(True)
+        self.PacketRegisters0.enable.set(True)
+        self.PacketRegisters1.enable.set(True)
         self.root.readBlocks()
-        self.PacketRegisters.decBypass.set(True)
-        self.PacketRegisters.decDataBitOrder.set(False)
+        self.PacketRegisters0.decBypass.set(True)
+        self.PacketRegisters1.decBypass.set(True)
+        self.PacketRegisters0.decDataBitOrder.set(False)
+        self.PacketRegisters1.decDataBitOrder.set(False)
 
     def fnSendAdcData(self, dev,cmd,arg):
         print("Sends adc data in stream mode")
         delay = 1.0
-        self.PacketRegisters.enable.set(True)
+        self.PacketRegisters0.enable.set(True)
+        self.PacketRegisters1.enable.set(True)
         self.root.readBlocks()
         time.sleep(delay/10) 
         print("Setting cryo to send counter to readout")
         self.CryoAsic0.encoder_mode_dft.set(0)
+        self.CryoAsic1.encoder_mode_dft.set(0)
         time.sleep(delay/10) 
         print("Enabling stream readout")
-        self.PacketRegisters.StreamDataMode.set(True)
-        self.PacketRegisters.decDataBitOrder.set(True)
-        self.PacketRegisters.decBypass.set(False)
+        self.PacketRegisters0.StreamDataMode.set(True)
+        self.PacketRegisters0.decDataBitOrder.set(True)
+        self.PacketRegisters0.decBypass.set(False)
+        self.PacketRegisters1.StreamDataMode.set(True)
+        self.PacketRegisters1.decDataBitOrder.set(True)
+        self.PacketRegisters1.decBypass.set(False)
         self.AppFpgaRegisters.SR0Polarity.set(False)
         time.sleep(delay/20) 
         self.AppFpgaRegisters.SR0Polarity.set(True)
