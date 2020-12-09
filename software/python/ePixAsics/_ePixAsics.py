@@ -12,12 +12,12 @@
 # PyRogue AXI Version Module for ePix100a
 # for genDAQ compatibility check software/deviceLib/Epix100aAsic.cpp
 #-----------------------------------------------------------------------------
-# This file is part of the rogue software platform. It is subject to 
-# the license terms in the LICENSE.txt file found in the top-level directory 
-# of this distribution and at: 
-#    https://confluence.slac.stanford.edu/display/ppareg/LICENSE.html. 
-# No part of the rogue software platform, including this file, may be 
-# copied, modified, propagated, or distributed except according to the terms 
+# This file is part of the rogue software platform. It is subject to
+# the license terms in the LICENSE.txt file found in the top-level directory
+# of this distribution and at:
+#    https://confluence.slac.stanford.edu/display/ppareg/LICENSE.html.
+# No part of the rogue software platform, including this file, may be
+# copied, modified, propagated, or distributed except according to the terms
 # contained in the LICENSE.txt file.
 #-----------------------------------------------------------------------------
 import time as ti
@@ -46,12 +46,12 @@ class Epix10kaAsic(pr.Device):
         super().__init__(description='Epix10ka Asic Configuration', **kwargs)
 
 
-        #In order to easily compare GenDAQ address map with the ePix rogue address map 
+        #In order to easily compare GenDAQ address map with the ePix rogue address map
         #it is defined the addrSize variable
-        addrSize = 4	
+        addrSize = 4
 
         # Creation. memBase is either the register bus server (srp, rce mapped memory, etc) or the device which
-        # contains this object. In most cases the parent and memBase are the same but they can be 
+        # contains this object. In most cases the parent and memBase are the same but they can be
         # different in more complex bus structures. They will also be different for the top most node.
         # The setMemBase call can be used to update the memBase for this Device. All sub-devices and local
         # blocks will be updated.
@@ -59,15 +59,15 @@ class Epix10kaAsic(pr.Device):
         #############################################
         # Create block / variable combinations
         #############################################
-    
-        
+
+
         #Setup registers & variables
-                
+
         # CMD = 0, Addr = 0  : Prepare for readout
-        self.add(pr.RemoteCommand(name='CmdPrepForRead', description='ePix Prepare For Readout', 
+        self.add(pr.RemoteCommand(name='CmdPrepForRead', description='ePix Prepare For Readout',
                              offset=0x00000000*addrSize, bitSize=1, bitOffset=0, function=pr.Command.touchZero, hidden=True))
-        
-        # CMD = 1, Addr = 1 
+
+        # CMD = 1, Addr = 1
         # TODO: fix CompEn so it is one uint register
         self.add((
             pr.Variable(name='CompTH_DAC',   description='Config1',  offset=0x00001001*addrSize, bitSize=6, bitOffset=0, base='hex',  mode='RW'),
@@ -77,9 +77,9 @@ class Epix10kaAsic(pr.Device):
             pr.Variable(name='PulserSync',   description='Config1',  offset=0x00001001*addrSize, bitSize=1, bitOffset=7, base='bool', mode='RW')))
         # CMD = 1, Addr = 2  : Pixel dummy, write data
         self.add(pr.Variable(name='PixelDummy', description='Pixel dummy, write data', offset=0x00001002*addrSize, bitSize=8, bitOffset=0, base='hex', mode='RW'))
-        
 
-        # CMD = 1, Addr = 3  
+
+        # CMD = 1, Addr = 3
         self.add((
             pr.Variable(name='Pulser',   description='Config3', offset=0x00001003*addrSize, bitSize=10, bitOffset=0,  base='hex',  mode='RW'),
             pr.Variable(name='pbit',     description='Config3', offset=0x00001003*addrSize, bitSize=1,  bitOffset=10, base='bool', mode='RW'),
@@ -89,23 +89,23 @@ class Epix10kaAsic(pr.Device):
             pr.Variable(name='hrtest',   description='Config3', offset=0x00001003*addrSize, bitSize=1,  bitOffset=14, base='bool', mode='RW'),
             pr.Variable(name='PulserR',  description='Config3', offset=0x00001003*addrSize, bitSize=1,  bitOffset=15, base='bool', mode='RW')))
 
-        # CMD = 1, Addr = 4 
+        # CMD = 1, Addr = 4
         self.add((
             pr.Variable(name='DigMon1', description='Config4',offset=0x00001004*addrSize, bitSize=4, bitOffset=0, base='hex', mode='RW'),
             pr.Variable(name='DigMon2', description='Config4',offset=0x00001004*addrSize, bitSize=4, bitOffset=4, base='hex', mode='RW')))
- 
-        # CMD = 1, Addr = 5 
+
+        # CMD = 1, Addr = 5
         self.add((
             pr.Variable(name='PulserDac',    description='Config5',  offset=0x00001005*addrSize, bitSize=3, bitOffset=0, base='hex', mode='RW'),
             pr.Variable(name='MonostPulser', description='Config5',  offset=0x00001005*addrSize, bitSize=3, bitOffset=3, base='hex', mode='RW')))
 
-        # CMD = 1, Addr = 6 
+        # CMD = 1, Addr = 6
         self.add((
             pr.Variable(name='Dm1En',     description='Config6', offset=0x00001006*addrSize, bitSize=1, bitOffset=0, base='bool', mode='RW'),
             pr.Variable(name='Dm2En',     description='Config6', offset=0x00001006*addrSize, bitSize=1, bitOffset=1, base='bool', mode='RW'),
             pr.Variable(name='emph_bd',   description='Config6', offset=0x00001006*addrSize, bitSize=3, bitOffset=2, base='hex', mode='RW'),
             pr.Variable(name='emph_bc',   description='Config6', offset=0x00001006*addrSize, bitSize=3, bitOffset=5, base='hex', mode='RW')))
-      
+
         # CMD = 1, Addr = 7  : Bit  5:0 = VREF[5:0]
         #                    : Bit  7:6 = VrefLow[1:0]
         self.add((
@@ -118,13 +118,13 @@ class Epix10kaAsic(pr.Device):
         self.add((
             pr.Variable(name='TpsTComp',  description='Config8', offset=0x00001008*addrSize, bitSize=1, bitOffset=0, base='bool', mode='RW'),
             pr.Variable(name='TpsMux',    description='Config8', offset=0x00001008*addrSize, bitSize=4, bitOffset=1, base='hex',  mode='RW'),
-            pr.Variable(name='RoMonost',  description='Config8', offset=0x00001008*addrSize, bitSize=3, bitOffset=5, base='hex',  mode='RW')))     
+            pr.Variable(name='RoMonost',  description='Config8', offset=0x00001008*addrSize, bitSize=3, bitOffset=5, base='hex',  mode='RW')))
 
-        # CMD = 1, Addr = 9 
+        # CMD = 1, Addr = 9
         self.add((
             pr.Variable(name='TpsGr',  description='Config9', offset=0x00001009*addrSize, bitSize=4, bitOffset=0, base='hex', mode='RW'),
             pr.Variable(name='S2d0Gr', description='Config9', offset=0x00001009*addrSize, bitSize=4, bitOffset=4, base='hex', mode='RW')))
-  
+
         # CMD = 1, Addr = 10 : Bit  0   = PP_OCB_S2D
         #                    : Bit  3:1 = OCB[2:0]
         #                    : Bit  6:4 = Monost[2:0]
@@ -134,7 +134,7 @@ class Epix10kaAsic(pr.Device):
             pr.Variable(name='Ocb',          description='Config10', offset=0x0000100A*addrSize, bitSize=3, bitOffset=1, base='hex',  mode='RW'),
             pr.Variable(name='Monost',       description='Config10', offset=0x0000100A*addrSize, bitSize=3, bitOffset=4, base='hex',  mode='RW'),
             pr.Variable(name='FastppEnable', description='Config10', offset=0x0000100A*addrSize, bitSize=1, bitOffset=7, base='bool', mode='RW')))
-     
+
         # CMD = 1, Addr = 11 : Bit  2:0 = Preamp[2:0]
         #                    : Bit  5:3 = Pixel_CB[2:0]
         #                    : Bit  7:6 = Vld1_b[1:0]
@@ -194,36 +194,36 @@ class Epix10kaAsic(pr.Device):
             pr.Variable(name='RowStopAddr',  description='RowStopAddr',  offset=0x00001012*addrSize, bitSize=9, bitOffset=0, base='hex', mode='RW'),
             pr.Variable(name='ColStartAddr', description='ColStartAddr', offset=0x00001013*addrSize, bitSize=7, bitOffset=0, base='hex', mode='WO'),
             pr.Variable(name='ColStopAddr',  description='ColStopAddr',  offset=0x00001014*addrSize, bitSize=7, bitOffset=0, base='hex', mode='RW')))
-   
+
         #  CMD = 1, Addr = 21 : Chip ID Read
         self.add(
             pr.Variable(name='ChipId', description='ChipId', offset=0x00001015*addrSize, bitSize=16, bitOffset=0, base='hex', mode='RO'))
 
-        # CMD = 1, Addr = 22 
+        # CMD = 1, Addr = 22
         self.add((
             pr.Variable(name='S2d1Gr', description='', offset=0x00001016*addrSize, bitSize=4, bitOffset=0, base='hex', mode='RW'),
             pr.Variable(name='S2d2Gr', description='', offset=0x00001016*addrSize, bitSize=4, bitOffset=4, base='hex', mode='RW')))
-        
+
         # CMD = 1, Addr = 23
         self.add((
             pr.Variable(name='S2d3Gr', description='', offset=0x00001017*addrSize, bitSize=4, bitOffset=0, base='hex',  mode='RW'),
             pr.Variable(name='trbit',  description='', offset=0x00001017*addrSize, bitSize=1, bitOffset=4, base='bool', mode='RW')))
-        
+
         # CMD = 1, Addr = 24
         self.add((
             pr.Variable(name='S2d1TcDac', description='', offset=0x00001018*addrSize, bitSize=2, bitOffset=0, base='hex', mode='RW'),
             pr.Variable(name='S2d1Dac',   description='', offset=0x00001018*addrSize, bitSize=6, bitOffset=2, base='hex', mode='RW')))
-        
+
         # CMD = 1, Addr = 25
         self.add((
             pr.Variable(name='S2d2TcDac', description='', offset=0x00001019*addrSize, bitSize=2, bitOffset=0, base='hex', mode='RW'),
             pr.Variable(name='S2d2Dac',   description='', offset=0x00001019*addrSize, bitSize=6, bitOffset=2, base='hex', mode='RW')))
-        
+
         # CMD = 1, Addr = 26
         self.add((
             pr.Variable(name='S2d3TcDac', description='', offset=0x0000101A*addrSize, bitSize=2, bitOffset=0, base='hex', mode='RW'),
             pr.Variable(name='S2d3Dac',   description='', offset=0x0000101A*addrSize, bitSize=6, bitOffset=2, base='hex', mode='RW')))
-        
+
         # CMD = 6, Addr = 17 : Row counter[8:0]
         self.add((
             pr.RemoteCommand(name='RowCounter', description='', offset=0x00006011*addrSize, bitSize=9, bitOffset=0, function=pr.Command.touch, hidden=False)))
@@ -240,18 +240,18 @@ class Epix10kaAsic(pr.Device):
         self.add(
             pr.RemoteCommand(name='WriteColData',    description='', offset=0x00003000*addrSize, bitSize=4, bitOffset=0, function=pr.Command.touch, hidden=False))
 
-        # CMD = 4, Addr = X  : Write Matrix with data  
-        self.add((    
+        # CMD = 4, Addr = X  : Write Matrix with data
+        self.add((
             pr.RemoteCommand(name='WriteMatrixData', description='', offset=0x00004000*addrSize, bitSize=4, bitOffset=0, function=pr.Command.touch, hidden=False)))
-   
+
         # CMD = 5, Addr = X  : Read/Write Pixel with data
         self.add(pr.RemoteCommand(name='WritePixelData',  description='WritePixelData',  offset=0x00005000*addrSize, bitSize=4, bitOffset=0,  function=pr.Command.touch, hidden=False))
- 
+
         # CMD = 7, Addr = X  : Prepare to write chip ID
         #self.add((
         #    pr.Variable(name='PrepareWriteChipIdA', description='PrepareWriteChipIdA', offset=0x00007000*addrSize, bitSize=32, bitOffset=0, base='hex', mode='RO'),
         #    pr.Variable(name='PrepareWriteChipIdB', description='PrepareWriteChipIdB', offset=0x00007015*addrSize, bitSize=32, bitOffset=0, base='hex', mode='RO')))
-      
+
         # CMD = 8, Addr = X  : Prepare for row/column/matrix configuration
         self.add(
             pr.RemoteCommand(name='PrepareMultiConfig', description='PrepareMultiConfig', offset=0x00008000*addrSize, bitSize=32, bitOffset=0, function=pr.Command.touchZero, hidden=False))
@@ -274,7 +274,7 @@ class Epix10kaAsic(pr.Device):
 
         self.add(
             pr.Command(name='SetPixelBitmap',description='Set pixel bitmap of the matrix', function=self.fnSetPixelBitmap))
-        
+
         self.add(
             pr.Command(name='GetPixelBitmap',description='Get pixel bitmap of the matrix', function=self.fnGetPixelBitmap))
 
@@ -314,7 +314,7 @@ class Epix10kaAsic(pr.Device):
                             else:
                                print('unexpected bank number')
                             self._rawWrite(0x00006011*addrSize, x)
-                            self._rawWrite(0x00006013*addrSize, colToWrite) 
+                            self._rawWrite(0x00006013*addrSize, colToWrite)
                             self._rawWrite(0x00005000*addrSize, (int(matrixCfg[x][y])))
                     self._rawWrite(0x00000000*addrSize,0)
                 else:
@@ -322,7 +322,7 @@ class Epix10kaAsic(pr.Device):
             else:
                 print("Not csv file : ", self.filename)
         else:
-            print("Warning: ASIC enable is set to False!")      
+            print("Warning: ASIC enable is set to False!")
 
     def fnGetPixelBitmap(self, dev,cmd,arg):
         """GetPixelBitmap command function"""
@@ -357,7 +357,7 @@ class Epix10kaAsic(pr.Device):
                       readBack[x, y] = self.WritePixelData.get()
                 np.savetxt(self.filename, readBack, fmt='%d', delimiter=',', newline='\n')
         else:
-            print("Warning: ASIC enable is set to False!")             
+            print("Warning: ASIC enable is set to False!")
 
     def fnClearMatrix(self, dev,cmd,arg):
         """ClearMatrix command function"""
@@ -372,7 +372,7 @@ class Epix10kaAsic(pr.Device):
                 self.WriteColData.set(0)
             self.CmdPrepForRead()
         else:
-            print("Warning: ASIC enable is set to False!")          
+            print("Warning: ASIC enable is set to False!")
 
     # standard way to report a command has been executed
     def reportCmd(self, dev,cmd,arg):
@@ -380,9 +380,9 @@ class Epix10kaAsic(pr.Device):
         "Enables to unify the console print out for all cmds"
         print("Command executed : ", cmd)
 
-    @staticmethod   
+    @staticmethod
     def frequencyConverter(self):
-        def func(dev, var):         
+        def func(dev, var):
             return '{:.3f} kHz'.format(1/(self.clkPeriod * self._count(var.dependencies)) * 1e-3)
         return func
 
@@ -398,12 +398,12 @@ class EpixHrAdcAsic(pr.Device):
         super().__init__(description='EpixHrAdc Asic Configuration', **kwargs)
 
 
-        #In order to easily compare GenDAQ address map with the ePix rogue address map 
+        #In order to easily compare GenDAQ address map with the ePix rogue address map
         #it is defined the addrSize variable
-        addrSize = 4	
+        addrSize = 4
 
         # Creation. memBase is either the register bus server (srp, rce mapped memory, etc) or the device which
-        # contains this object. In most cases the parent and memBase are the same but they can be 
+        # contains this object. In most cases the parent and memBase are the same but they can be
         # different in more complex bus structures. They will also be different for the top most node.
         # The setMemBase call can be used to update the memBase for this Device. All sub-devices and local
         # blocks will be updated.
@@ -411,14 +411,14 @@ class EpixHrAdcAsic(pr.Device):
         #############################################
         # Create block / variable combinations
         #############################################
-    
-        
+
+
         #Setup registers & variables
-                
+
         # CMD = 0, Addr = 0  : Prepare for readout
         self.add(pr.RemoteCommand(name='CmdPrepForRead', description='ePix Prepare For Readout',offset=0x00000000*addrSize, bitSize=1, bitOffset=0, function=pr.Command.touchZero, hidden=True))
-        
-        # CMD = 1, Addr = 1 
+
+        # CMD = 1, Addr = 1
         # TODO: fix CompEn so it is one uint register
         self.add((
             pr.RemoteVariable(name='shvc_DAC',     description='Config1',  offset=0x00001001*addrSize, bitSize=6, bitOffset=0, base=pr.UInt, mode='RW'),
@@ -430,9 +430,9 @@ class EpixHrAdcAsic(pr.Device):
             pr.RemoteVariable(name='Pll_KVCO',        description='Config2',  offset=0x00001002*addrSize, bitSize=3, bitOffset=4, base=pr.UInt, mode='RW'),
             pr.RemoteVariable(name='Pll_filter1LSB',  description='Config2',  offset=0x00001002*addrSize, bitSize=1, bitOffset=7, base=pr.UInt, mode='RW'),
             pr.RemoteVariable(name='Pll_filter1MSB',  description='Config15', offset=0x0000100F*addrSize, bitSize=2, bitOffset=0, base=pr.UInt, mode='RW')))
-        
 
-        # CMD = 1, Addr = 3  
+
+        # CMD = 1, Addr = 3
         self.add((
             pr.RemoteVariable(name='Pulser',   description='Config3', offset=0x00001003*addrSize, bitSize=10, bitOffset=0,  base=pr.UInt, mode='RW'),
             pr.RemoteVariable(name='pbit',     description='Config3', offset=0x00001003*addrSize, bitSize=1,  bitOffset=10, base=pr.Bool, mode='RW'),
@@ -442,24 +442,24 @@ class EpixHrAdcAsic(pr.Device):
             pr.RemoteVariable(name='hrtest',   description='Config3', offset=0x00001003*addrSize, bitSize=1,  bitOffset=14, base=pr.Bool, mode='RW'),
             pr.RemoteVariable(name='PulserR',  description='Config3', offset=0x00001003*addrSize, bitSize=1,  bitOffset=15, base=pr.Bool, mode='RW')))
 
-        # CMD = 1, Addr = 4 
+        # CMD = 1, Addr = 4
         self.add((
             pr.RemoteVariable(name='DigMon1', description='Config4',offset=0x00001004*addrSize, bitSize=4, bitOffset=0, base=pr.UInt, mode='RW'),
             pr.RemoteVariable(name='DigMon2', description='Config4',offset=0x00001004*addrSize, bitSize=4, bitOffset=4, base=pr.UInt, mode='RW')))
- 
-        # CMD = 1, Addr = 5 
+
+        # CMD = 1, Addr = 5
         self.add((
             pr.RemoteVariable(name='PulserDac',    description='Config5',  offset=0x00001005*addrSize, bitSize=3, bitOffset=0, base=pr.UInt, mode='RW'),
             pr.RemoteVariable(name='MonostPulser', description='Config5',  offset=0x00001005*addrSize, bitSize=3, bitOffset=3, base=pr.UInt, mode='RW'),
             pr.RemoteVariable(name='RefGenB',      description='Config5',  offset=0x00001005*addrSize, bitSize=2, bitOffset=6, base=pr.UInt, mode='RW')))
 
-        # CMD = 1, Addr = 6 
+        # CMD = 1, Addr = 6
         self.add((
             pr.RemoteVariable(name='Dm1En',     description='Config6', offset=0x00001006*addrSize, bitSize=1, bitOffset=0, base=pr.Bool, mode='RW'),
             pr.RemoteVariable(name='Dm2En',     description='Config6', offset=0x00001006*addrSize, bitSize=1, bitOffset=1, base=pr.Bool, mode='RW'),
             pr.RemoteVariable(name='emph_bd',   description='Config6', offset=0x00001006*addrSize, bitSize=3, bitOffset=2, base=pr.UInt, mode='RW'),
             pr.RemoteVariable(name='emph_bc',   description='Config6', offset=0x00001006*addrSize, bitSize=3, bitOffset=5, base=pr.UInt, mode='RW')))
-      
+
         # CMD = 1, Addr = 7  : Bit  5:0 = VREF[5:0]
         #                    : Bit  7:6 = VrefLow[1:0]
         self.add((
@@ -471,13 +471,13 @@ class EpixHrAdcAsic(pr.Device):
         #                    : Bit  7:5 = RO_Monost[2:0]
         self.add((
             pr.RemoteVariable(name='TpsMux',    description='Config8', offset=0x00001008*addrSize, bitSize=4, bitOffset=1, base=pr.UInt,  mode='RW'),
-            pr.RemoteVariable(name='RoMonost',  description='Config8', offset=0x00001008*addrSize, bitSize=3, bitOffset=5, base=pr.UInt,  mode='RW')))     
+            pr.RemoteVariable(name='RoMonost',  description='Config8', offset=0x00001008*addrSize, bitSize=3, bitOffset=5, base=pr.UInt,  mode='RW')))
 
-        # CMD = 1, Addr = 9 
+        # CMD = 1, Addr = 9
         self.add((
             pr.RemoteVariable(name='TpsGr',       description='Config9', offset=0x00001009*addrSize, bitSize=4, bitOffset=0, base=pr.UInt, mode='RW'),
             pr.RemoteVariable(name='Balcony_clk', description='Config9', offset=0x00001009*addrSize, bitSize=4, bitOffset=4, base=pr.UInt, mode='RW')))
-  
+
         # CMD = 1, Addr = 10 : Bit  0   = PP_OCB_S2D
         #                    : Bit  3:1 = OCB[2:0]
         #                    : Bit  6:4 = Monost[2:0]
@@ -487,7 +487,7 @@ class EpixHrAdcAsic(pr.Device):
             pr.RemoteVariable(name='Ocb',          description='Config10', offset=0x0000100A*addrSize, bitSize=3, bitOffset=1, base=pr.UInt, mode='RW'),
             pr.RemoteVariable(name='Monost',       description='Config10', offset=0x0000100A*addrSize, bitSize=3, bitOffset=4, base=pr.UInt, mode='RW'),
             pr.RemoteVariable(name='mTest',        description='Config10', offset=0x0000100A*addrSize, bitSize=1, bitOffset=7, base=pr.Bool, mode='RW')))
-     
+
         # CMD = 1, Addr = 11 : Bit  2:0 = Preamp[2:0]
         #                    : Bit  5:3 = Pixel_CB[2:0]
         #                    : Bit  7:6 = Vld1_b[1:0]
@@ -548,17 +548,17 @@ class EpixHrAdcAsic(pr.Device):
             pr.RemoteVariable(name='RowStopAddr',  description='RowStopAddr',  offset=0x00001012*addrSize, bitSize=8, bitOffset=0, base=pr.UInt, mode='RW'),
             pr.RemoteVariable(name='ColStartAddr', description='ColStartAddr', offset=0x00001013*addrSize, bitSize=7, bitOffset=0, base=pr.UInt, mode='WO'),
             pr.RemoteVariable(name='ColStopAddr',  description='ColStopAddr',  offset=0x00001014*addrSize, bitSize=7, bitOffset=0, base=pr.UInt, mode='RW')))
-   
+
         #  CMD = 1, Addr = 21 : Chip ID Read
         self.add(
             pr.RemoteVariable(name='ChipId', description='ChipId', offset=0x00001015*addrSize, bitSize=16, bitOffset=0, base=pr.UInt, mode='RO'))
 
-        # CMD = 1, Addr = 22 
+        # CMD = 1, Addr = 22
         self.add((
             pr.RemoteVariable(name='DCycle_DAC',    description='Config22', offset=0x00001016*addrSize, bitSize=6, bitOffset=0, base=pr.UInt, mode='RW'),
             pr.RemoteVariable(name='DCycle_en',     description='Config22', offset=0x00001016*addrSize, bitSize=1, bitOffset=6, base=pr.Bool, mode='RW'),
             pr.RemoteVariable(name='DCycle_bypass', description='Config22', offset=0x00001016*addrSize, bitSize=1, bitOffset=7, base=pr.Bool, mode='RW')))
-        
+
         # CMD = 1, Addr = 23
         self.add((
             pr.RemoteVariable(name='Debug_bit',    description='', offset=0x00001017*addrSize, bitSize=2, bitOffset=0, base=pr.UInt, mode='RW'),
@@ -566,13 +566,13 @@ class EpixHrAdcAsic(pr.Device):
             pr.RemoteVariable(name='SecondOrder',  description='', offset=0x00001017*addrSize, bitSize=1, bitOffset=3, base=pr.Bool, mode='RW'),
             pr.RemoteVariable(name='DHg',          description='', offset=0x00001017*addrSize, bitSize=1, bitOffset=4, base=pr.Bool, mode='RW'),
             pr.RemoteVariable(name='RefGenC',      description='', offset=0x00001017*addrSize, bitSize=2, bitOffset=5, base=pr.UInt, mode='RW')))
-        
+
         # CMD = 1, Addr = 24
         self.add((
             pr.RemoteVariable(name='SDclk_b',      description='', offset=0x00001018*addrSize, bitSize=4, bitOffset=0, base=pr.UInt, mode='RW'),
             pr.RemoteVariable(name='SDrst_b',      description='', offset=0x00001018*addrSize, bitSize=4, bitOffset=4, base=pr.UInt, mode='RW')))
-        
-        
+
+
         # CMD = 6, Addr = 17 : Row counter[8:0]
         self.add((
             pr.RemoteCommand(name='RowCounter', description='', offset=0x00006011*addrSize, bitSize=9, bitOffset=0, function=pr.Command.touch, hidden=False)))
@@ -589,18 +589,18 @@ class EpixHrAdcAsic(pr.Device):
         self.add(
             pr.RemoteCommand(name='WriteColData',    description='', offset=0x00003000*addrSize, bitSize=4, bitOffset=0, function=pr.Command.touch, hidden=False))
 
-        # CMD = 4, Addr = X  : Write Matrix with data  
-        self.add((    
+        # CMD = 4, Addr = X  : Write Matrix with data
+        self.add((
             pr.RemoteCommand(name='WriteMatrixData', description='', offset=0x00004000*addrSize, bitSize=4, bitOffset=0, function=pr.Command.touch, hidden=False)))
-   
+
         # CMD = 5, Addr = X  : Read/Write Pixel with data
         self.add(pr.RemoteCommand(name='WritePixelData',  description='WritePixelData',  offset=0x00005000*addrSize, bitSize=4, bitOffset=0,  function=pr.Command.touch, hidden=False))
- 
+
         # CMD = 7, Addr = X  : Prepare to write chip ID
         #self.add((
         #    pr.Variable(name='PrepareWriteChipIdA', description='PrepareWriteChipIdA', offset=0x00007000*addrSize, bitSize=32, bitOffset=0, base='hex', mode='RO'),
         #    pr.Variable(name='PrepareWriteChipIdB', description='PrepareWriteChipIdB', offset=0x00007015*addrSize, bitSize=32, bitOffset=0, base='hex', mode='RO')))
-      
+
         # CMD = 8, Addr = X  : Prepare for row/column/matrix configuration
         self.add(
             pr.RemoteCommand(name='PrepareMultiConfig', description='PrepareMultiConfig', offset=0x00008000*addrSize, bitSize=32, bitOffset=0, function=pr.Command.touchZero, hidden=False))
@@ -623,7 +623,7 @@ class EpixHrAdcAsic(pr.Device):
 
         self.add(
             pr.LocalCommand(name='SetPixelBitmap',description='Set pixel bitmap of the matrix', function=self.fnSetPixelBitmap))
-        
+
         self.add(
             pr.LocalCommand(name='GetPixelBitmap',description='Get pixel bitmap of the matrix', function=self.fnGetPixelBitmap))
 
@@ -631,6 +631,26 @@ class EpixHrAdcAsic(pr.Device):
 #        if value is True:
 #            self.readBlocks(recurse=True, variable=None)
 #            self.checkBlocks(recurse=True, variable=None)
+
+
+    def checkBlocks(self, *, recurse=True, variable=None, **kwargs):
+        if variable is not None:
+            try:
+                pr.checkTransaction(variable._block, **kwargs)
+            except Exception as msg:
+                print(f"Ignoring exception: {msg}")
+
+        else:
+            for block in self._blocks:
+                try:
+                    pr.checkTransaction(block, **kwargs)
+                except Exception as msg:
+                    print(f"Ignoring exception: {msg}")
+
+            if recurse:
+                for key,value in self.devices.items():
+                    value.checkBlocks(recurse=True, **kwargs)
+
 
     def fnSetPixelBitmap(self, dev,cmd,arg):
         """SetPixelBitmap command function"""
@@ -666,7 +686,7 @@ class EpixHrAdcAsic(pr.Device):
                             else:
                                print('unexpected bank number')
                             self._rawWrite(0x00006011*addrSize, x)
-                            self._rawWrite(0x00006013*addrSize, colToWrite) 
+                            self._rawWrite(0x00006013*addrSize, colToWrite)
                             self._rawWrite(0x00005000*addrSize, (int(matrixCfg[x][y])))
                     self._rawWrite(0x00000000*addrSize,0)
                 else:
@@ -674,7 +694,7 @@ class EpixHrAdcAsic(pr.Device):
             else:
                 print("Not csv file : ", self.filename)
         else:
-            print("Warning: ASIC enable is set to False!")      
+            print("Warning: ASIC enable is set to False!")
 
     def fnGetPixelBitmap(self, dev,cmd,arg):
         """GetPixelBitmap command function"""
@@ -710,7 +730,7 @@ class EpixHrAdcAsic(pr.Device):
                       readBack[x, y] = self._rawRead(0x00005000*addrSize)
                 np.savetxt(self.filename, readBack, fmt='%d', delimiter=',', newline='\n')
         else:
-            print("Warning: ASIC enable is set to False!")             
+            print("Warning: ASIC enable is set to False!")
 
     def fnClearMatrix(self, dev,cmd,arg):
         """ClearMatrix command function"""
@@ -725,7 +745,7 @@ class EpixHrAdcAsic(pr.Device):
                 self.WriteColData.set(0)
             self.CmdPrepForRead()
         else:
-            print("Warning: ASIC enable is set to False!")          
+            print("Warning: ASIC enable is set to False!")
 
     # standard way to report a command has been executed
     def reportCmd(self, dev,cmd,arg):
@@ -733,9 +753,9 @@ class EpixHrAdcAsic(pr.Device):
         "Enables to unify the console print out for all cmds"
         print("Command executed : ", cmd)
 
-    @staticmethod   
+    @staticmethod
     def frequencyConverter(self):
-        def func(dev, var):         
+        def func(dev, var):
             return '{:.3f} kHz'.format(1/(self.clkPeriod * self._count(var.dependencies)) * 1e-3)
         return func
 
@@ -755,12 +775,12 @@ class CryoAsic(pr.Device):
         super().__init__(description='EpixHrAdc Asic Configuration', **kwargs)
 
 
-        #In order to easily compare GenDAQ address map with the ePix rogue address map 
+        #In order to easily compare GenDAQ address map with the ePix rogue address map
         #it is defined the addrSize variable
-        addrSize = 4	
+        addrSize = 4
 
         # Creation. memBase is either the register bus server (srp, rce mapped memory, etc) or the device which
-        # contains this object. In most cases the parent and memBase are the same but they can be 
+        # contains this object. In most cases the parent and memBase are the same but they can be
         # different in more complex bus structures. They will also be different for the top most node.
         # The setMemBase call can be used to update the memBase for this Device. All sub-devices and local
         # blocks will be updated.
@@ -768,19 +788,19 @@ class CryoAsic(pr.Device):
         #############################################
         # Create block / variable combinations
         #############################################
-    
-        
+
+
         #Setup registers & variables
-                
+
         # CMD = 0, Addr = 0  : Prepare for readout
         self.add(pr.RemoteCommand(name='CmdPrepForRead', description='ASIC Prepare For Readout',offset=0x00000000*addrSize, bitSize=1, bitOffset=0, function=pr.Command.touchZero, hidden=True))
-        
+
         # CMD = 1, Addr = XXX offset = 0xCCCCCAAA where C and command bits and A are address bits
         CMD_TYPE_1 = 0x00001000
         self.add((pr.RemoteVariable(name='RowStart',     description='Config1',  offset=(CMD_TYPE_1 + 0x01)*addrSize, bitSize=8,  bitOffset=0, base=pr.UInt, mode='RO')))
         self.add((pr.RemoteVariable(name='RowStop',      description='Config2',  offset=(CMD_TYPE_1 + 0x02)*addrSize, bitSize=8,  bitOffset=0, base=pr.UInt, mode='RO')))
-        self.add((pr.RemoteVariable(name='ColStart',     description='Config3',  offset=(CMD_TYPE_1 + 0x03)*addrSize, bitSize=8,  bitOffset=0, base=pr.UInt, mode='RO')))        
-        self.add((pr.RemoteVariable(name='StartPixel',   description='Config4',  offset=(CMD_TYPE_1 + 0x04)*addrSize, bitSize=16, bitOffset=0, base=pr.UInt, mode='RO')))        
+        self.add((pr.RemoteVariable(name='ColStart',     description='Config3',  offset=(CMD_TYPE_1 + 0x03)*addrSize, bitSize=8,  bitOffset=0, base=pr.UInt, mode='RO')))
+        self.add((pr.RemoteVariable(name='StartPixel',   description='Config4',  offset=(CMD_TYPE_1 + 0x04)*addrSize, bitSize=16, bitOffset=0, base=pr.UInt, mode='RO')))
         # CMD = 1, Addr = 5
         self.add((
             pr.RemoteVariable(name='TPS_DAC',   description='Config5', offset=(CMD_TYPE_1 + 0x05)*addrSize, bitSize=6,  bitOffset=2,  base=pr.UInt, mode='RW'),
@@ -872,7 +892,7 @@ class CryoAsic(pr.Device):
             pr.RemoteVariable(name='emph_bd',        description='Config13', offset=(CMD_TYPE_1 + 0x0D)*addrSize, bitSize=3,  bitOffset=5,  base=pr.UInt, mode='RW'),
             pr.RemoteVariable(name='DM1sel',         description='Config13', offset=(CMD_TYPE_1 + 0x0D)*addrSize, bitSize=4,  bitOffset=8,  base=pr.UInt, mode='RW'),
             pr.RemoteVariable(name='DM2sel',         description='Config13', offset=(CMD_TYPE_1 + 0x0D)*addrSize, bitSize=4,  bitOffset=12, base=pr.UInt, mode='RW')))
-        
+
         # CMD = 1, Addr = 14
         self.add((pr.RemoteVariable(name='SubBnkEn', description='Config14',  offset=(CMD_TYPE_1 + 0x0E)*addrSize, bitSize=16,  bitOffset=0, base=pr.UInt, mode='RW')))
 
@@ -926,7 +946,7 @@ class CryoAsic(pr.Device):
             pr.RemoteVariable(name='Pulser_Bias_Monost_b0',  description='Config19', offset=(CMD_TYPE_1 + 0x13)*addrSize, bitSize=3,  bitOffset=4,  base=pr.UInt, mode='RW'),
             pr.RemoteVariable(name='CRYO_ID',                description='Config19', offset=(CMD_TYPE_1 + 0x13)*addrSize, bitSize=4,  bitOffset=12, base=pr.UInt, mode='RW')))
 
-        
+
         # CMD = 6, Addr = 17 : Row counter[8:0]
         self.add((
             pr.RemoteCommand(name='RowCounter', description='', offset=0x00006001*addrSize, bitSize=8, bitOffset=0, function=pr.Command.postedTouch, hidden=False)))
@@ -943,18 +963,18 @@ class CryoAsic(pr.Device):
         self.add(
             pr.RemoteCommand(name='WriteColData',    description='', offset=0x00003000*addrSize, bitSize=13, bitOffset=0, function=pr.Command.postedTouch, hidden=False))
 
-        # CMD = 4, Addr = X  : Write Matrix with data  
-        self.add((    
+        # CMD = 4, Addr = X  : Write Matrix with data
+        self.add((
             pr.RemoteCommand(name='WriteMatrixData', description='', offset=0x00004000*addrSize, bitSize=13, bitOffset=0, function=pr.Command.touch, hidden=False)))
-   
+
         # CMD = 5, Addr = X  : Read/Write Pixel with data
         self.add(pr.RemoteCommand(name='WritePixelData',  description='WritePixelData',  offset=0x00005000*addrSize, bitSize=13, bitOffset=0,  function=pr.Command.postedTouch, hidden=False))
- 
+
         # CMD = 7, Addr = X  : Prepare to write chip ID
         #self.add((
         #    pr.Variable(name='PrepareWriteChipIdA', description='PrepareWriteChipIdA', offset=0x00007000*addrSize, bitSize=32, bitOffset=0, base='hex', mode='RO'),
         #    pr.Variable(name='PrepareWriteChipIdB', description='PrepareWriteChipIdB', offset=0x00007015*addrSize, bitSize=32, bitOffset=0, base='hex', mode='RO')))
-      
+
         # CMD = 8, Addr = X  : Prepare for row/column/matrix configuration
         self.add(
             pr.RemoteCommand(name='PrepareMultiConfig', description='PrepareMultiConfig', offset=0x00008000*addrSize, bitSize=32, bitOffset=0, function=pr.Command.touchZero, hidden=False))
@@ -977,7 +997,7 @@ class CryoAsic(pr.Device):
 
         self.add(
             pr.LocalCommand(name='SetChannelBitmap',description='Set channel bitmap of the matrix', function=self.fnSetChannelBitmap))
-        
+
         self.add(
             pr.LocalCommand(name='GetChannelBitmap',description='Get channel bitmap of the matrix', function=self.fnGetChannelBitmap))
 
@@ -988,7 +1008,7 @@ class CryoAsic(pr.Device):
 
     def fnSetChannelBitmap(self, dev,cmd,arg):
         """SetChannelBitmap command function"""
-        print("Warning: Function not implemented.")             
+        print("Warning: Function not implemented.")
 
 
     def fnGetChannelBitmap(self, dev,cmd,arg):
@@ -1034,7 +1054,7 @@ class CryoAsic(pr.Device):
 
     def fnClearMatrix(self, dev,cmd,arg):
         """ClearMatrix command function"""
-        print("Warning: Function not implemented.")             
+        print("Warning: Function not implemented.")
 
     def fnReadChannel(self, dev,cmd,arg):
         """ReadMatrix command function"""
@@ -1047,9 +1067,9 @@ class CryoAsic(pr.Device):
         "Enables to unify the console print out for all cmds"
         print("Command executed : ", cmd)
 
-    @staticmethod   
+    @staticmethod
     def frequencyConverter(self):
-        def func(dev, var):         
+        def func(dev, var):
             return '{:.3f} kHz'.format(1/(self.clkPeriod * self._count(var.dependencies)) * 1e-3)
         return func
 
@@ -1065,12 +1085,12 @@ class CryoAsic0p2(pr.Device):
         super().__init__(description='EpixHrAdc Asic Configuration', **kwargs)
 
 
-        #In order to easily compare GenDAQ address map with the ePix rogue address map 
+        #In order to easily compare GenDAQ address map with the ePix rogue address map
         #it is defined the addrSize variable
-        addrSize = 4	
+        addrSize = 4
 
         # Creation. memBase is either the register bus server (srp, rce mapped memory, etc) or the device which
-        # contains this object. In most cases the parent and memBase are the same but they can be 
+        # contains this object. In most cases the parent and memBase are the same but they can be
         # different in more complex bus structures. They will also be different for the top most node.
         # The setMemBase call can be used to update the memBase for this Device. All sub-devices and local
         # blocks will be updated.
@@ -1078,13 +1098,13 @@ class CryoAsic0p2(pr.Device):
         #############################################
         # Create block / variable combinations
         #############################################
-    
-        
+
+
         #Setup registers & variables
-                
+
         # CMD = 0, Addr = 0  : Prepare for readout
         self.add(pr.RemoteCommand(name='CmdPrepForRead', description='ASIC Prepare For Readout',offset=0x00000000*addrSize, bitSize=1, bitOffset=0, function=pr.Command.touchZero, hidden=True))
-        
+
         #CMD_1_MODE = 'RW' # 'RW' is for simulation only on CRYO 0p2'
         CMD_1_MODE = 'WO'
         
@@ -1185,7 +1205,7 @@ class CryoAsic0p2(pr.Device):
             pr.RemoteVariable(name='emph_bd',        description='Config13', offset=(CMD_TYPE_1 + 0x0D)*addrSize, bitSize=3,  bitOffset=5,  base=pr.UInt, mode=CMD_1_MODE),
             pr.RemoteVariable(name='DM1sel',         description='Config13', offset=(CMD_TYPE_1 + 0x0D)*addrSize, bitSize=4,  bitOffset=8,  base=pr.UInt, mode=CMD_1_MODE),
             pr.RemoteVariable(name='DM2sel',         description='Config13', offset=(CMD_TYPE_1 + 0x0D)*addrSize, bitSize=4,  bitOffset=12, base=pr.UInt, mode=CMD_1_MODE)))
-        
+
         # CMD = 1, Addr = 14
         self.add((pr.RemoteVariable(name='SubBnkEn', description='Config14',  offset=(CMD_TYPE_1 + 0x0E)*addrSize, bitSize=16,  bitOffset=0, base=pr.UInt, mode=CMD_1_MODE)))
 
@@ -1245,7 +1265,7 @@ class CryoAsic0p2(pr.Device):
             pr.RemoteVariable(name='ADC_B3B2',               description='Config19', offset=(CMD_TYPE_1 + 0x13)*addrSize, bitSize=2,  bitOffset=10, base=pr.UInt, mode=CMD_1_MODE),
             pr.RemoteVariable(name='CRYO_ID',                description='Config19', offset=(CMD_TYPE_1 + 0x13)*addrSize, bitSize=4,  bitOffset=12, base=pr.UInt, mode=CMD_1_MODE)))
 
-        
+
         # CMD = 6, Addr = 17 : Row counter[8:0]
         self.add((
             pr.RemoteCommand(name='RowCounter', description='', offset=0x00006001*addrSize, bitSize=8, bitOffset=0, function=pr.Command.postedTouch, hidden=False)))
@@ -1262,18 +1282,18 @@ class CryoAsic0p2(pr.Device):
         self.add(
             pr.RemoteCommand(name='WriteColData',    description='', offset=0x00003000*addrSize, bitSize=13, bitOffset=0, function=pr.Command.postedTouch, hidden=False))
 
-        # CMD = 4, Addr = X  : Write Matrix with data  
-        self.add((    
+        # CMD = 4, Addr = X  : Write Matrix with data
+        self.add((
             pr.RemoteCommand(name='WriteMatrixData', description='', offset=0x00004000*addrSize, bitSize=13, bitOffset=0, function=pr.Command.touch, hidden=False)))
-   
+
         # CMD = 5, Addr = X  : Read/Write Pixel with data
         self.add(pr.RemoteCommand(name='WritePixelData',  description='WritePixelData',  offset=0x00005000*addrSize, bitSize=13, bitOffset=0,  function=pr.Command.postedTouch, hidden=False))
- 
+
         # CMD = 7, Addr = X  : Prepare to write chip ID
         #self.add((
         #    pr.Variable(name='PrepareWriteChipIdA', description='PrepareWriteChipIdA', offset=0x00007000*addrSize, bitSize=32, bitOffset=0, base='hex', mode='RO'),
         #    pr.Variable(name='PrepareWriteChipIdB', description='PrepareWriteChipIdB', offset=0x00007015*addrSize, bitSize=32, bitOffset=0, base='hex', mode='RO')))
-      
+
         # CMD = 8, Addr = X  : Prepare for row/column/matrix configuration
         self.add(
             pr.RemoteCommand(name='PrepareMultiConfig', description='PrepareMultiConfig', offset=0x00008000*addrSize, bitSize=32, bitOffset=0, function=pr.Command.touchZero, hidden=False))
@@ -1296,7 +1316,7 @@ class CryoAsic0p2(pr.Device):
 
         self.add(
             pr.LocalCommand(name='SetChannels',description='Set all 64 channels based on csv file.', function=self.fnSetChannelsCsv))
-        
+
         #self.add(
         #    pr.LocalCommand(name='GetChannelBitmap',description='Get channel bitmap of the matrix', function=self.fnGetChannelBitmap))
 
@@ -1385,7 +1405,7 @@ class CryoAsic0p2(pr.Device):
 
     def fnClearMatrix(self, dev,cmd,arg):
         """ClearMatrix command function"""
-        print("Warning: Function not implemented.")             
+        print("Warning: Function not implemented.")
 
     def fnReadChannel(self, dev,cmd,arg):
         """ReadMatrix command function"""
@@ -1398,9 +1418,9 @@ class CryoAsic0p2(pr.Device):
         "Enables to unify the console print out for all cmds"
         print("Command executed : ", cmd)
 
-    @staticmethod   
+    @staticmethod
     def frequencyConverter(self):
-        def func(dev, var):         
+        def func(dev, var):
             return '{:.3f} kHz'.format(1/(self.clkPeriod * self._count(var.dependencies)) * 1e-3)
         return func
 
@@ -1421,12 +1441,12 @@ class CryoAsic0p2b(pr.Device):
         super().__init__(description='EpixHrAdc Asic Configuration', **kwargs)
 
 
-        #In order to easily compare GenDAQ address map with the ePix rogue address map 
+        #In order to easily compare GenDAQ address map with the ePix rogue address map
         #it is defined the addrSize variable
-        addrSize = 4	
+        addrSize = 4
 
         # Creation. memBase is either the register bus server (srp, rce mapped memory, etc) or the device which
-        # contains this object. In most cases the parent and memBase are the same but they can be 
+        # contains this object. In most cases the parent and memBase are the same but they can be
         # different in more complex bus structures. They will also be different for the top most node.
         # The setMemBase call can be used to update the memBase for this Device. All sub-devices and local
         # blocks will be updated.
@@ -1434,13 +1454,13 @@ class CryoAsic0p2b(pr.Device):
         #############################################
         # Create block / variable combinations
         #############################################
-    
-        
+
+
         #Setup registers & variables
-                
+
         # CMD = 0, Addr = 0  : Prepare for readout
         self.add(pr.RemoteCommand(name='CmdPrepForRead', description='ASIC Prepare For Readout',offset=0x00000000*addrSize, bitSize=1, bitOffset=0, function=pr.Command.touchZero, hidden=True))
-        
+
         # CMD = 1, Addr = XXX offset = 0xCCCCCAAA where C and command bits and A are address bits
         CMD_TYPE_1 = 0x00001000
         #self.add((pr.RemoteVariable(name='Register01',              description='Config16', offset=(CMD_TYPE_1 + 0x01)*addrSize, bitSize=16,  bitOffset=0,  base=pr.UInt, mode='RW')))
@@ -1462,10 +1482,10 @@ class CryoAsic0p2b(pr.Device):
         #self.add((pr.RemoteVariable(name='Register17',              description='Config16', offset=(CMD_TYPE_1 + 0x11)*addrSize, bitSize=16,  bitOffset=0,  base=pr.UInt, mode='RW')))
         #self.add((pr.RemoteVariable(name='Register18',              description='Config16', offset=(CMD_TYPE_1 + 0x12)*addrSize, bitSize=16,  bitOffset=0,  base=pr.UInt, mode='RW')))
         #self.add((pr.RemoteVariable(name='Register19',              description='Config16', offset=(CMD_TYPE_1 + 0x13)*addrSize, bitSize=16,  bitOffset=0,  base=pr.UInt, mode='RW')))
-        
 
 
-        
+
+
         # CMD = 6, Addr = 17 : Row counter[8:0]
         self.add((
             pr.RemoteCommand(name='RowCounter', description='', offset=0x00006001*addrSize, bitSize=8, bitOffset=0, function=pr.Command.postedTouch, hidden=False)))
@@ -1482,18 +1502,18 @@ class CryoAsic0p2b(pr.Device):
         self.add(
             pr.RemoteCommand(name='WriteColData',    description='', offset=0x00003000*addrSize, bitSize=13, bitOffset=0, function=pr.Command.postedTouch, hidden=False))
 
-        # CMD = 4, Addr = X  : Write Matrix with data  
-        self.add((    
+        # CMD = 4, Addr = X  : Write Matrix with data
+        self.add((
             pr.RemoteCommand(name='WriteMatrixData', description='', offset=0x00004000*addrSize, bitSize=13, bitOffset=0, function=pr.Command.touch, hidden=False)))
-   
+
         # CMD = 5, Addr = X  : Read/Write Pixel with data
         self.add(pr.RemoteCommand(name='WritePixelData',  description='WritePixelData',  offset=0x00005000*addrSize, bitSize=13, bitOffset=0,  function=pr.Command.postedTouch, hidden=False))
- 
+
         # CMD = 7, Addr = X  : Prepare to write chip ID
         #self.add((
         #    pr.Variable(name='PrepareWriteChipIdA', description='PrepareWriteChipIdA', offset=0x00007000*addrSize, bitSize=32, bitOffset=0, base='hex', mode='RO'),
         #    pr.Variable(name='PrepareWriteChipIdB', description='PrepareWriteChipIdB', offset=0x00007015*addrSize, bitSize=32, bitOffset=0, base='hex', mode='RO')))
-      
+
         # CMD = 8, Addr = X  : Prepare for row/column/matrix configuration
         self.add(
             pr.RemoteCommand(name='PrepareMultiConfig', description='PrepareMultiConfig', offset=0x00008000*addrSize, bitSize=32, bitOffset=0, function=pr.Command.touchZero, hidden=False))
@@ -1516,7 +1536,7 @@ class CryoAsic0p2b(pr.Device):
 
         self.add(
             pr.LocalCommand(name='SetChannelBitmap',description='Set channel bitmap of the matrix', function=self.fnSetChannelBitmap))
-        
+
         self.add(
             pr.LocalCommand(name='GetChannelBitmap',description='Get channel bitmap of the matrix', function=self.fnGetChannelBitmap))
 
@@ -1574,7 +1594,7 @@ class CryoAsic0p2b(pr.Device):
 
     def fnClearMatrix(self, dev,cmd,arg):
         """ClearMatrix command function"""
-        print("Warning: Function not implemented.")             
+        print("Warning: Function not implemented.")
 
     def fnReadChannel(self, dev,cmd,arg):
         """ReadMatrix command function"""
@@ -1587,9 +1607,9 @@ class CryoAsic0p2b(pr.Device):
         "Enables to unify the console print out for all cmds"
         print("Command executed : ", cmd)
 
-    @staticmethod   
+    @staticmethod
     def frequencyConverter(self):
-        def func(dev, var):         
+        def func(dev, var):
             return '{:.3f} kHz'.format(1/(self.clkPeriod * self._count(var.dependencies)) * 1e-3)
         return func
 
