@@ -33,7 +33,7 @@ import h5py
 #matplotlib.pyplot.ion()
 NUMBER_OF_PACKETS_PER_FRAME = 2
 #MAX_NUMBER_OF_FRAMES_PER_BATCH  = 1500*NUMBER_OF_PACKETS_PER_FRAME
-MAX_NUMBER_OF_FRAMES_PER_BATCH  = 210 #-1
+MAX_NUMBER_OF_FRAMES_PER_BATCH  = -1
 
 PAYLOAD_SERIAL_FRAME = 4112 #2064
 PAYLOAD_TS           = 7360
@@ -50,7 +50,8 @@ PLOT_IMAGE_DARK       = False
 PLOT_IMAGE_HEATMAP    = False
 PLOT_SET_HISTOGRAM    = False
 PLOT_ADC_VS_N         = False
-SAVEHDF5              = False
+SAVE_HDF5             = True
+SAVE_CSV              = True
 
 ##################################################
 # Dark images
@@ -76,7 +77,6 @@ while ((len(file_header)>0) and ((numberOfFrames[0]<MAX_NUMBER_OF_FRAMES_PER_BAT
         #save only serial data frames
         if ((file_header[1]&0xff000000)>>24)==1: #image packet only, 2 mean scope data
             asicID = (newPayload[0]&0x00000010)>>4
-            print (asicID)
             if asicID == 0:
                 if (numberOfFrames[asicID] == 0):
                     allFrames_0 = [newPayload.copy()]
@@ -163,14 +163,15 @@ else:
                 #if (np.sum(np.sum(newImage))==0):
                 #    newImage[np.where(newImage==0)]=np.nan
                 imgDesc_1 = np.concatenate((imgDesc_1, np.array([newImage])),0)
-if(SAVEHDF5):
+if(SAVE_HDF5):
     print("Saving Hdf5")
     h5_filename = os.path.splitext(filename)[0]+".hdf5"
     f = h5py.File(h5_filename, "w")
     f['adcData_0'] = imgDesc_0.astype('uint16')
     f['adcData_1'] = imgDesc_1.astype('uint16')
     f.close()
-    
+
+if(SAVE_CSV):
     for runNum in range(imgDesc_0.shape[0]):
         np.savetxt(os.path.splitext(filename)[0] + "_asic0_runNum" + str(runNum) + "_traces" + ".csv", imgDesc_0[runNum,:,:], fmt='%d', delimiter=',', newline='\n')
     for runNum in range(imgDesc_1.shape[0]):

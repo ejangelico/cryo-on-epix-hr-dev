@@ -45,7 +45,7 @@ except ImportError:
     from PyQt4.QtGui     import *
 
 
-PRINT_VERBOSE = 1
+PRINT_VERBOSE = 0
 
 ################################################################################
 ################################################################################
@@ -109,6 +109,7 @@ class Window(QMainWindow, QObject):
         self.eventReader = EventReader(self)
         self.eventReaderScope = EventReader(self)
         self.eventReaderMonitoring = EventReader(self)
+        self.dilplayFramesFromAsics = -1 # 0 for asic 0, 1 for asic 1, -1 for all
 
 
         # Connect the fileReader to our event processor
@@ -322,19 +323,21 @@ class Window(QMainWindow, QObject):
     # If image is incomplete stores the partial image
     def buildImageFrame(self):
         newRawData = self.eventReader.frameData
-        [frameComplete, readyForDisplay, self.rawImgFrame] = self.currentCam.buildImageFrame(currentRawData = self.rawImgFrame, newRawData = newRawData)
+        AsicID =  int((newRawData[0] & 0x10)>>4)
+        if ((self.dilplayFramesFromAsics == -1) or (self.dilplayFramesFromAsics == AsicID)):
+            [frameComplete, readyForDisplay, self.rawImgFrame] = self.currentCam.buildImageFrame(currentRawData = self.rawImgFrame, newRawData = newRawData)
 
-        if (readyForDisplay):
-            self.displayImageFromReader(imageData = self.rawImgFrame)
+            if (readyForDisplay):
+                self.displayImageFromReader(imageData = self.rawImgFrame)
             
-        if (frameComplete == 0 and readyForDisplay == 1):
-        # in this condition we have data about two different images
-        # since a new image has been sent and the old one is incomplete
-        # the next line preserves the new data to be used with the next frame
-            self.rawImgFrame = newRawData
-        if (frameComplete == 1):
-        # frees the memory since it has been used alreay enabling a new frame logic to start fresh
-            self.rawImgFrame = []              
+            if (frameComplete == 0 and readyForDisplay == 1):
+                # in this condition we have data about two different images
+                # since a new image has been sent and the old one is incomplete
+                # the next line preserves the new data to be used with the next frame
+                self.rawImgFrame = newRawData
+            if (frameComplete == 1):
+                # frees the memory since it has been used alreay enabling a new frame logic to start fresh
+                self.rawImgFrame = []              
         
 
     # core code for displaying the image
@@ -565,7 +568,7 @@ class Window(QMainWindow, QObject):
                 qp.drawLine(x-2 , y+2, x+2 , y-2)
 
     def mouseClickedOnImage(self, event):
-        if (self.imgDesc != [] and isinstance(event.xdata,int) and isinstance(event.ydata,int)):
+        if (self.imgDesc != [] and isinstance(event.xdata,float) and isinstance(event.ydata,float)):
             #mouseX = event.pos().x()
             #mouseY = event.pos().y()
             if self.cbPlotImageTranspose.isChecked():
@@ -588,7 +591,7 @@ class Window(QMainWindow, QObject):
             # clear the pixel time sereis every time the pixel of interest is changed
             self.clearPixelTimeSeriesLinePlot()
     
-            print('Raw mouse coordinates: {},{}'.format(mouseX, mouseY))
+            #print('Raw mouse coordinates: {},{}'.format(self.mouseX, self.mouseY))
             #print('Pixel map dimensions: {},{}'.format(pixmapW, pixmapH))
             #print('Image dimensions: {},{}'.format(imageW, imageH))
             print('Pixel[{},{}] = {}'.format(self.mouseX, self.mouseY, self.mousePixelValue))

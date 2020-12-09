@@ -326,7 +326,13 @@ class Board(pyrogue.Root):
         @self.command()
         def Trigger():
             self.cmd.sendCmd(0, 0)
-
+        @self.command()
+        def DisplayViewer0():
+            self.onlineViewer0.show()
+        @self.command()
+        def DisplayViewer1():
+            self.onlineViewer1.show()
+            
         # Add Devices
         if ( args.type == 'kcu1500' ):
             coreMap = rogue.hardware.axi.AxiMemMap('/dev/datadev_0')
@@ -355,22 +361,33 @@ appTop = pyrogue.gui.application(sys.argv)
 guiTop = pyrogue.gui.GuiTop(group='cryoAsicGui')
 cryoAsicBoard = Board(guiTop, cmd, dataWriter, srp)
 if ( args.type == 'dataFile' or args.type == 'SIM'):
-    cryoAsicBoard.start(pollEn=False, pyroGroup=None)
+    cryoAsicBoard.start()
 else:
-    cryoAsicBoard.start(pollEn=True, pyroGroup=None)
+    cryoAsicBoard.start()
 guiTop.addTree(cryoAsicBoard)
 guiTop.resize(800,800)
 
 # Viewer gui
-if START_VIEWER:
-    onlineViewer = vi.Window(cameraType='cryo64xN')
-    onlineViewer.eventReader.frameIndex = 0
-    onlineViewer.setReadDelay(0)
-    pyrogue.streamTap(pgpL0Vc0, onlineViewer.eventReader)
+cryoAsicBoard.onlineViewer0 = vi.Window(cameraType='cryo64xN')
+cryoAsicBoard.onlineViewer0.eventReader.frameIndex = 0
+cryoAsicBoard.onlineViewer0.dilplayFramesFromAsics = 0
+cryoAsicBoard.onlineViewer0.setReadDelay(0)
+cryoAsicBoard.onlineViewer0.setWindowTitle("ASIC 0")
+pyrogue.streamTap(pgpL0Vc0, cryoAsicBoard.onlineViewer0.eventReader)
 
+cryoAsicBoard.onlineViewer1 = vi.Window(cameraType='cryo64xN')
+cryoAsicBoard.onlineViewer1.eventReader.frameIndex = 0
+cryoAsicBoard.onlineViewer1.dilplayFramesFromAsics = 1
+cryoAsicBoard.onlineViewer1.setReadDelay(0)
+cryoAsicBoard.onlineViewer1.setWindowTitle("ASIC 1")
+pyrogue.streamTap(pgpL0Vc0, cryoAsicBoard.onlineViewer1.eventReader)
 
-    # executes the requested initialization
-    cryoAsicBoard.KCU105FEMBCryo.InitCryo(args.initSeq)
+# executes the requested initialization
+cryoAsicBoard.KCU105FEMBCryo.InitCryo(args.initSeq)
+
+if (args.viewer == 'False'):
+    cryoAsicBoard.onlineViewer0.hide()
+    cryoAsicBoard.onlineViewer1.hide()
 
 # Create GUI
 if (args.start_gui):
