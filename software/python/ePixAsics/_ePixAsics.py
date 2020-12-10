@@ -1324,6 +1324,24 @@ class CryoAsic0p2(pr.Device):
         #    pr.LocalCommand(name='rawGetChannelValuep',description='Get channel value', function=self.fnReadChannel))
 
 
+    def checkBlocks(self, *, recurse=True, variable=None, **kwargs):
+        if variable is not None:
+            try:
+                pr.checkTransaction(variable._block, **kwargs)
+            except Exception as msg:
+                print(f"Ignoring exception: {msg}")
+
+        else:
+            for block in self._blocks:
+                try:
+                    pr.checkTransaction(block, **kwargs)
+                except Exception as msg:
+                    print(f"Ignoring exception: {msg}")
+
+            if recurse:
+                for key,value in self.devices.items():
+                    value.checkBlocks(recurse=True, **kwargs)
+
 
     def fnSetChannelsCsv(self, dev,cmd,arg):
         """Set Channels function"""

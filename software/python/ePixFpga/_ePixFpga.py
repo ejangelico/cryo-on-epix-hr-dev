@@ -982,63 +982,65 @@ class KCU105FEMBCryo(pr.Device):
                     time.sleep(delay) 
             print("Starting deserializer")
             self.serializerSyncAttempsts = 0
-            while True:
-                #make sure idle
-                self.CryoAsic0.encoder_mode_dft.set(0)
-                self.AppFpgaRegisters.SR0Polarity.set(False)
-                time.sleep(2*delay) 
-                self.DeserRegisters0.enable.set(True)
-                self.root.readBlocks()
-                time.sleep(2*delay) 
-                self.DeserRegisters0.InitAdcDelay()
-                time.sleep(delay)   
-                self.DeserRegisters0.Delay0.set(self.DeserRegisters0.sugDelay0)
-                self.DeserRegisters0.Delay1.set(self.DeserRegisters0.sugDelay1)
-                self.DeserRegisters0.Resync.set(True)
-                time.sleep(delay) 
-                self.DeserRegisters0.Resync.set(False)
-                time.sleep(5*delay) 
-                if self.DeserRegisters0.Locked0.get() and self.DeserRegisters0.Locked1.get():
-                    break
-                #limits the number of attempts to get serializer synch.
-                self.serializerSyncAttempsts = self.serializerSyncAttempsts + 1
-                if self.serializerSyncAttempsts > 2:
-                    break
-            while True:
-                #make sure idle
-                self.CryoAsic1.encoder_mode_dft.set(0)
-                self.AppFpgaRegisters.SR0Polarity.set(False)
-                time.sleep(2*delay) 
-                self.DeserRegisters1.enable.set(True)
-                self.root.readBlocks()
-                time.sleep(2*delay) 
-                self.DeserRegisters1.InitAdcDelay()
-                time.sleep(delay)   
-                self.DeserRegisters1.Delay0.set(self.DeserRegisters1.sugDelay0)
-                self.DeserRegisters1.Delay1.set(self.DeserRegisters1.sugDelay1)
-                self.DeserRegisters1.Resync.set(True)
-                time.sleep(delay) 
-                self.DeserRegisters1.Resync.set(False)
-                time.sleep(5*delay) 
-                if self.DeserRegisters1.Locked0.get() and self.DeserRegisters1.Locked1.get():
-                    break
-                #limits the number of attempts to get serializer synch.
-                self.serializerSyncAttempsts = self.serializerSyncAttempsts + 1
-                if self.serializerSyncAttempsts > 2:
-                    break
+            if arg[1] != 0:
+                while True:
+                    #make sure idle
+                    self.CryoAsic0.encoder_mode_dft.set(0)
+                    self.AppFpgaRegisters.SR0Polarity.set(False)
+                    time.sleep(2*delay) 
+                    self.DeserRegisters0.enable.set(True)
+                    self.root.readBlocks()
+                    time.sleep(2*delay) 
+                    self.DeserRegisters0.InitAdcDelay()
+                    time.sleep(delay)   
+                    self.DeserRegisters0.Delay0.set(self.DeserRegisters0.sugDelay0)
+                    self.DeserRegisters0.Delay1.set(self.DeserRegisters0.sugDelay1)
+                    self.DeserRegisters0.Resync.set(True)
+                    time.sleep(delay) 
+                    self.DeserRegisters0.Resync.set(False)
+                    time.sleep(5*delay) 
+                    if self.DeserRegisters0.Locked0.get() and self.DeserRegisters0.Locked1.get():
+                        break
+                    #limits the number of attempts to get serializer synch.
+                    self.serializerSyncAttempsts = self.serializerSyncAttempsts + 1
+                    if self.serializerSyncAttempsts > 2:
+                        break
+            if arg[2] != 0:
+                while True:
+                    #make sure idle
+                    self.CryoAsic1.encoder_mode_dft.set(0)
+                    self.AppFpgaRegisters.SR0Polarity.set(False)
+                    time.sleep(2*delay) 
+                    self.DeserRegisters1.enable.set(True)
+                    self.root.readBlocks()
+                    time.sleep(2*delay) 
+                    self.DeserRegisters1.InitAdcDelay()
+                    time.sleep(delay)   
+                    self.DeserRegisters1.Delay0.set(self.DeserRegisters1.sugDelay0)
+                    self.DeserRegisters1.Delay1.set(self.DeserRegisters1.sugDelay1)
+                    self.DeserRegisters1.Resync.set(True)
+                    time.sleep(delay) 
+                    self.DeserRegisters1.Resync.set(False)
+                    time.sleep(5*delay) 
+                    if self.DeserRegisters1.Locked0.get() and self.DeserRegisters1.Locked1.get():
+                        break
+                    #limits the number of attempts to get serializer synch.
+                    self.serializerSyncAttempsts = self.serializerSyncAttempsts + 1
+                    if self.serializerSyncAttempsts > 2:
+                        break
 
         if arg[1] != 0:
             self.PacketRegisters0.enable.set(True)
-            self.PacketRegisters0.decBypass.set(False)
+            self.PacketRegisters0.decBypass.set(True)
             self.PacketRegisters0.decDataBitOrder.set(True)
             self.PacketRegisters0.StreamDataMode.set(True)
         if arg[2] != 0:            
             self.PacketRegisters1.enable.set(True)
-            self.PacketRegisters1.decBypass.set(False)
+            self.PacketRegisters1.decBypass.set(True)
             self.PacketRegisters1.decDataBitOrder.set(True)
             self.PacketRegisters1.StreamDataMode.set(True)
 
-        EN_SR0 = True
+        EN_SR0 = False
         EN_ALL_CRYO_ADCS = False
         if EN_SR0 : 
             print("Setting SR0 set to true")
@@ -1645,12 +1647,12 @@ class TriggerRegisters(pr.Device):
       #Setup registers & variables
       
       self.add(pr.RemoteVariable(name='RunTriggerEnable',description='RunTriggerEnable',  offset=0x00000000, bitSize=1,  bitOffset=0, base=pr.Bool, mode='RW'))
-      self.add(pr.RemoteVariable(name='RunTriggerDelay', description='RunTriggerDelay',   offset=0x00000004, bitSize=32, bitOffset=0, base=pr.UInt, disp = '{}', mode='RW'))
+      self.add(pr.RemoteVariable(name='RunTriggerDelay', description='RunTriggerDelay',   offset=0x00000004, bitSize=32, bitOffset=0, base=pr.UInt, mode='RW'))
       self.add(pr.RemoteVariable(name='DaqTriggerEnable',description='DaqTriggerEnable',  offset=0x00000008, bitSize=1,  bitOffset=0, base=pr.Bool, mode='RW'))
-      self.add(pr.RemoteVariable(name='DaqTriggerDelay', description='DaqTriggerDelay',   offset=0x0000000C, bitSize=32, bitOffset=0, base=pr.UInt, disp = '{}', mode='RW'))
+      self.add(pr.RemoteVariable(name='DaqTriggerDelay', description='DaqTriggerDelay',   offset=0x0000000C, bitSize=32, bitOffset=0, base=pr.UInt, mode='RW'))
       self.add(pr.RemoteVariable(name='AutoRunEn',       description='AutoRunEn',         offset=0x00000010, bitSize=1,  bitOffset=0, base=pr.Bool, mode='RW'))
       self.add(pr.RemoteVariable(name='AutoDaqEn',       description='AutoDaqEn',         offset=0x00000014, bitSize=1,  bitOffset=0, base=pr.Bool, mode='RW'))
-      self.add(pr.RemoteVariable(name='AutoTrigPeriod',  description='AutoTrigPeriod',    offset=0x00000018, bitSize=32, bitOffset=0, base=pr.UInt, disp = '{}', mode='RW'))
+      self.add(pr.RemoteVariable(name='AutoTrigPeriod',  description='AutoTrigPeriod',    offset=0x00000018, bitSize=32, bitOffset=0, base=pr.UInt, mode='RW'))
       self.add(pr.RemoteVariable(name='PgpTrigEn',       description='PgpTrigEn',         offset=0x0000001C, bitSize=1,  bitOffset=0, base=pr.Bool, mode='RW'))
       self.add(pr.RemoteVariable(name='AcqCountReset',   description='AcqCountReset',     offset=0x00000020, bitSize=1,  bitOffset=0, base=pr.Bool, mode='RW'))
       self.add(pr.RemoteVariable(name='AcqCount',        description='AcqCount',          offset=0x00000024, bitSize=32, bitOffset=0, base=pr.UInt, disp = '{}', mode='RO'))
@@ -2500,8 +2502,8 @@ class DigitalPktRegisters(pr.Device):
       self.add(pr.RemoteVariable(name='StreamDataMode',  description='Streams data cont.',                          offset=0x00000020, bitSize=1,   bitOffset=0, base=pr.Bool, mode='RW'))
       self.add(pr.RemoteVariable(name='StopDataTx',      description='Interrupt data stream',                       offset=0x00000020, bitSize=1,   bitOffset=1, base=pr.Bool, mode='RW'))
       self.add(pr.RemoteVariable(name='ResetCounters',   description='ResetCounters',                               offset=0x00000024, bitSize=1,   bitOffset=0, base=pr.Bool, mode='WO'))
-      self.add(pr.RemoteVariable(name='asicDataReq',     description='Number of samples requested per ADC stream.', offset=0x00000028, bitSize=32,  bitOffset=0, base=pr.UInt, disp = '{}', mode='RW'))
-      self.add(pr.RemoteVariable(name='adcIndexOffset',  description='Changes the sequence where adc are readout',  offset=0x0000002C, bitSize=5,   bitOffset=0, base=pr.UInt, disp = '{}', mode='RW'))
+      self.add(pr.RemoteVariable(name='asicDataReq',     description='Number of samples requested per ADC stream.', offset=0x00000028, bitSize=32,  bitOffset=0, base=pr.UInt, mode='RW'))
+      self.add(pr.RemoteVariable(name='adcIndexOffset',  description='Changes the sequence where adc are readout',  offset=0x0000002C, bitSize=5,   bitOffset=0, base=pr.UInt, mode='RW'))
       self.add(pr.RemoteVariable(name='DecData0',        description='Decoded data',                                offset=0x00000080, bitSize=32,  bitOffset=0, base=pr.UInt, disp = '{}', mode='RO'))
       self.add(pr.RemoteVariable(name='DecData1',        description='Decoded data',                                offset=0x00000084, bitSize=32,  bitOffset=0, base=pr.UInt, disp = '{}', mode='RO'))      
 
