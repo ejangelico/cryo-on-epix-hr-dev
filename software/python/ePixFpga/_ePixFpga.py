@@ -1136,15 +1136,18 @@ class KCU105FEMBCryo(pr.Device):
         self.CryoAsic1.encoder_mode_dft.set(0)
         time.sleep(delay/10) 
         print("Enabling stream readout")
-        self.PacketRegisters0.StreamDataMode.set(True)
+        self.PacketRegisters0.StreamDataMode.set(False)
         self.PacketRegisters0.decDataBitOrder.set(True)
         self.PacketRegisters0.decBypass.set(False)
-        self.PacketRegisters1.StreamDataMode.set(True)
+        self.PacketRegisters1.StreamDataMode.set(False)
         self.PacketRegisters1.decDataBitOrder.set(True)
         self.PacketRegisters1.decBypass.set(False)
         self.AppFpgaRegisters.SR0Polarity.set(False)
         time.sleep(delay/20) 
         self.AppFpgaRegisters.SR0Polarity.set(True)
+        time.sleep(delay/20) 
+        self.PacketRegisters0.StreamDataMode.set(True)
+        self.PacketRegisters1.StreamDataMode.set(True)
 
 
     def fnSetWaveform(self, dev,cmd,arg):
