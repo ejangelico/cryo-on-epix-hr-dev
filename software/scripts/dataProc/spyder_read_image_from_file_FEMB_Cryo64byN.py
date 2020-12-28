@@ -51,13 +51,36 @@ PLOT_IMAGE_HEATMAP    = False
 PLOT_SET_HISTOGRAM    = False
 PLOT_ADC_VS_N         = False
 SAVE_HDF5             = True
-SAVE_CSV              = True
+SAVE_CSV              = False
 
 ##################################################
 # Dark images
 ##################################################
 #
 filename = '/u1/ddoering/data/FEMB_KCU105/offsiteLab/room/FEMB_KCU105_asic0_asic1_all_channels_internal_pulse_no_shield.dat'
+filename = '/u1/cryo/data/FEMB_SN01/Baseline/Room/T1_448MHz_bench_tests/FEMB_SN01_448MHz_All_CHs_0x0390_tp_0u6s_bench_tests.dat'
+filename = '/u1/cryo/data/FEMB_SN01/Baseline/Room/T1_448MHz_bench_tests/FEMB_SN01_448MHz_All_CHs_0x0391_tp_0u6s_bench_tests.dat'
+filename = '/u1/cryo/data/FEMB_SN01/Baseline/Room/T1_448MHz_bench_tests/FEMB_SN01_448MHz_All_CHs_0x0394_tp_1u2s_bench_tests.dat'
+filename = '/u1/cryo/data/FEMB_SN01/Baseline/Room/T1_448MHz_bench_tests/FEMB_SN01_448MHz_All_CHs_0x0395_tp_1u2s_bench_tests.dat'
+filename = '/u1/cryo/data/FEMB_SN01/Baseline/Room/T1_448MHz_bench_tests/FEMB_SN01_448MHz_All_CHs_0x0398_tp_2u4s_bench_tests.dat'
+filename = '/u1/cryo/data/FEMB_SN01/Baseline/Room/T1_448MHz_bench_tests/FEMB_SN01_448MHz_All_CHs_0x0399_tp_2u4s_bench_tests.dat'
+filename = '/u1/cryo/data/FEMB_SN01/Baseline/Room/T1_448MHz_bench_tests/FEMB_SN01_448MHz_All_CHs_0x039c_tp_3u6s_bench_tests.dat'
+filename = '/u1/cryo/data/FEMB_SN01/Baseline/Room/T1_448MHz_bench_tests/FEMB_SN01_448MHz_All_CHs_0x039d_tp_3u6s_bench_tests.dat'
+
+filename = '/u1/cryo/data/FEMB_SN01/Baseline/Room/T2_448MHz_bench_in_metalic_box_tests/FEMB_SN01_448MHz_All_CHs_0x0390_CH0and32_disabled_tp_0u6s_bench_tests.dat'
+filename = '/u1/cryo/data/FEMB_SN01/Baseline/Room/T2_448MHz_bench_in_metalic_box_tests/FEMB_SN01_448MHz_All_CHs_0x0391_CH0and32_disabled_tp_0u6s_bench_tests.dat'
+filename = '/u1/cryo/data/FEMB_SN01/Baseline/Room/T2_448MHz_bench_in_metalic_box_tests/FEMB_SN01_448MHz_All_CHs_0x0394_CH0and32_disabled_tp_1u2s_bench_tests.dat'
+filename = '/u1/cryo/data/FEMB_SN01/Baseline/Room/T2_448MHz_bench_in_metalic_box_tests/FEMB_SN01_448MHz_All_CHs_0x0395_CH0and32_disabled_tp_1u2s_bench_tests.dat'
+filename = '/u1/cryo/data/FEMB_SN01/Baseline/Room/T2_448MHz_bench_in_metalic_box_tests/FEMB_SN01_448MHz_All_CHs_0x0398_CH0and32_disabled_tp_2u4s_bench_tests.dat'
+filename = '/u1/cryo/data/FEMB_SN01/Baseline/Room/T2_448MHz_bench_in_metalic_box_tests/FEMB_SN01_448MHz_All_CHs_0x0399_CH0and32_disabled_tp_2u4s_bench_tests.dat'
+filename = '/u1/cryo/data/FEMB_SN01/Baseline/Room/T2_448MHz_bench_in_metalic_box_tests/FEMB_SN01_448MHz_All_CHs_0x039c_CH0and32_disabled_tp_3u6s_bench_tests.dat'
+filename = '/u1/cryo/data/FEMB_SN01/Baseline/Room/T2_448MHz_bench_in_metalic_box_tests/FEMB_SN01_448MHz_All_CHs_0x039d_CH0and32_disabled_tp_3u6s_bench_tests.dat'
+
+filename = '/u1/cryo/data/FEMB_SN01/Baseline/Room/T3_448MHz_CTS/FEMB_SN01_448MHz_All_CHs_0x0399_CH0and32_disabled_tp_3u6s_CTS_tests.dat'
+
+filename = '/u1/cryo/data/FEMB_SN01/Baseline/Room/T4_224MHz_CTS/FEMB_SN01_224MHz_All_CHs_0x0390_tp_0u6s_CTS_tests.dat'
+filename = '/u1/cryo/data/FEMB_SN01/Baseline/Room/T4_224MHz_CTS/FEMB_SN01_224MHz_All_CHs_0x0398_tp_3u6s_CTS_tests.dat'
+
 f = open(filename, mode = 'rb')
 
 file_header = [0]
