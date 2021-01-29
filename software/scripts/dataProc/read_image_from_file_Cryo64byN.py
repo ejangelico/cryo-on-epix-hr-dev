@@ -50,6 +50,7 @@ PLOT_IMAGE_HEATMAP    = False
 PLOT_SET_HISTOGRAM    = False
 PLOT_ADC_VS_N         = False
 SAVEHDF5              = True
+SAVECSV               = False
 
 ##################################################
 # Dark images
@@ -132,7 +133,7 @@ if(SAVEHDF5):
     f = h5py.File(h5_filename, "w")
     f['adcData'] = imgDesc.astype('uint16')
     f.close()
-    
+if(SAVECSV):    
     for runNum in range(imgDesc.shape[0]):
         np.savetxt(os.path.splitext(filename)[0] + "_runNum" + str(runNum) + "_traces" + ".csv", imgDesc[runNum,:,:], fmt='%d', delimiter=',', newline='\n')
 
