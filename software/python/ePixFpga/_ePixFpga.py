@@ -258,6 +258,18 @@ class EpixHRGen1Cryo(pr.Device):
             self.filenamePLL = "./config/pll-config/Si5345-RevD-CRYO_C01-56MHzIn224MHzOut_Project-Registers.csv"
             self.filenameASIC = "./yml/cryo_config_ASIC_ExtClk_DUNETemp_v0p1.yml"
 
+        if arg == 105:
+            self.filenameMMCM = "./yml/cryo_config_mmcm_PLLClk_448MHz.yml"
+            self.filenamePowerSupply = "./yml/cryo_config_PowerSupply_2v5.yml"
+            self.filenamePLL = "./config/pll-config/Si5345-RevD-CRYO_C01-56MHzIn112MHzOut_Project-Registers.csv"
+            self.filenameASIC = "./yml/cryo_config_ASIC_PLLClk_112MHzIn_448MHzOut_DUNETemp_v0p1.yml"
+
+        if arg == 106:
+            self.filenameMMCM = "./yml/cryo_config_mmcm_PLLClk_224MHz.yml"
+            self.filenamePowerSupply = "./yml/cryo_config_PowerSupply_2v5.yml"
+            self.filenamePLL = "./config/pll-config/Si5345-RevD-CRYO_C01-56MHzIn28MHzOut_Project-Registers.csv"
+            self.filenameASIC = "./yml/cryo_config_ASIC_PLLClk_28MHzIn_224MHzOut_DUNETemp_v0p1.yml"
+
         if arg == 200:
             self.filenameMMCM = "./yml/cryo_config_mmcm_PLLClk_448MHz.yml"
             self.filenamePowerSupply = "./yml/cryo_config_PowerSupply_2v5.yml"
