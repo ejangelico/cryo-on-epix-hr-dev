@@ -12,28 +12,28 @@
 ##############################
 # Get variables and procedures
 ##############################
-source -quiet $::env(RUCKUS_DIR)/vivado_env_var.tcl
-source -quiet $::env(RUCKUS_DIR)/vivado_proc.tcl
+#source -quiet $::env(RUCKUS_DIR)/vivado_env_var.tcl
+#source -quiet $::env(RUCKUS_DIR)/vivado_proc.tcl
 
 ############################
 ## Open the synthesis design
 ############################
-open_run synth_1
+#open_run synth_1
 
 ###############################
 ## Set the name of the ILA core
 ###############################
-set ilaName u_ila_1
+#set ilaName u_ila_1
 
 ##################
 ## Create the core
 ##################
-CreateDebugCore ${ilaName}
+#CreateDebugCore ${ilaName}
 
 #######################
 ## Set the record depth
 #######################
-set_property C_DATA_DEPTH 2048 [get_debug_cores ${ilaName}]
+#set_property C_DATA_DEPTH 2048 [get_debug_cores ${ilaName}]
 
 #################################
 ## Set the clock for the ILA core
@@ -43,7 +43,7 @@ set_property C_DATA_DEPTH 2048 [get_debug_cores ${ilaName}]
 #SetDebugCoreClk ${ilaName} {U_Core/U_DdrMem/ddrClk}
 #SetDebugCoreClk ${ilaName} {U_App/U_MonAdcReadout/GEN_ULTRASCALE_AD9249.U_AD9249_0/adcBitClkRD4}
 #SetDebugCoreClk ${ilaName} {U_App/U_MonAdcReadout/GEN_ULTRASCALE_AD9249.U_AD9249_0/adcBitClkIo}
-SetDebugCoreClk ${ilaName} {U_App/byteClk}
+#SetDebugCoreClk ${ilaName} {U_App/byteClk}
 #######################
 ## Set the debug Probes
 #######################
@@ -108,8 +108,8 @@ SetDebugCoreClk ${ilaName} {U_App/byteClk}
 #ConfigProbe ${ilaName} {U_App/iSaciCmd}
 #ConfigProbe ${ilaName} {U_App/iSaciRsp}
 #
-ConfigProbe ${ilaName} {U_App/G_ASICS[0].U_Framers/s[*]}
-ConfigProbe ${ilaName} {U_App/G_ASICS[0].U_Framers/rxDataCs[*]}
+#ConfigProbe ${ilaName} {U_App/G_ASICS[0].U_Framers/s[*]}
+#ConfigProbe ${ilaName} {U_App/G_ASICS[0].U_Framers/rxDataCs[*]}
 #ConfigProbe ${ilaName} {U_App/G_ASICS[0].U_Framers/rxValidCs}
 #ConfigProbe ${ilaName} {U_App/G_ASICS[0].U_Framers/decSof[*]}
 #ConfigProbe ${ilaName} {U_App/G_ASICS[0].U_Framers/decEof[*]}
@@ -128,6 +128,6 @@ ConfigProbe ${ilaName} {U_App/G_ASICS[0].U_Framers/rxDataCs[*]}
 ##########################
 ## Write the port map file
 ##########################
-WriteDebugProbes ${ilaName} ${PROJ_DIR}/images/debug_probes.ltx
+#WriteDebugProbes ${ilaName} ${PROJ_DIR}/images/debug_probes.ltx
 
 
