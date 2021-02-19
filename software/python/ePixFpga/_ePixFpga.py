@@ -740,7 +740,7 @@ class KCU105FEMBCryo(pr.Device):
         self.add(pr.LocalCommand(name='SetWaveform',         description='Set test waveform for high speed DAC', function=self.fnSetWaveform))
         self.add(pr.LocalCommand(name='GetWaveform',         description='Get test waveform for high speed DAC', function=self.fnGetWaveform))
         self.add(pr.LocalCommand(name='InitCryo',            description='[routine, asic0, asic1]', value=[0,0,0], function=self.fnInitCryo))
-        self.add(pr.LocalCommand(name='ReSyncCryo',          description='Generates the sequence necessary to resync asic',   function=self.fnReSyncCryo))
+        self.add(pr.LocalCommand(name='ReSyncCryo',          description='Generates the sequence necessary to resync asic',   value=[0,0],  function=self.fnReSyncCryo))
         self.add(pr.LocalCommand(name='EnAllCryoAdcs',       description='Generates the sequence necessary to resync asic',   function=self.fnEnAllCryoAdcs))
         self.add(pr.LocalCommand(name='BypassDecoder',       description='Generates the sequence necessary to resync asic',   function=self.fnBypassDecoder))
         self.add(pr.LocalCommand(name='SendAdcData',         description='Generates the sequence necessary to send adc data', function=self.fnSendAdcData))
@@ -1069,32 +1069,105 @@ class KCU105FEMBCryo(pr.Device):
     def fnReSyncCryo(self, dev,cmd,arg):
         """SetTestBitmap command function"""       
         print("Rysync cryo started")
-        delay = 1.0
-        self.CryoAsic0.enable.set(True)
-        self.CryoAsic0.SubBnkEn.set(0x0808) #keeps only two needed adcs
-        self.CryoAsic0.encoder_mode_dft.set(0) # makes sure idle will be set
-        self.PacketRegisters0.enable.set(True)
-        self.PacketRegisters0.decBypass.set(False)
-        self.PacketRegisters0.StreamDataMode.set(True)
-        self.PacketRegisters1.enable.set(True)
-        self.PacketRegisters1.decBypass.set(False)
-        self.PacketRegisters1.StreamDataMode.set(True)
-
+        print("Init cryo script started")
+        print("En FPGA module and turns off SR0")
+        self.DeserRegisters0.enable.set(True)
+        self.DeserRegisters0.Resync.set(True)
+        self.DeserRegisters1.enable.set(True)
+        self.DeserRegisters1.Resync.set(True)
         self.AppFpgaRegisters.enable.set(True)
         self.AppFpgaRegisters.SR0Polarity.set(False)
-        time.sleep(2*delay) 
-        self.DeserRegisters.enable.set(True)
-        time.sleep(2*delay) 
-        if arg == 0 :
-            self.DeserRegisters.InitAdcDelay()
-            time.sleep(delay)   
-            self.DeserRegisters.Delay0.set(self.DeserRegisters.sugDelay0)
-            self.DeserRegisters.Delay1.set(self.DeserRegisters.sugDelay1)
-        self.DeserRegisters.Resync.set(True)
-        time.sleep(delay) 
-        self.DeserRegisters.Resync.set(False)
-        time.sleep(5*delay)        
-        self.AppFpgaRegisters.SR0Polarity.set(True)
+        delay = 1.0
+
+        ## start deserializer config for the asic
+        EN_DESERIALIZERS = True
+        if EN_DESERIALIZERS :
+            print("Starting deserializer")
+            self.serializerSyncAttempsts = 0
+            if arg[0] != 0:
+                while True:
+                    #make sure idle
+                    self.CryoAsic0.encoder_mode_dft.set(0)
+                    self.AppFpgaRegisters.SR0Polarity.set(False)
+                    time.sleep(2*delay) 
+                    self.DeserRegisters0.enable.set(True)
+                    self.root.readBlocks()
+                    time.sleep(2*delay) 
+                    self.DeserRegisters0.InitAdcDelay()
+                    time.sleep(delay)   
+                    self.DeserRegisters0.Delay0.set(self.DeserRegisters0.sugDelay0)
+                    self.DeserRegisters0.Delay1.set(self.DeserRegisters0.sugDelay1)
+                    self.DeserRegisters0.Resync.set(True)
+                    time.sleep(delay) 
+                    self.DeserRegisters0.Resync.set(False)
+                    time.sleep(5*delay) 
+                    if self.DeserRegisters0.Locked0.get() and self.DeserRegisters0.Locked1.get():
+                        break
+                    #limits the number of attempts to get serializer synch.
+                    self.serializerSyncAttempsts = self.serializerSyncAttempsts + 1
+                    if self.serializerSyncAttempsts > 2:
+                        break
+            if arg[1] != 0:
+                while True:
+                    #make sure idle
+                    self.CryoAsic1.encoder_mode_dft.set(0)
+                    self.AppFpgaRegisters.SR0Polarity.set(False)
+                    time.sleep(2*delay) 
+                    self.DeserRegisters1.enable.set(True)
+                    self.root.readBlocks()
+                    time.sleep(2*delay) 
+                    self.DeserRegisters1.InitAdcDelay()
+                    time.sleep(delay)   
+                    self.DeserRegisters1.Delay0.set(self.DeserRegisters1.sugDelay0)
+                    self.DeserRegisters1.Delay1.set(self.DeserRegisters1.sugDelay1)
+                    self.DeserRegisters1.Resync.set(True)
+                    time.sleep(delay) 
+                    self.DeserRegisters1.Resync.set(False)
+                    time.sleep(5*delay) 
+                    if self.DeserRegisters1.Locked0.get() and self.DeserRegisters1.Locked1.get():
+                        break
+                    #limits the number of attempts to get serializer synch.
+                    self.serializerSyncAttempsts = self.serializerSyncAttempsts + 1
+                    if self.serializerSyncAttempsts > 2:
+                        break
+
+        if arg[0] != 0:
+            self.PacketRegisters0.enable.set(True)
+            self.PacketRegisters0.decBypass.set(True)
+            self.PacketRegisters0.decDataBitOrder.set(True)
+            self.PacketRegisters0.StreamDataMode.set(True)
+        if arg[1] != 0:            
+            self.PacketRegisters1.enable.set(True)
+            self.PacketRegisters1.decBypass.set(True)
+            self.PacketRegisters1.decDataBitOrder.set(True)
+            self.PacketRegisters1.StreamDataMode.set(True)
+
+        #print("Sending ADC data")
+        #for i in range(3):
+        #    self.fnSendAdcData(dev,cmd,arg)
+        #    time.sleep(delay) 
+            
+        #EN_SR0 = False
+        #EN_ALL_CRYO_ADCS = False
+        #if EN_SR0 : 
+        #    print("Setting SR0 set to true")
+        #    self.AppFpgaRegisters.enable.set(True)
+        #    self.root.readBlocks()
+        #    for i in range(2):
+        #        self.AppFpgaRegisters.SR0Polarity.set(False)
+        #        time.sleep(delay) 
+        #        self.AppFpgaRegisters.SR0Polarity.set(True)
+        #        self.root.readBlocks()
+        #        time.sleep(delay) 
+
+        #    if EN_ALL_CRYO_ADCS : 
+        #        self.fnEnAllCryoAdcs(dev,cmd,arg)
+
+
+        #BYPASS_DECODER = True
+        #if BYPASS_DECODER : 
+        #    self.fnBypassDecoder(dev,cmd,arg)
+        
 
     def fnEnAllCryoAdcs(self, dev,cmd,arg):
         """SetTestBitmap command function"""       
