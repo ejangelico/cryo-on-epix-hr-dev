@@ -51,7 +51,8 @@ PLOT_IMAGE_HEATMAP    = False
 PLOT_SET_HISTOGRAM    = False
 PLOT_ADC_VS_N         = False
 SAVE_HDF5             = True
-SAVE_CSV              = False
+SAVE_CSV              = True
+CORRECT_COLUMN_JUMPS  = False #CHANNEL zero must be disabled
 
 ##################################################
 # Dark images
@@ -94,6 +95,8 @@ filename = '/u1/cryo/data/FEMB_SN01/Baseline/Cold/T2_224MHz_ASIC0_ASIC1_ExtSuppl
 filename = '/u1/cryo/data/FEMB_SN01/Baseline/Cold/T2_224MHz_ASIC0_ASIC1_ExtSupply_AdaptBoard/FEMB01_224MHz_ASIC0_ASIC1_ExtSupply_AdaptBoard_Tp1u2us.dat'
 filename = '/u1/cryo/data/FEMB_SN01/Baseline/Cold/T2_224MHz_ASIC0_ASIC1_ExtSupply_AdaptBoard/FEMB01_224MHz_ASIC0_ASIC1_ExtSupply_AdaptBoard_Tp2u4us.dat'
 filename = '/u1/cryo/data/FEMB_SN01/Baseline/Cold/T2_224MHz_ASIC0_ASIC1_ExtSupply_AdaptBoard/FEMB01_224MHz_ASIC0_ASIC1_ExtSupply_AdaptBoard_Tp3u6us.dat'
+filename = '/u1/ddoering/data/cryo-c01/FEMB_at_offsiteLab/room/2MSPS/cryo_FEMB_SN1_AllCHsbut0And32_ASIC0_0x0399_tp2u4s_ASIC1_0x0395_4096.dat'
+
 f = open(filename, mode = 'rb')
 
 file_header = [0]
@@ -218,7 +221,7 @@ if(SAVE_CSV):
 #from here on we have a set of images to work with
 ##################################################
 if PLOT_ADC9_VS_N :
-    i=38
+    i=108
     # All averages and stds
     plt.figure(2,figsize=[8,12])
     plt.subplot(311)
@@ -227,23 +230,36 @@ if PLOT_ADC9_VS_N :
     plt.plot(imgDesc_1[:,1,10],label="ASIC1")
     
     plt.subplot(312)
-    plt.plot(np.transpose(imgDesc_0[i,32:63,:]))
+    plt.plot(np.transpose(imgDesc_0[i,0:63,:]))
     plt.title('Traces ASIC 0')
     
     plt.subplot(313)
-    plt.plot(np.transpose(imgDesc_1[i,32:63,:]))
+    plt.plot(np.transpose(imgDesc_1[i,0:63,:]))
     plt.title('Traces ASIC 1')
     plt.legend()
     plt.show()
     
     
+#%%    
+if PLOT_ADC9_VS_N :
+    i=108
+    # All averages and stds
+    plt.figure(2,figsize=[8,12])
     
-
+    plt.subplot(211)
+    plt.plot(np.transpose(imgDesc_0[i,1:63,:]))
+    plt.title('Traces ASIC 0')
+    
+    plt.subplot(212)
+    plt.plot(np.transpose(imgDesc_1[i,1:63,:]))
+    plt.title('Traces ASIC 1')
+    plt.legend()
+    plt.show()
 
 #%%
 #show first image
 if PLOT_IMAGE :
-    for i in range(87, 89):
+    for i in range(98, 109):
         plt.imshow(imgDesc_0[i,:,:], vmin=100, vmax=4000, interpolation='nearest')
         plt.gray()
         #plt.colorbar()
@@ -251,9 +267,9 @@ if PLOT_IMAGE :
         plt.show()
         plt.pause(0.1)
 
-
+#%%
 if PLOT_IMAGE :
-    for i in range(87, 89):
+    for i in range(98, 109):
         plt.imshow(imgDesc_1[i,:,:], vmin=100, vmax=4000, interpolation='nearest')
         plt.gray()
         #plt.colorbar()
@@ -261,6 +277,7 @@ if PLOT_IMAGE :
         plt.show()
         plt.pause(0.1)
 
+#%%
 
 
 #%%                                                       ###
