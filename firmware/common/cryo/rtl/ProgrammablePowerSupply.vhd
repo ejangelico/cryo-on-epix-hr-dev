@@ -4,7 +4,7 @@
 -- File       : Programable Power supply
 -- Company    : SLAC National Accelerator Laboratory
 -- Created    : 04/26/2016
--- Last update: 2020-05-12
+-- Last update: 2020-08-03
 -- Platform   : Vivado 2014.4
 -- Standard   : VHDL'93/02
 -------------------------------------------------------------------------------
@@ -103,10 +103,7 @@ begin
    begin
       -- Latch the current value
       v := r;
-      
-      -- Reset data and strobes
-      v.axiReadSlave.rdata       := (others => '0');
-            
+             
       -- Determine the transaction type
       axiSlaveWaitTxn(regCon, axiWriteMaster, axiReadMaster, v.axiWriteSlave, v.axiReadSlave);
       

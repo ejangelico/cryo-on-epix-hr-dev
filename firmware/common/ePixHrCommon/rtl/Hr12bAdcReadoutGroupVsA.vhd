@@ -2,7 +2,7 @@
 -- File       : Ad9249ReadoutGroup.vhd
 -- Company    : SLAC National Accelerator Laboratory
 -- Created    : 2016-05-26
--- Last update: 2020-05-12
+-- Last update: 2020-08-03
 -------------------------------------------------------------------------------
 -- Description:
 -- ADC Readout Controller
@@ -81,8 +81,10 @@ architecture rtl of Hr12bAdcReadoutGroupVsA is
   
   constant NUM_BITS_C       : natural          := 14;
   constant FRAME_PATTERN_C : slv(13 downto 0) := "00000001111111";
+  -- IDLE pattern MSB first
   constant IDLE_PATTERN_1_C : slv((NUM_BITS_C-1) downto 0) := "00101111111000"; --x0bf8
   constant IDLE_PATTERN_2_C : slv((NUM_BITS_C-1) downto 0) := "11010000000111"; --x3407
+  -- IDLE pattern LSB first
   constant IDLE_PATTERN_3_C : slv((NUM_BITS_C-1) downto 0) := "00011111110100"; --x0bf8
   constant IDLE_PATTERN_4_C : slv((NUM_BITS_C-1) downto 0) := "11100000001011"; --x3407
   constant LOCKED_COUNTER_VALUE_C : slv(15 downto 0) := ite(SIMULATION_G, x"0100", x"1000");
@@ -104,6 +106,10 @@ architecture rtl of Hr12bAdcReadoutGroupVsA is
       adcStreamsEn_n : slv(NUM_CHANNELS_G-1 downto 0);
       lockedCountRst : sl;
       restartBERT    : sl;
+      streamPattern1 : slv((NUM_BITS_C-1) downto 0);
+      streamPattern2 : slv((NUM_BITS_C-1) downto 0);
+      streamPattern3 : slv((NUM_BITS_C-1) downto 0);
+      streamPattern4 : slv((NUM_BITS_C-1) downto 0);      
    end record;
 
    constant AXIL_REG_INIT_C : AxilRegType := (
@@ -118,7 +124,11 @@ architecture rtl of Hr12bAdcReadoutGroupVsA is
       readoutDebug1   => (others => (others => '0')),
       adcStreamsEn_n  => (others => '0'),
       lockedCountRst  => '0',
-      restartBERT     => '0'
+      restartBERT     => '0',
+      streamPattern1  => IDLE_PATTERN_1_C,
+      streamPattern2  => IDLE_PATTERN_2_C,
+      streamPattern3  => IDLE_PATTERN_3_C,
+      streamPattern4  => IDLE_PATTERN_4_C
       );
 
    signal lockedSync      : slv(NUM_CHANNELS_G-1 downto 0);
@@ -139,8 +149,11 @@ architecture rtl of Hr12bAdcReadoutGroupVsA is
       locked         : slv(NUM_CHANNELS_G-1 downto 0);
       dataValidAll   : sl;
       fifoWrData     : Slv16Array(NUM_CHANNELS_G-1 downto 0);
-      countBertEn    : slv(NUM_CHANNELS_G-1 downto 0);
       counterBERT    : Slv44Array(NUM_CHANNELS_G-1 downto 0);
+      streamPattern1 : slv((NUM_BITS_C-1) downto 0);
+      streamPattern2 : slv((NUM_BITS_C-1) downto 0);
+      streamPattern3 : slv((NUM_BITS_C-1) downto 0);
+      streamPattern4 : slv((NUM_BITS_C-1) downto 0);      
    end record;
 
    constant ADC_REG_INIT_C : AdcRegType := (
@@ -152,8 +165,11 @@ architecture rtl of Hr12bAdcReadoutGroupVsA is
       locked         => (others => '0'),
       dataValidAll   => '0',
       fifoWrData     => (others => (others => '0')),
-      countBertEn    => (others => '0'),
-      counterBERT    => (others => (others => '0'))
+      counterBERT    => (others => (others => '0')),
+      streamPattern1 => IDLE_PATTERN_1_C,
+      streamPattern2 => IDLE_PATTERN_2_C,
+      streamPattern3 => IDLE_PATTERN_3_C,
+      streamPattern4 => IDLE_PATTERN_4_C
       );
 
    signal adcR   : AdcRegType := ADC_REG_INIT_C;
@@ -185,6 +201,11 @@ architecture rtl of Hr12bAdcReadoutGroupVsA is
    signal fifoDataOut   : slv(NUM_CHANNELS_G*16-1 downto 0);
    signal fifoDataIn    : slv(NUM_CHANNELS_G*16-1 downto 0);
    signal fifoDataTmp   : slv16Array(NUM_CHANNELS_G-1 downto 0);
+
+   signal streamPattern1Sync : slv((NUM_BITS_C-1) downto 0);
+   signal streamPattern2Sync : slv((NUM_BITS_C-1) downto 0);
+   signal streamPattern3Sync : slv((NUM_BITS_C-1) downto 0);
+   signal streamPattern4Sync : slv((NUM_BITS_C-1) downto 0);      
 
    signal debugDataValid : sl;
    signal debugDataOut   : slv(NUM_CHANNELS_G*16-1 downto 0);
@@ -278,7 +299,50 @@ begin
        rst     => adcBitRst,
        dataIn  => axilR.restartBERT,
        dataOut => restartBERTsync);
-   
+
+  SynchronizerIDLEPattern1 : entity surf.SynchronizerVector 
+       generic map(
+         TPD_G          => TPD_G,
+         STAGES_G       => 2,
+         WIDTH_G        => 14)
+       port map(
+         clk     => byteClk,
+         rst     => adcBitRst,
+         dataIn  => axilR.streamPattern1,
+         dataOut => streamPattern1Sync);
+
+  SynchronizerIDLEPattern2 : entity surf.SynchronizerVector 
+       generic map(
+         TPD_G          => TPD_G,
+         STAGES_G       => 2,
+         WIDTH_G        => 14)
+       port map(
+         clk     => byteClk,
+         rst     => adcBitRst,
+         dataIn  => axilR.streamPattern2,
+         dataOut => streamPattern2Sync);
+
+  SynchronizerIDLEPattern3 : entity surf.SynchronizerVector 
+       generic map(
+         TPD_G          => TPD_G,
+         STAGES_G       => 2,
+         WIDTH_G        => 14)
+       port map(
+         clk     => byteClk,
+         rst     => adcBitRst,
+         dataIn  => axilR.streamPattern3,
+         dataOut => streamPattern3Sync);
+
+  SynchronizerIDLEPattern4 : entity surf.SynchronizerVector 
+       generic map(
+         TPD_G          => TPD_G,
+         STAGES_G       => 2,
+         WIDTH_G        => 14)
+       port map(
+         clk     => byteClk,
+         rst     => adcBitRst,
+         dataIn  => axilR.streamPattern4,
+         dataOut => streamPattern4Sync); 
    -------------------------------------------------------------------------------------------------
    -- AXIL Interface
    -------------------------------------------------------------------------------------------------
@@ -292,7 +356,6 @@ begin
       v := axilR;
 
       v.dataDelaySet        := (others => '0');
-      v.axilReadSlave.rdata := (others => '0');
 
       -- Store last two samples read from ADC
       if (debugDataValid = '1' and axilR.freezeDebug = '0') then
@@ -329,6 +392,11 @@ begin
         axiSlaveRegisterR(axilEp, X"30"+toSlv((i*4), 8), 16, lockedSync(i));
       end loop;        
       axiSlaveRegister (axilEp, X"50", 0, v.lockedCountRst);
+
+      axiSlaveRegister (axilEp, X"60", 0, v.streamPattern1);
+      axiSlaveRegister (axilEp, X"64", 0, v.streamPattern2);
+      axiSlaveRegister (axilEp, X"68", 0, v.streamPattern3);
+      axiSlaveRegister (axilEp, X"6C", 0, v.streamPattern4);
 
       -- Debug registers. Output the last 2 words received
       --for i in 0 to NUM_CHANNELS_G-1 loop     i
@@ -432,17 +500,22 @@ begin
    -------------------------------------------------------------------------------------------------
    -- ADC Byte Clocked Logic
    -------------------------------------------------------------------------------------------------
-   adcComb : process (adcData, adcFrame, adcR, dataValid, adcSEnSync, resync, restartBERTsync) is
+   adcComb : process (adcData, adcFrame, adcR, dataValid, adcSEnSync, resync, restartBERTsync, streamPattern1Sync, streamPattern2Sync, streamPattern3Sync, streamPattern4Sync) is
       variable v : AdcRegType;
    begin
-      v := adcR;      
+     v := adcR;
+     v.streamPattern1 := streamPattern1Sync;
+     v.streamPattern2 := streamPattern2Sync;
+     v.streamPattern3 := streamPattern3Sync;
+     v.streamPattern4 := streamPattern4Sync;
 
       -------------------------------------------------------------------------
       -- define data aligned logic
       -------------------------------------------------------------------------
       for i in NUM_CHANNELS_G-1 downto 0 loop
         if dataValid(i) = '1' then
-          if adcData(i) = IDLE_PATTERN_1_C or adcData(i) = IDLE_PATTERN_2_C or adcData(i) = IDLE_PATTERN_3_C or adcData(i) = IDLE_PATTERN_4_C or adcData(i) = FRAME_PATTERN_C then
+          --if adcData(i) = IDLE_PATTERN_1_C  or adcData(i) = IDLE_PATTERN_2_C or adcData(i) = IDLE_PATTERN_3_C or adcData(i) = IDLE_PATTERN_4_C or adcData(i) = FRAME_PATTERN_C then
+          if adcData(i) = adcR.streamPattern1 or adcData(i) = not adcR.streamPattern1 or adcData(i) = adcR.streamPattern2 or adcData(i) = not adcR.streamPattern2 or adcData(i) = adcR.streamPattern3 or adcData(i) = not adcR.streamPattern3 or adcData(i) = adcR.streamPattern4 or adcData(i) = not adcR.streamPattern4 or adcData(i) = FRAME_PATTERN_C then
             v.idleWord(i) := '1';
           else
             v.idleWord(i) := '0';
@@ -455,13 +528,10 @@ begin
       -------------------------------------------------------------------------
       for i in NUM_CHANNELS_G-1 downto 0 loop
         if restartBERTsync = '1' then
-          v.countBertEn(i) := '1';
           v.counterBERT(i) := (others => '0');
         else
-          if adcR.idleWord(i) = '1' and adcR.countBertEn(i) = '1' then
+          if adcR.idleWord(i) = '0' then
             v.counterBERT(i) := adcR.counterBERT(i) + 1;            
-          else
-            v.countBertEn(i) := '0';
           end if;
         end if;
       end loop;
