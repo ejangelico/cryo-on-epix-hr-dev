@@ -18,7 +18,7 @@
 # copied, modified, propagated, or distributed except according to the terms 
 # contained in the LICENSE.txt file.
 #-----------------------------------------------------------------------------
-
+import setupLibPaths
 import os, sys, time
 import numpy as np
 import ePixViewer.Cameras as cameras
@@ -33,7 +33,7 @@ import h5py
 #matplotlib.pyplot.ion()
 NUMBER_OF_PACKETS_PER_FRAME = 2
 #MAX_NUMBER_OF_FRAMES_PER_BATCH  = 1500*NUMBER_OF_PACKETS_PER_FRAME
-MAX_NUMBER_OF_FRAMES_PER_BATCH  = 1
+MAX_NUMBER_OF_FRAMES_PER_BATCH  = 4
 
 PAYLOAD_SERIAL_FRAME = 4112 #2064
 PAYLOAD_TS           = 7360
@@ -43,7 +43,7 @@ PAYLOAD_TS           = 7360
 ##################################################
 cameraType            = 'cryo64xN'
 bitMask               = 0xffff
-PLOT_IMAGE            = True
+PLOT_IMAGE            = False
 PLOT_ADC9_VS_N        = False
 PLOT_IMAGE_DARKSUB    = False
 PLOT_IMAGE_DARK       = False
@@ -186,7 +186,60 @@ filenameroot = 'rampTest15_20bitDAC_DUNE_Ch60_224MHz_pxl61'
 filenameroot = 'rampTest16_20bitDAC_DUNE_Ch61_224MHz_pxl53'
 filenameroot = 'rampTest13_20bitDAC_DUNE_Ch61_pxl48'
 filenameroot = 'rampTest14_20bitDAC_DUNE_Ch60_pxl56'
+##
+##
+filenamepath = '/u1/cryo/data/Cryo_v2_nEXO_Varinat/Board_SN4/ADC/Room/RampTest/T0_RampTest_Room/'
+filenameroot = 'T0_RampTest_20bitDAC_Room_448MHz_CH0toCH3_CH60to63'
 
+filenamepath = '/u1/cryo/data/Cryo_v2_nEXO_Varinat/Board_SN5/ADC/Cold/RampTest/T0_RampTest_20bitDAC_448MHz_Cold/'
+filenameroot = 'T0_RampTest_20bitDAC_Cold_448MHz_CH0toCH1_ADC1'
+
+filenamepath = '/u1/cryo/data/Cryo_v2_nEXO_Varinat/Board_SN5/ADC/Room/RampTest/T0_448MHz_20bitDAC_Room_Trig10/'
+filenameroot = 'SN05_RampTest_20bitDAC_448MHz_ADC2Top_ADC2Bot_Trig10'
+
+filenamepath = '/u1/cryo/data/Cryo_v2_nEXO_Varinat/Board_SN5/ADC/Room/RampTest/T1_448MHz_20bitDAC_Room_Trig5/'
+filenameroot = 'SN05_RampTest_20bitDAC_448MHz_ADC2Top_ADC2Bot_Trig5'
+
+#filenamepath = '/u1/cryo/data/Cryo_v2_nEXO_Varinat/Board_SN5/ADC/Room/RampTest/T2_224MHz_20bitDAC_Room_Trig5/'
+#filenameroot = 'SN05_RampTest_20bitDAC_448MHz_CH4ADC2Top_CH59ADC2Bot_Trig5'
+
+filenamepath = '/u1/cryo/data/Cryo_v2_nEXO_Varinat/Board_SN5/ADC/Room/RampTest/T3_448MHz_20bitDAC_Room_Trig5/'
+filenameroot = 'SN05_RampTest_20bitDAC_448MHz_CH4ADC2Top_CH59ADC2Bot_Trig5'
+
+filenamepath = '/u1/cryo/data/Cryo_v2_nEXO_Varinat/Board_SN5/ADC/Room/RampTest/T4_448MHz_20bitDAC_Room_Trig5/'
+filenameroot = 'T4_SN05_RampTest_20bitDAC_448MHz_CH4ADC2Top_CH59ADC2Bot_Trig5'
+
+filenamepath = '/u1/cryo/data/Cryo_v2_nEXO_Varinat/Board_SN5/ADC/Cold/RampTest_Cold/T2_448MHz_20bitDAC_Cold_Trig5/'
+filenameroot = 'T2_SN5_448MHz_CH4ADC2Top_CH59ADC2Bot_Trig5'
+
+filenamepath = '/u1/cryo/data/Cryo_v2_nEXO_Varinat/Board_SN5/ADC/Cold/RampTest_Cold/T3_448MHz_20bitDAC_Cold_Trig5/'
+filenameroot = 'T3_SN5_448MHz_CH0ADC1Top_CH63ADC1Bot_Trig5'
+
+filenamepath = '/u1/cryo/data/Cryo_v2_nEXO_Varinat/Board_SN5/ADC/Cold/RampTest_Cold/T4_448MHz_20bitDAC_Cold_Trig5/'
+filenameroot = 'T4_SN5_448MHz_CH28ADC8Top_CH35ADC8Bot_Trig5_65535'
+
+filenamepath = '/u1/cryo/data/Cryo_v2_nEXO_Varinat/Board_SN5/ADC/Cold/RampTest_Cold/T5_224MHz_20bitDAC_Cold_Trig5/'
+filenameroot = 'T5_SN5_224MHz_CH4ADC2Top_CH59ADC2Bot_Trig5'
+
+filenamepath = '/u1/cryo/data/Cryo_v2_nEXO_Varinat/Board_SN5/ADC/Cold/RampTest_Cold/T6_224MHz_20bitDAC_Cold_Trig5/'
+filenameroot = 'T6_SN5_224MHz_CH4ADC2Top_CH59ADC2Bot_Trig5_ADCB2B3_0x3'
+
+filenamepath = '/u1/cryo/data/Board_SN05/ADC/Linearity/Cold/T6_B101_SN05_224MHz_Linearity_20bitDAC_CH0to3_CH60to63_Cold/'
+filenameroot = 'T6_B101_SN05_224MHz_Linearity_20bitDAC_CH0to3_CH60to63_Cold'
+
+filenamepath = '/u1/cryo/data/Board_SN05/ADC/Linearity/Cold/T7_B101_SN05_224MHz_Linearity_20bitDAC_CH0to3_CH60to63_Cold/'
+filenameroot = 'T7_B101_SN05_224MHz_Linearity_20bitDAC_CH0to3_CH60to63_Cold'
+
+filenamepath = '/u1/cryo/data/Board_SN05/ADC/Linearity/Cold/T8_B101_SN05_224MHz_Linearity_20bitDAC_CH0to3_CH60to63_Cold/'
+filenameroot = 'T8_B101_SN05_224MHz_Linearity_20bitDAC_CH0to3_CH60to63'
+
+filenamepath = '/u1/cryo/data/Board_SN05/ADC/Linearity/Cold/T9_B101_SN05_224MHz_Linearity_20bitDAC_CH0to3_CH60to63_Cold/'
+filenameroot = 'T9_B101_SN05_224MHz_Linearity_20bitDAC_CH0to3_CH60to63'
+
+filenamepath = '/u1/cryo/data/Board_SN05/ADC/Linearity/Cold/T10_B101_SN05_224MHz_Linearity_20bitDAC_CH0to7_CH56to63_Cold/'
+filenameroot = 'T10_B101_SN05_224MHz_Linearity_20bitDAC_CH0to7_CH56to63_Cold'
+
+frame_index = 1
 
 for j in range(0, 16):
     for i in range(j*int(65536/16), (j+1)*int(65536/16), 1):
@@ -194,21 +247,26 @@ for j in range(0, 16):
         print(filename)
         f = open(filename, mode = 'rb')
         newImage = getData(f)
+        if not len(newImage):
+            print("padding image")
+            newImage = np.zeros((4,64,64))
+                        
+        print(newImage.shape)
         if i == j*int(65536/16):
             imgList = newImage[0]
         else:
-            if len(newImage)>0:
-                imgList = np.concatenate((imgList, newImage[0]),0)
+            if newImage.shape[0]>frame_index:
+                imgList = np.concatenate((imgList, newImage[frame_index]),0)
 
 
     #LAST PARAMETER DEPENDS ON NUMBER OF SAMPLES ACQUIRED
-    imgDesc = imgList.reshape(-1,64,128) # when setting packet size to 4096
+    imgDesc = imgList.reshape(-1,64,64) # when setting packet size to 4096
     #imgDesc = imgList.reshape(-1,64,256) # when setting packet size to 8192 
     #avgImgDesc = np.average(imgDesc,2)
     if(SAVEHDF5):
         print("Saving Hdf5")
         #h5_filename = os.path.splitext(filename)[0]+".hdf5"
-        h5_filename = filenameroot+".hdf5"
+        h5_filename = filenameroot+("_frame_%d"%frame_index)+".hdf5"
         if j==0:
             f = h5py.File(h5_filename, "w")
         else:

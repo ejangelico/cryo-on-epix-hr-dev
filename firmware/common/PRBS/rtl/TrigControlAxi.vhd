@@ -3,7 +3,7 @@
 -- Author     : Maciej Kwiatkowski, mkwiatko@slac.stanford.edu
 -- Company    : SLAC National Accelerator Laboratory
 -- Created    : 04/07/2017
--- Last update: 04/07/2017
+-- Last update: 2020-08-03
 -------------------------------------------------------------------------------
 -- Description: 
 -------------------------------------------------------------------------------
@@ -373,7 +373,6 @@ begin
       
       v.trig.acqCountReset := '0';
       
-      v.sAxilReadSlave.rdata := (others => '0');
       axiSlaveWaitTxn(regCon, sAxilWriteMaster, sAxilReadMaster, v.sAxilWriteSlave, v.sAxilReadSlave);
       
       axiSlaveRegister (regCon, x"00", 0, v.trig.runTriggerEnable);
