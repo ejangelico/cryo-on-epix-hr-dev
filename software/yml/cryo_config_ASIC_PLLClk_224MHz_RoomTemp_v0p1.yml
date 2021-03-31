@@ -7,7 +7,7 @@ cryoAsicGen1:
       enable: True
       TPS_DAC: 0x3c
       TPS_GR: 0x1
-      TPSMux: 0x0
+      TPSMux: 0x8
       Bias_TPS_Buffer: 0x5
       Bias_TPS: 0x4
       Bias_TPS_DAC: 0x4
@@ -52,7 +52,7 @@ cryoAsicGen1:
       SAH_VcmBuf_B0: 0x0
       SigBuf_B0: 0x0
       ADC_VrefBuf_B0: 0x0
-      ADC_B0: 0x0
+      ADC_B0: 0x3
       ADC_VcmBuf_B0: 0x0
       bamp: 0x4
       bleak: 0x2
@@ -68,7 +68,7 @@ cryoAsicGen1:
       emph_bd: 0x0
       DM1sel: 0x0
       DM2sel: 0x0
-      SubBnkEn: 0x0808
+      SubBnkEn: 0xffff
       LDO_VTBias_B0: 0x3
       LDO_VTBias_T0: 0xc
       LDO_VTBias_Br0: 0x0
@@ -84,7 +84,7 @@ cryoAsicGen1:
       En_BankClk_Bk1_LVDS: False
       En_SerClk_out_Bk0_LVDS: True
       En_SerClk_out_Bk1_LVDS: True
-      rtrimLVDS_b0: 0x3
+      rtrimLVDS_b0: 0x2
       SACItristateLVDS_bit: False
       VrefGen_B0_1v2: 0x3
       VrefGen_Br0_1v2: 0x3
@@ -96,15 +96,19 @@ cryoAsicGen1:
       FE_Amp_B0_1v2: 0x2
       bifb: 0x3
       bbaseref: 0x2
-      blcoarse: 0x6
+      blcoarse: 0x7
       ctrl_pulser: False
       Pulser_Bias_DAC_b0: 0x4
       PP_Pulser_Bias_DAC: True
       Pulser_Bias_Monost_b0: 0x3
+      ensdps: False
+      enrefps: False
+      Ana_Mon_Cal: False
+      ADC_B3B2: 0x2
       CRYO_ID: 0x0
     AppFpgaRegisters:
       enable: True
-      Version: 0x1
+      Version: 0x2
       GlblRstPolarity: True
       GlblRstDelay: 0
       GlblRstWidth: 0

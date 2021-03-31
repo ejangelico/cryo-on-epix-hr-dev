@@ -242,6 +242,8 @@ class Board(pyrogue.Root):
         self.add(fpga.EpixHRGen1Cryo(name='EpixHRGen1Cryo', offset=0, memBase=srp, hidden=False, enabled=True))
         self.add(pyrogue.RunControl(name = 'runControl', description='Run Controller hr', cmd=self.Trigger, rates={1:'1 Hz', 2:'2 Hz', 4:'4 Hz', 8:'8 Hz', 10:'10 Hz', 30:'30 Hz', 60:'60 Hz', 120:'120 Hz'}))
 
+
+
 if (args.verbose): dbgData = rogue.interfaces.stream.Slave()
 if (args.verbose): dbgData.setDebug(60, "DATA Verbose 0[{}]".format(0))
 if (args.verbose): pyrogue.streamTap(pgpL0Vc0, dbgData)
@@ -258,12 +260,20 @@ if (args.verbose): dbgData = rogue.interfaces.stream.Slave()
 if (args.verbose): dbgData.setDebug(60, "DATA Verbose 3[{}]".format(0))
 if (args.verbose): pyrogue.streamTap(pgpL3Vc0, dbgData)
 
+
+if (args.type == 'SIM'):
+    # Set the timeout
+    timeout_time = 100000000 # firmware simulation slow and timeout base on real time (not simulation time)
+else:
+    # Set the timeout
+    timeout_time = 5000000 # 5.0 seconds default
+    
 # Create GUI
 appTop = pyrogue.gui.application(sys.argv)
 guiTop = pyrogue.gui.GuiTop(group='cryoAsicGui')
 cryoAsicBoard = Board(guiTop, cmd, dataWriter, srp)
 if ( args.type == 'dataFile' or args.type == 'SIM'):
-    cryoAsicBoard.start(pollEn=False, pyroGroup=None)
+    cryoAsicBoard.start(pollEn=False, pyroGroup=None, timeout=timeout_time)
 else:
     cryoAsicBoard.start(pollEn=True, pyroGroup=None)
 guiTop.addTree(cryoAsicBoard)
@@ -300,6 +310,7 @@ else:
     # executes the requested initialization
     cryoAsicBoard.EpixHRGen1Cryo.InitCryo(args.initSeq)
 
+    
 # Create GUI
 if (args.start_gui):
     appTop.exec_()

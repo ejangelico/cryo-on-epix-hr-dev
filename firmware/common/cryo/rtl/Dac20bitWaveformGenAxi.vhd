@@ -203,10 +203,26 @@ begin
             nextCounter <= counter + 1;
 
             -- data width counter
-            if rampCounter = r.rCStopValue then
-              nextRampCounter <= r.rCStartValue;
-            else
-              nextRampCounter <= rampCounter + r.rCStep;
+            if r.rCStartValue > r.rCStopValue then --negative ramp
+                if rampCounter <= r.rCStopValue or rampCounter > r.rCStartValue then
+                    nextRampCounter <= r.rCStartValue;
+                else
+                    if (rampCounter - r.rCStep) > r.rCStartValue then -- look ahead for overflow
+                        nextRampCounter <= r.rCStartValue;
+                    else
+                        nextRampCounter <= rampCounter - r.rCStep;
+                    end if;
+                end if;
+            else -- positive ramp
+                if rampCounter >= r.rCStopValue or rampCounter < r.rCStartValue then
+                    nextRampCounter <= r.rCStartValue;
+                else
+                    if (rampCounter + r.rCStep) < r.rCStartValue then -- look ahead for overflow
+                        nextRampCounter <= r.rCStartValue;
+                    else
+                        nextRampCounter <= rampCounter + r.rCStep;
+                    end if;
+                end if;
             end if;
                         
         else
@@ -309,7 +325,6 @@ begin
    begin
       v := r;
             
-      v.sAxilReadSlave.rdata := (others => '0');
       axiSlaveWaitTxn(regCon, sAxilWriteMaster(0), sAxilReadMaster(0), v.sAxilWriteSlave, v.sAxilReadSlave);
       
       axiSlaveRegister (regCon, x"0000",  0, v.waveform.enabled);

@@ -204,6 +204,7 @@ architecture RTL of DigitalAsicStreamAxi is
 
    signal decDataOut    : slv12Array(STREAMS_PER_ASIC_G-1 downto 0);
    signal decDataInt    : slv12Array(STREAMS_PER_ASIC_G-1 downto 0);
+   signal encDataInt    : slv14Array(STREAMS_PER_ASIC_G-1 downto 0);
    signal decValidOut   : slv(STREAMS_PER_ASIC_G-1 downto 0);
    signal decSof        : slv(STREAMS_PER_ASIC_G-1 downto 0);
    signal decEof        : slv(STREAMS_PER_ASIC_G-1 downto 0);
@@ -211,6 +212,7 @@ architecture RTL of DigitalAsicStreamAxi is
    signal decCodeError  : slv(STREAMS_PER_ASIC_G-1 downto 0);
    signal decDispError  : slv(STREAMS_PER_ASIC_G-1 downto 0);
    
+   signal dFifoWrEn         : slv(STREAMS_PER_ASIC_G-1 downto 0);
    signal dFifoRd           : slv(STREAMS_PER_ASIC_G-1 downto 0);
    signal dFifoEofe         : slv(STREAMS_PER_ASIC_G-1 downto 0);
    signal dFifoEof          : slv(STREAMS_PER_ASIC_G-1 downto 0);
@@ -306,9 +308,10 @@ begin
      --------------------------------------------------------------------------
      Dec12b14b_U : entity surf.SspDecoder12b14b 
        generic map (
-         TPD_G          => TPD_G,
-         RST_POLARITY_G => '1',
-         RST_ASYNC_G    => false)
+         TPD_G                => TPD_G,
+         RST_POLARITY_G       => '1',
+         RST_ASYNC_G          => false,
+         BRK_FRAME_ON_ERROR_G => false)
        port map (
          clk         => rxClk,
          rst         => rxRst,
@@ -316,7 +319,6 @@ begin
          validIn     => iRxValid(i),
          dataOut     => decDataOut(i),
          validOut    => decValidOut(i),
-         valid       => open,
          sof         => decSof(i),
          eof         => decEof(i),
          eofe        => decEofe(i),
@@ -324,17 +326,20 @@ begin
          dispError   => decDispError(i)
          );
 
-     decDataBitReorder : process(s, decDataOut)
+     DataBitReorder : process(s, decDataOut, adcStreams)
      begin
        if s.decDataBitOrder = '0' then
          decDataInt(i) <= decDataOut(i);
+         encDataInt(i) <= adcStreams(i).tData(13 downto 0);
        else
          decDataInt(i) <= bitReverse(decDataOut(i));
+         encDataInt(i) <= bitReverse(adcStreams(i).tData(13 downto 0));
        end if;
      end process;
    
      -- disable decoder in test mode (fake ASIC data)
      iRxValid(i) <= adcStreams(i).tValid and not testModeSync(i);
+     dFifoWrEn(i) <= decValidOut(i) or s.forceAdcData;
    
      -- async fifo for data
      -- for synchronization and small data pipeline
@@ -350,7 +355,7 @@ begin
          -- Resets
          rst               => rxRst,
          wr_clk            => rxClk,
-         wr_en             => decValidOut(i),
+         wr_en             => dFifoWrEn(i),
          din(11 downto 0)  => decDataInt(i),
          din(12)           => decEofe(i),
          din(13)           => decEof(i),
@@ -378,7 +383,7 @@ begin
          rst               => rxRst,
          wr_clk            => rxClk,
          wr_en             => iRxValid(i),
-         din(13 downto 0)  => adcStreams(i).tData(13 downto 0),
+         din(13 downto 0)  => encDataInt(i),
          din(14)           => '0', --decEofe(i),
          din(15)           => '0', --decEof(i),
          din(16)           => '0', --decSof(i),
@@ -478,7 +483,6 @@ begin
       
       -- axi lite logic 
       rv.rstCnt := r.rstCnt(1 downto 0) & '0';
-      rv.sAxilReadSlave.rdata := (others => '0');
       axiSlaveWaitTxn(regCon, sAxilWriteMaster, sAxilReadMaster, rv.sAxilWriteSlave, rv.sAxilReadSlave);
       
       axiSlaveRegisterR(regCon, x"00",  0, r.frmCnt);
@@ -717,7 +721,13 @@ begin
                sv.axisMaster.tData(16*STREAMS_PER_ASIC_G-1 downto 0) := dFifoExtData;                           
                sv.dFifoRd := (others=>'1');                       
                sv.stCnt := s.stCnt + 1;
-               if ((dFifoEof /= VECTOR_OF_ZEROS_C(STREAMS_PER_ASIC_G-1 downto 0) or dFifoEofe /= VECTOR_OF_ZEROS_C(STREAMS_PER_ASIC_G-1 downto 0)) or s.stCnt = s.asicDataReq) then 
+
+               if dFifoEofe /= VECTOR_OF_ZEROS_C(STREAMS_PER_ASIC_G-1 downto 0) then
+                   --ssiSetUserEofe(AXI_STREAM_CONFIG_I_C, sv.axisMaster, '1');
+                   sv.eofError := s.eofError + 1;
+               end if;
+                   
+               if (dFifoEof /= VECTOR_OF_ZEROS_C(STREAMS_PER_ASIC_G-1 downto 0) or s.stCnt = s.asicDataReq) then 
                  sv.frmSize := toSlv(s.stCnt, 32);
                  sv.stCnt := 0;
                  if s.frmMax <= sv.frmSize then
@@ -726,22 +736,13 @@ begin
                  if s.frmMin >= sv.frmSize then
                    sv.frmMin := sv.frmSize;
                  end if;
-                     
-                 if dFifoEofe /= VECTOR_OF_ZEROS_C(STREAMS_PER_ASIC_G-1 downto 0) or sv.frmSize /= s.asicDataReq then
-                   ssiSetUserEofe(AXI_STREAM_CONFIG_I_C, sv.axisMaster, '1');
-                   sv.eofError := s.eofError + 1;
-                 else
-                   sv.frmCnt := s.frmCnt + 1;
-                 end if;
+
+                 sv.frmCnt := s.frmCnt + 1;
+
                  sv.axisMaster.tLast := '1';
+
                  --change of state is required if running in frame mode
-                 if s.streamDataMode = '0' then
-                   sv.state := IDLE_S;
-                 else
-                   if s.stCnt = s.asicDataReq then
-                     sv.state := IDLE_S;
-                   end if;
-                 end if;
+                 sv.state := IDLE_S;
                end if;               
              end if;
            end if;

@@ -2,7 +2,7 @@
 -- File       : EpixHr: PowerControlModule.vhd
 -- Company    : SLAC National Accelerator Laboratory
 -- Created    : 04/07/2017
--- Last update: 2018-01-31
+-- Last update: 2020-08-03
 -------------------------------------------------------------------------------
 -- Description: This module enable the voltage regulators on the epix boards
 -- based on saci register values. If needed syncronization modules should be
@@ -105,7 +105,6 @@ begin
    begin
       v := r;
       
-      v.sAxilReadSlave.rdata := (others => '0');
       axiSlaveWaitTxn(regCon, sAxilWriteMaster, sAxilReadMaster, v.sAxilWriteSlave, v.sAxilReadSlave);
 
       -- all registers for the present module

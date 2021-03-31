@@ -165,23 +165,23 @@ class EpixHRGen1Cryo(pr.Device):
             dacRangeValue = 65536
             dacStep = 1
         self.root.dataWriter.enable.set(True)
-        self.root.dataWriter.open.set(False)
-        self.currentFilename = self.root.dataWriter.dataFile.get()
-        self.currentFrameCount = self.root.dataWriter.frameCount.get()
+        self.root.dataWriter.Close()
+        self.currentFilename = self.root.dataWriter.DataFile.get()
+        self.currentFrameCount = self.root.dataWriter.FrameCount.get()
         dacValue = 1
         self.HSDac.enable.set(True)
 #        for i in range(64):
 #            self.HSDac.DacValue.set(dacValue*1024-1)
         for i in range(dacRangeValue):
             self.HSDac.DacValue.set(dacValue-1)
-            self.root.dataWriter.dataFile.set(self.currentFilename +"_"+ str(i)+".dat")
-            self.root.dataWriter.open.set(True)
+            self.root.dataWriter.DataFile.set(self.currentFilename +"_"+ str(i)+".dat")
+            self.root.dataWriter.Open()
             for j in range(10):
                 self.root.Trigger()
                 time.sleep(0.001) 
             time.sleep(0.003) 
                 
-            self.root.dataWriter.open.set(False)
+            self.root.dataWriter.Close()
             dacValue = dacValue + dacStep
 
     def fnLinTestCryo(self, dev,cmd,arg):
@@ -221,13 +221,78 @@ class EpixHRGen1Cryo(pr.Device):
             self.filenamePLL = "./config/pll-config/Si5345-RevD-CRYO_C01-Registers.csv"
             self.filenameASIC = "./yml/cryo_config_ASIC_PLLClk_224MHz_RoomTemp_v0p1.yml"
             
-            
-        if arg ==3:
+        if arg == 3:
+            self.filenameMMCM = "./yml/cryo_config_mmcm_PLLClk_448MHz.yml"
+            self.filenamePowerSupply = "./yml/cryo_config_PowerSupply_2v5.yml"
+            self.filenamePLL = "./config/pll-config/Si5345-RevD-CRYO_C01-56MHzIn448MHzOut_Project-Registers.csv"
+            self.filenameASIC = "./yml/cryo_config_ASIC_ExtClk_RoomTemp_v0p1.yml"
+
+        if arg == 4:
+            self.filenameMMCM = "./yml/cryo_config_mmcm_PLLClk_224MHz.yml"
+            self.filenamePowerSupply = "./yml/cryo_config_PowerSupply_2v5.yml"
+            self.filenamePLL = "./config/pll-config/Si5345-RevD-CRYO_C01-56MHzIn224MHzOut_Project-Registers.csv"
+            self.filenameASIC = "./yml/cryo_config_ASIC_ExtClk_RoomTemp_v0p1.yml"
+
+
+        if arg == 101:
             self.filenameMMCM = "./yml/cryo_config_mmcm_PLLClk_448MHz.yml"
             self.filenamePowerSupply = "./yml/cryo_config_PowerSupply_2v5.yml"
             self.filenamePLL = "./config/pll-config/Si5345-RevD-CRYO_C01-Registers.csv"
+            self.filenameASIC = "./yml/cryo_config_ASIC_PLLClk_448MHz_DUNETemp_v0p1.yml"
+
+        if arg == 102:
+            self.filenameMMCM = "./yml/cryo_config_mmcm_PLLClk_224MHz.yml"
+            self.filenamePowerSupply = "./yml/cryo_config_PowerSupply_2v5.yml"
+            self.filenamePLL = "./config/pll-config/Si5345-RevD-CRYO_C01-Registers.csv"
+            self.filenameASIC = "./yml/cryo_config_ASIC_PLLClk_224MHz_DUNETemp_v0p1.yml"
+
+        if arg == 103:
+            self.filenameMMCM = "./yml/cryo_config_mmcm_PLLClk_448MHz.yml"
+            self.filenamePowerSupply = "./yml/cryo_config_PowerSupply_2v5.yml"
+            self.filenamePLL = "./config/pll-config/Si5345-RevD-CRYO_C01-56MHzIn448MHzOut_Project-Registers.csv"
+            self.filenameASIC = "./yml/cryo_config_ASIC_ExtClk_DUNETemp_v0p1.yml"
+
+        if arg == 104:
+            self.filenameMMCM = "./yml/cryo_config_mmcm_PLLClk_224MHz.yml"
+            self.filenamePowerSupply = "./yml/cryo_config_PowerSupply_2v5.yml"
+            self.filenamePLL = "./config/pll-config/Si5345-RevD-CRYO_C01-56MHzIn224MHzOut_Project-Registers.csv"
+            self.filenameASIC = "./yml/cryo_config_ASIC_ExtClk_DUNETemp_v0p1.yml"
+
+        if arg == 200:
+            self.filenameMMCM = "./yml/cryo_config_mmcm_PLLClk_448MHz.yml"
+            self.filenamePowerSupply = "./yml/cryo_config_PowerSupply_2v5.yml"
+            self.filenamePLL = "./config/pll-config/Si5345-RevD-CRYO_C01-50MHzIn50MHzOut_Project-Registers.csv"
+            self.filenameASIC = "./yml/cryo_config_ASIC_PLLClk_448MHz_RoomTemp_v0p1.yml"
+
+        if arg == 201:
+            self.filenameMMCM = "./yml/cryo_config_mmcm_PLLClk_224MHz.yml"
+            self.filenamePowerSupply = "./yml/cryo_config_PowerSupply_2v5.yml"
+            self.filenamePLL = "./config/pll-config/Si5345-RevD-CRYO_C01-50MHzIn50MHzOut_Project-Registers.csv"
+            self.filenameASIC = "./yml/cryo_config_ASIC_PLLClk_224MHz_RoomTemp_v0p1.yml"
+            
+        if arg == 202:
+            self.filenameMMCM = "./yml/cryo_config_mmcm_PLLClk_448MHz.yml"
+            self.filenamePowerSupply = "./yml/cryo_config_PowerSupply_2v5.yml"
+            self.filenamePLL = "./config/pll-config/Si5345-RevD-CRYO_C01-50MHzIn400MHzOut_Project-Registers.csv"
             self.filenameASIC = "./yml/cryo_config_ASIC_ExtClk_RoomTemp_v0p1.yml"
 
+        if arg == 211:
+            self.filenameMMCM = "./yml/cryo_config_mmcm_PLLClk_448MHz.yml"
+            self.filenamePowerSupply = "./yml/cryo_config_PowerSupply_2v5.yml"
+            self.filenamePLL = "./config/pll-config/Si5345-RevD-CRYO_C01-46MHzIn46MHzOut_Project-Registers.csv"
+            self.filenameASIC = "./yml/cryo_config_ASIC_PLLClk_448MHz_RoomTemp_v0p1.yml"
+
+        if arg == 212:
+            self.filenameMMCM = "./yml/cryo_config_mmcm_PLLClk_224MHz.yml"
+            self.filenamePowerSupply = "./yml/cryo_config_PowerSupply_2v5.yml"
+            self.filenamePLL = "./config/pll-config/Si5345-RevD-CRYO_C01-46MHzIn46MHzOut_Project-Registers.csv"
+            self.filenameASIC = "./yml/cryo_config_ASIC_PLLClk_224MHz_RoomTemp_v0p1.yml"
+            
+        if arg == 213:
+            self.filenameMMCM = "./yml/cryo_config_mmcm_PLLClk_448MHz.yml"
+            self.filenamePowerSupply = "./yml/cryo_config_PowerSupply_2v5.yml"
+            self.filenamePLL = "./config/pll-config/Si5345-RevD-CRYO_C01-46MHzIn368MHzOut_Project-Registers.csv"
+            self.filenameASIC = "./yml/cryo_config_ASIC_ExtClk_RoomTemp_v0p1.yml"
 
         if arg != 0:
             self.fnInitCryoScript(dev,cmd,arg)
@@ -236,6 +301,8 @@ class EpixHRGen1Cryo(pr.Device):
         """SetTestBitmap command function"""       
         print("Init cryo script started")
         print("En FPGA module and turns off SR0")
+        self.DeserRegisters.enable.set(True)
+        self.DeserRegisters.Resync.set(True)
         self.AppFpgaRegisters.enable.set(True)
         self.AppFpgaRegisters.SR0Polarity.set(False)
         self.AppFpgaRegisters.SampClkEn.set(False)
@@ -292,7 +359,18 @@ class EpixHRGen1Cryo(pr.Device):
 
         ## start deserializer config for the asic
         EN_DESERIALIZERS = True
-        if EN_DESERIALIZERS : 
+        if EN_DESERIALIZERS :
+            EN_SampClk = True
+            if EN_SampClk : 
+                print("Setting SampClk to true")
+                self.AppFpgaRegisters.enable.set(True)
+                self.root.readBlocks()
+                for i in range(2):
+                    self.AppFpgaRegisters.SampClkEn.set(False)
+                    time.sleep(delay) 
+                    self.AppFpgaRegisters.SampClkEn.set(True)
+                    self.root.readBlocks()
+                    time.sleep(delay) 
             print("Starting deserializer")
             self.serializerSyncAttempsts = 0
             while True:
@@ -318,17 +396,6 @@ class EpixHRGen1Cryo(pr.Device):
                 if self.serializerSyncAttempsts > 2:
                     break
 
-        EN_SampClk = True
-        if EN_SampClk : 
-            print("Setting SampClk to true")
-            self.AppFpgaRegisters.enable.set(True)
-            self.root.readBlocks()
-            for i in range(2):
-                self.AppFpgaRegisters.SampClkEn.set(False)
-                time.sleep(delay) 
-                self.AppFpgaRegisters.SampClkEn.set(True)
-                self.root.readBlocks()
-                time.sleep(delay) 
 
         EN_SR0 = True
         EN_ALL_CRYO_ADCS = False
@@ -547,7 +614,7 @@ class EpixHRGen1Cryo(pr.Device):
         self.CryoAsic0.encoder_mode_dft.set(0) # makes sure idle will be set
         self.PacketRegisters.enable.set(True)
         self.PacketRegisters.decBypass.set(False)
-        self.PacketRegisters.StreamDataMode.set(False)
+        self.PacketRegisters.StreamDataMode.set(True)
 
         self.AppFpgaRegisters.enable.set(True)
         self.AppFpgaRegisters.SR0Polarity.set(False)
@@ -592,13 +659,7 @@ class EpixHRGen1Cryo(pr.Device):
         self.PacketRegisters.enable.set(True)
         self.root.readBlocks()
         self.PacketRegisters.decBypass.set(True)
-        time.sleep(delay/10) 
-        print("Setting cryo to send counter to readout")
-        self.CryoAsic0.encoder_mode_dft.set(7)
-        print("Enabling stream readout")
-        self.PacketRegisters.enable.set(True)
-        self.PacketRegisters.StreamDataMode.set(True)
-        self.PacketRegisters.decDataBitOrder.set(True)
+        self.PacketRegisters.decDataBitOrder.set(False)
 
     def fnSendAdcData(self, dev,cmd,arg):
         print("Sends adc data in stream mode")
@@ -607,13 +668,15 @@ class EpixHRGen1Cryo(pr.Device):
         self.root.readBlocks()
         time.sleep(delay/10) 
         print("Setting cryo to send counter to readout")
-        self.CryoAsic0.encoder_mode_dft.set(1)
+        self.CryoAsic0.encoder_mode_dft.set(0)
         time.sleep(delay/10) 
         print("Enabling stream readout")
         self.PacketRegisters.StreamDataMode.set(True)
         self.PacketRegisters.decDataBitOrder.set(True)
         self.PacketRegisters.decBypass.set(False)
-        self.CryoAsic0.encoder_mode_dft.set(0)
+        self.AppFpgaRegisters.SR0Polarity.set(False)
+        time.sleep(delay/20) 
+        self.AppFpgaRegisters.SR0Polarity.set(True)
 
 
     def fnSetWaveform(self, dev,cmd,arg):
@@ -1364,15 +1427,16 @@ class HighSpeedExtDacRegisters(pr.Device):
       #############################################
       # Create block / variable combinations
       #############################################
-      
+      waveformSourceEnum={0:'custom', 1:'ramp'}
+      waveformTypeEnum={0:'static value', 1:'waveform'}
       
       #Setup registers & variables
       
       self.add((
-         pr.RemoteVariable(name='WFEnabled',       description='Enable waveform generation',                        offset=0x00000000, bitSize=1,   bitOffset=0,   base=pr.Bool, mode='RW'),
+         pr.RemoteVariable(name='WFEnabled',       description='Enable waveform generation',                        offset=0x00000000, bitSize=1,   bitOffset=0,   enum=waveformTypeEnum, mode='RW'),
          pr.RemoteVariable(name='run',             description='Generates waveform when true',                      offset=0x00000000, bitSize=1,   bitOffset=1,   base=pr.Bool, mode='RW'),
          pr.RemoteVariable(name='externalUpdateEn',description='Updates value on AcqStart',                         offset=0x00000000, bitSize=1,   bitOffset=2,   base=pr.Bool, mode='RW'),
-         pr.RemoteVariable(name='waveformSource',  description='Selects between custom wf or internal ramp',        offset=0x00000000, bitSize=2,   bitOffset=3,   base=pr.UInt, mode='RW'),
+         pr.RemoteVariable(name='waveformSource',  description='Selects between custom wf or internal ramp',        offset=0x00000000, bitSize=2,   bitOffset=3,   enum=waveformSourceEnum, mode='RW'),
          pr.RemoteVariable(name='samplingCounter', description='Sampling period (>269, times 1/clock ref. 156MHz)', offset=0x00000004, bitSize=12,  bitOffset=0,   base=pr.UInt, disp = '{:#x}', mode='RW'),
          pr.RemoteVariable(name='DacValue',        description='Set a fixed value for the DAC',                     offset=0x00000008, bitSize=20,  bitOffset=0,   base=pr.UInt, disp = '{:#x}', mode='RW'),
          pr.RemoteVariable(name='DacCh',           description='Set a fixed value for the DAC',                     offset=0x00000008, bitSize=3,   bitOffset=20,  base=pr.UInt, disp = '{:#x}', mode='RW')
@@ -2219,7 +2283,13 @@ class AsicDeserHr12bRegisters(pr.Device):
       #self.add(pr.RemoteVariable(name='DelayEn1',     description='EnValueUpdate',  offset=0x00000014, bitSize=1,  bitOffset=9,  base=pr.Bool, verify = False, mode='RW'))
 
       self.add(pr.RemoteVariable(name='LockErrors1',  description='LockErrors',     offset=0x00000034, bitSize=16, bitOffset=0,  base=pr.UInt, disp = '{}', mode='RO'))
-      self.add(pr.RemoteVariable(name='Locked1',      description='Locked',         offset=0x00000034, bitSize=1,  bitOffset=16, base=pr.Bool, mode='RO'))      
+      self.add(pr.RemoteVariable(name='Locked1',      description='Locked',         offset=0x00000034, bitSize=1,  bitOffset=16, base=pr.Bool, mode='RO'))
+
+#      self.add(pr.RemoteVariable(name='streamIDLEPattern1',  description='IDLE Pattern 1',     offset=0x00000060, bitSize=14, bitOffset=0,  base=pr.UInt, disp = '{:#x}', mode='RW'))
+#      self.add(pr.RemoteVariable(name='streamIDLEPattern2',  description='IDLE Pattern 2',     offset=0x00000064, bitSize=14, bitOffset=0,  base=pr.UInt, disp = '{:#x}', mode='RW'))
+#      self.add(pr.RemoteVariable(name='streamIDLEPattern3',  description='IDLE Pattern 3',     offset=0x00000068, bitSize=14, bitOffset=0,  base=pr.UInt, disp = '{:#x}', mode='RW'))
+#      self.add(pr.RemoteVariable(name='streamIDLEPattern4',  description='IDLE Pattern 4',     offset=0x0000006C, bitSize=14, bitOffset=0,  base=pr.UInt, disp = '{:#x}', mode='RW'))
+      
       for i in range(0, 2):
          self.add(pr.RemoteVariable(name='IserdeseOutA'+str(i),   description='IserdeseOut'+str(i),  offset=0x00000080+i*4, bitSize=16, bitOffset=0, base=pr.UInt,  disp = '{:#x}', mode='RO'))
          self.add(pr.RemoteVariable(name='IserdeseOutB'+str(i),   description='IserdeseOut'+str(i),  offset=0x00000080+i*4, bitSize=16, bitOffset=16, base=pr.UInt, disp = '{:#x}', mode='RO'))

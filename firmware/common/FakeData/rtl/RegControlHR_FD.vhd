@@ -5,7 +5,7 @@
 -- Author     : Maciej Kwiatkowski  <mkwiatko@slac.stanford.edu>
 -- Company    : SLAC National Accelerator Laboratory
 -- Created    : 04/26/2016
--- Last update: 04/26/2016
+-- Last update: 2020-08-03
 -- Platform   : Vivado 2014.4
 -- Standard   : VHDL'93/02
 -------------------------------------------------------------------------------
@@ -254,7 +254,6 @@ begin
       v := r;
       
       -- Reset data and strobes
-      v.axiReadSlave.rdata       := (others => '0');
       v.resetCounters            := '0';
 
       

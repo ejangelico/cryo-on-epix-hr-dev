@@ -152,8 +152,8 @@ class Window(QMainWindow, QObject):
 
     def prepairWindow(self):
         # Center UI
-        self.imageScaleMax = int(10000)
-        self.imageScaleMin = int(-10000)
+        self.imageScaleMax = int(4500)
+        self.imageScaleMin = int(0)
         screen = QDesktopWidget().screenGeometry(self)
         size = self.geometry()
         self.buildUi()
@@ -294,7 +294,7 @@ class Window(QMainWindow, QObject):
         print('File name: ', path)
         if path:
             image = QImage(path)
-            self.mainImageDisp.update_figure(image)
+            self.mainImageDisp.update_figure(image, plotImageTranspose = self.cbPlotImageTranspose.isChecked())
 #            pp = QtGui.QPixmap.fromImage(image)
 #            self.label.setPixmap(pp.scaled(
 #                    self.label.size(),
@@ -359,7 +359,7 @@ class Window(QMainWindow, QObject):
         #self.image = QtGui.QImage(_8bitImg.repeat(4), self.imgTool.imgWidth, self.imgTool.imgHeight, QtGui.QImage.Format_RGB32)
         
         #pp = QtGui.QPixmap.fromImage(self.image)
-        self.mainImageDisp.update_figure(_8bitImg, contrast=[self.imageScaleMax, self.imageScaleMin], autoScale = False)
+        self.mainImageDisp.update_figure(_8bitImg, contrast=[self.imageScaleMax, self.imageScaleMin], autoScale = False, plotImageTranspose = self.cbPlotImageTranspose.isChecked())
         #self.label.setPixmap(pp.scaled(self.label.size(),QtCore.Qt.KeepAspectRatio,QtCore.Qt.SmoothTransformation))
         #self.label.adjustSize()
         # updates the frame number
@@ -421,7 +421,7 @@ class Window(QMainWindow, QObject):
         
         #exits if there is no 
         if (len(rawData)==0) :        
-            return false
+            return envData
         #removes header before displying the image
         for j in range(0,32):
             rawData.pop(0)
@@ -472,15 +472,21 @@ class Window(QMainWindow, QObject):
    
         #full line plot
         if (self.imgTool.imgDark_isSet):
-            #self.ImgDarkSub        
-            self.lineDisplay1.update_plot(self.cbHorizontalLineEnabled.isChecked(),  "Horizontal", 'r', self.ImgDarkSub[self.mouseY,:], 
+            #self.ImgDarkSub
+            if ((self.ImgDarkSub.shape[0] > self.mouseY)and(self.ImgDarkSub.shape[1] > self.mouseX)):
+                self.lineDisplay1.update_plot(self.cbHorizontalLineEnabled.isChecked(),  "Horizontal", 'r', self.ImgDarkSub[self.mouseY,:], 
                                             self.cbVerticalLineEnabled.isChecked(),    "Vertical",   'b', self.ImgDarkSub[:,self.mouseX],
                                             self.cbpixelTimeSeriesEnabled.isChecked(), "Pixel TS",   'k', self.pixelTimeSeries)
+            else:
+                print("Invalid line plot position")
         else:
-            #self.imgDesc
-            self.lineDisplay1.update_plot(self.cbHorizontalLineEnabled.isChecked(),  "Horizontal", 'r', self.imgDesc[self.mouseY,:], 
+            #print(self.imgDesc.shape)
+            if ((self.imgDesc.shape[0] > self.mouseY)and(self.imgDesc.shape[1] > self.mouseX)):
+                self.lineDisplay1.update_plot(self.cbHorizontalLineEnabled.isChecked(),  "Horizontal", 'r', self.imgDesc[self.mouseY,:], 
                                             self.cbVerticalLineEnabled.isChecked(),    "Vertical",   'b', self.imgDesc[:,self.mouseX],
                                             self.cbpixelTimeSeriesEnabled.isChecked(), "Pixel TS",   'k', self.pixelTimeSeries)
+            else:
+                print("Invalid line plot position")
 
 
     """ Plot pixel values for multiple images """
@@ -562,7 +568,10 @@ class Window(QMainWindow, QObject):
         if (self.imgDesc != []):
             #mouseX = event.pos().x()
             #mouseY = event.pos().y()
-            self.mouseX, self.mouseY = int(event.xdata), int(event.ydata)
+            if self.cbPlotImageTranspose.isChecked():
+                self.mouseY, self.mouseX = int(event.xdata), int(event.ydata)
+            else:
+                self.mouseX, self.mouseY = int(event.xdata), int(event.ydata)
             #pixmapH = self.label.height()
             #pixmapW = self.label.width()
             #imageH = self.image.height()
@@ -590,9 +599,9 @@ class Window(QMainWindow, QObject):
             self.updateLinePlots()
             if (self.cbImageZoomEnabled.isChecked()):
                 if (self.imgTool.imgDark_isSet):
-                    self.lineDisplay1.update_figure(self.ImgDarkSub[self.mouseY-10:self.mouseY+10, self.mouseX-10:self.mouseX+10],contrast=[self.imageScaleMax, self.imageScaleMin], autoScale = False)
+                    self.lineDisplay1.update_figure(self.ImgDarkSub[self.mouseY-10:self.mouseY+10, self.mouseX-10:self.mouseX+10],contrast=[self.imageScaleMax, self.imageScaleMin], autoScale = False, plotImageTranspose = self.cbPlotImageTranspose.isChecked())
                 elif (self.imgDesc != []):
-                    self.lineDisplay1.update_figure(self.imgDesc[self.mouseY-10:self.mouseY+10, self.mouseX-10:self.mouseX+10],contrast=[self.imageScaleMax, self.imageScaleMin], autoScale = False)
+                    self.lineDisplay1.update_figure(self.imgDesc[self.mouseY-10:self.mouseY+10, self.mouseX-10:self.mouseX+10],contrast=[self.imageScaleMax, self.imageScaleMin], autoScale = False, plotImageTranspose = self.cbPlotImageTranspose.isChecked())
             
 
 
@@ -639,30 +648,32 @@ class EventReader(rogue.interfaces.stream.Slave):
         ## enter debug mode
         #print("\n---------------------------------\n-\n- Entering DEBUG mode _acceptFrame \n-\n-\n--------------------------------- ")
         #pdb.set_trace()
-        
-        self.lastFrame = frame
-        # reads entire frame
-        p = bytearray(self.lastFrame.getPayload())
-        self.lastFrame.read(p,0)
-        if (PRINT_VERBOSE): print('_accepted p[',self.numAcceptedFrames, ']: ', p[0:10])
-        if (PRINT_VERBOSE): print('Length of accpeted frame: ' , len(p)) 
-        self.frameDataArray[self.numAcceptedFrames%4][:] = p#bytearray(self.lastFrame.getPayload())
-        self.numAcceptedFrames += 1
+        p = bytearray(frame.getPayload())
+        if len(p) < 64:
+            print("Minimum Frame size is invalid")
+        else:            
+            self.lastFrame = frame
+            # reads entire frame
+            self.lastFrame.read(p,0)
+            if (PRINT_VERBOSE): print('_accepted p[',self.numAcceptedFrames, ']: ', p[0:10])
+            if (PRINT_VERBOSE): print('Length of accpeted frame: ' , len(p)) 
+            self.frameDataArray[self.numAcceptedFrames%4][:] = p#bytearray(self.lastFrame.getPayload())
+            self.numAcceptedFrames += 1
 
-        VcNum =  p[0] & 0xF    
+            VcNum =  p[0] & 0xF    
 
-        if (time.clock_gettime(0)-self.lastTime)>1:
-            self.lastTime = time.clock_gettime(0)
-            if ((VcNum == self.VIEW_PSEUDOSCOPE_ID)):
-                if (PRINT_VERBOSE): print('Decoding PseudoScopeData')
-                self.parent.processPseudoScopeFrameTrigger.emit()
-            elif (VcNum == self.VIEW_MONITORING_DATA_ID):
-                if (PRINT_VERBOSE): print('Decoding Monitoring Data')
-                self.parent.processMonitoringFrameTrigger.emit()
-            elif (VcNum == 0):
-                if (PRINT_VERBOSE): print('Decoding ASIC Data')
-                if (((self.numAcceptedFrames == self.frameIndex) or (self.frameIndex == 0)) and (self.numAcceptedFrames%self.numSkipFrames==0)): 
-                    self.parent.processFrameTrigger.emit()
+            if (time.clock_gettime(0)-self.lastTime)>1:
+                self.lastTime = time.clock_gettime(0)
+                if ((VcNum == self.VIEW_PSEUDOSCOPE_ID)):
+                    if (PRINT_VERBOSE): print('Decoding PseudoScopeData')
+                    self.parent.processPseudoScopeFrameTrigger.emit()
+                elif (VcNum == self.VIEW_MONITORING_DATA_ID):
+                    if (PRINT_VERBOSE): print('Decoding Monitoring Data')
+                    self.parent.processMonitoringFrameTrigger.emit()
+                elif (VcNum == 0):
+                    if (PRINT_VERBOSE): print('Decoding ASIC Data')
+                    if (((self.numAcceptedFrames == self.frameIndex) or (self.frameIndex == 0)) and (self.numAcceptedFrames%self.numSkipFrames==0)): 
+                        self.parent.processFrameTrigger.emit()
 
 
     def _processFrame(self):
@@ -766,13 +777,13 @@ class MplCanvas(FigureCanvas):
 
         self.axes.cla()
         for arg in args:
-            if (argIndex == 0):
+            if (argIndex%4 == 0):
                 lineEnabled = arg
-            if (argIndex == 1):
+            if (argIndex%4 == 1):
                 lineName = arg
-            if (argIndex == 2):
+            if (argIndex%4 == 2):
                 lineColor = arg
-            if (argIndex == 3):
+            if (argIndex%4 == 3):
                 ##if (PRINT_VERBOSE): print(lineName)
                 if (lineEnabled):
                     l = arg #[random.randint(0, 10) for i in range(4)]
@@ -780,22 +791,29 @@ class MplCanvas(FigureCanvas):
                     #self.axes.set_xticks(np.arange(0, len(l), 20))
                     #self.axes.set_yticks(np.arange(0, 2., 0.25))
                     self.axes.plot(l, lineColor)
+                    self.axes.text(0.2,argIndex/20, 'std %f' % (np.std(l)),horizontalalignment='center', verticalalignment='center', transform=self.axes.transAxes)
                     self.axes.grid()
-                argIndex = -1
+                #argIndex = -1
             argIndex = argIndex + 1    
         self.axes.set_title(self.MyTitle)        
         self.draw()
 
-    def update_figure(self, image=None, contrast=None, autoScale = True):
+    def update_figure(self, image=None, contrast=None, autoScale = True, plotImageTranspose = True):
         self.axes.cla()
         self.axes.autoscale = autoScale
+        if (plotImageTranspose):
+            localImage = np.transpose(image)
+            origin = 'lower'
+        else:
+            localImage = image
+            origin = 'upper'
 
         if (len(image)>0):
             #self.axes.gray()        
             if (contrast != None):
-                self.cax = self.axes.imshow(image, interpolation='nearest', cmap='gray',vmin=contrast[1], vmax=contrast[0])
+                self.cax = self.axes.imshow(localImage, interpolation='nearest', cmap='gray',vmin=contrast[1], vmax=contrast[0], origin = origin)
             else:
-                self.cax = self.axes.imshow(image, interpolation='nearest', cmap='gray')
+                self.cax = self.axes.imshow(localImage, interpolation='nearest', cmap='gray', origin = origin)
 
 #            if (self.fig.cbar==None):              
 #                self.fig.cbar = self.fig.colorbar(self.cax)
@@ -882,6 +900,9 @@ class TabbedCtrlCanvas(QTabWidget):
         myParent.imageScaleMinLine.setMaximumWidth(100)
         myParent.imageScaleMinLine.setMinimumWidth(50)
         myParent.imageScaleMinLine.setText(str(myParent.imageScaleMin))
+        # check boxes
+        myParent.cbPlotImageTranspose = QCheckBox('Plot image transposed')
+        myParent.cbPlotImageTranspose.setChecked(True)
         
         # set layout to tab 1
         tab1Frame = QFrame()
@@ -906,7 +927,8 @@ class TabbedCtrlCanvas(QTabWidget):
         grid.addWidget(btnSetPixelBitMask, 3, 3)
         grid.addWidget(imageScaleLabel, 4, 1)
         grid.addWidget(myParent.imageScaleMaxLine, 4, 2)
-        grid.addWidget(myParent.imageScaleMinLine,4, 3)     
+        grid.addWidget(myParent.imageScaleMinLine,4, 3)
+        grid.addWidget(myParent.cbPlotImageTranspose,4, 4)
 
         # complete tab1
         tab1.setLayout(grid)
@@ -959,9 +981,9 @@ class TabbedCtrlCanvas(QTabWidget):
         ######################################################      
 
         # check boxes
-        myParent.cbHorizontalLineEnabled = QCheckBox('Plot Horizontal Line')
+        myParent.cbHorizontalLineEnabled = QCheckBox('Plot channel vs. time')
         #
-        myParent.cbVerticalLineEnabled = QCheckBox('Plot Vertical Line')
+        myParent.cbVerticalLineEnabled = QCheckBox('Plot sample vs. channels')
         #
         myParent.cbpixelTimeSeriesEnabled = QCheckBox('Pixel Time Series Line')
         myParent.cbImageZoomEnabled = QCheckBox('Image zoom')

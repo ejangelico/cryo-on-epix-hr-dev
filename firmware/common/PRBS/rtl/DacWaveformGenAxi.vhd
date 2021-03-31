@@ -268,7 +268,6 @@ begin
    begin
       v := r;
             
-      v.sAxilReadSlave.rdata := (others => '0');
       axiSlaveWaitTxn(regCon, sAxilWriteMaster(DAC8812_REG_AXI_INDEX_C), sAxilReadMaster(DAC8812_REG_AXI_INDEX_C), v.sAxilWriteSlave, v.sAxilReadSlave);
       
       axiSlaveRegister (regCon, x"0000",  0, v.waveform.enabled);

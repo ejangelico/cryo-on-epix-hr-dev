@@ -2,7 +2,7 @@
 -- File       : cryo: EqualizerModules.vhd
 -- Company    : SLAC National Accelerator Laboratory
 -- Created    : 04/07/2017
--- Last update: 2020-05-12
+-- Last update: 2020-08-03
 -------------------------------------------------------------------------------
 -- Description: This module enables the equalizer LOS status information
 -- to be accessed via axi lite and exposes it to other modules after 
@@ -94,7 +94,6 @@ begin
    begin
       v := r;
       
-      v.sAxilReadSlave.rdata := (others => '0');
       axiSlaveWaitTxn(regCon, sAxilWriteMaster, sAxilReadMaster, v.sAxilWriteSlave, v.sAxilReadSlave);
 
       -- update read only registers
