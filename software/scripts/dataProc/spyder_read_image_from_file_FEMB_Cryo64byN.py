@@ -20,6 +20,9 @@
 #-----------------------------------------------------------------------------
 
 import os, sys, time
+
+sys.path.append(r'/home/t-1000/Desktop/dune/git_femb_new/cryo-on-epix-hr-dev/software/python')
+
 import numpy as np
 import pyrogue as pr
 import ePixViewer.Cameras as cameras
@@ -43,15 +46,15 @@ PAYLOAD_TS           = 7360
 ##################################################
 cameraType            = 'cryo64xN'
 bitMask               = 0xffff
-PLOT_IMAGE            = True
-PLOT_ADC9_VS_N        = True
+PLOT_IMAGE            = False
+PLOT_ADC9_VS_N        = False
 PLOT_IMAGE_DARKSUB    = False
 PLOT_IMAGE_DARK       = False
 PLOT_IMAGE_HEATMAP    = False
 PLOT_SET_HISTOGRAM    = False
 PLOT_ADC_VS_N         = False
 SAVE_HDF5             = True
-SAVE_CSV              = True
+SAVE_CSV              = False
 CORRECT_COLUMN_JUMPS  = False #CHANNEL zero must be disabled
 
 ##################################################
@@ -96,6 +99,12 @@ filename = '/u1/cryo/data/FEMB_SN01/Baseline/Cold/T2_224MHz_ASIC0_ASIC1_ExtSuppl
 filename = '/u1/cryo/data/FEMB_SN01/Baseline/Cold/T2_224MHz_ASIC0_ASIC1_ExtSupply_AdaptBoard/FEMB01_224MHz_ASIC0_ASIC1_ExtSupply_AdaptBoard_Tp2u4us.dat'
 filename = '/u1/cryo/data/FEMB_SN01/Baseline/Cold/T2_224MHz_ASIC0_ASIC1_ExtSupply_AdaptBoard/FEMB01_224MHz_ASIC0_ASIC1_ExtSupply_AdaptBoard_Tp3u6us.dat'
 filename = '/u1/ddoering/data/cryo-c01/FEMB_at_offsiteLab/room/2MSPS/cryo_FEMB_SN1_AllCHsbut0And32_ASIC0_0x0399_tp2u4s_ASIC1_0x0395_4096.dat'
+filename = '/home/t-1000/Desktop/dune/Data/Mar29_2021/FEMB_ASIC_BOTH_224MHz_AllCHs_0x0390_32768_Test.dat'
+
+if (len(sys.argv[1])>0):
+    filename = sys.argv[1]
+else:
+    filename = ''
 
 f = open(filename, mode = 'rb')
 
@@ -314,7 +323,7 @@ if PLOT_ADC9_VS_N :
 
 #%% baseline statistics
 datasetIndex = 0
-adcData = imgDesc
+#adcData = imgDesc
 baselineAvg = np.mean(adcData[datasetIndex],axis=1)
 baselineStd = np.std(adcData[datasetIndex],axis=1)
 print(baselineAvg.shape)
