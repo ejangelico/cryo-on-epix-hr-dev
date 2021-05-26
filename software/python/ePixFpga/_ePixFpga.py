@@ -840,6 +840,24 @@ class KCU105FEMBCryo(pr.Device):
             self.filenameASIC0 = "./yml/FEMB_KCU105_cryo_config_ASIC_ExtClk_RoomTemp_asic0.yml"
             self.filenameASIC1 = "./yml/FEMB_KCU105_cryo_config_ASIC_ExtClk_RoomTemp_asic1.yml"
 
+        if arguments[0] == 6:
+            self.filenameMMCM = "./yml/FEMB_KCU105_cryo_config_mmcm_PLLClk_224MHz.yml"
+            self.filenamePLL = "./config/pll-config/FEMB_Si5345-RevD-CRYO_C01-56MHzIn224MHzOut_Project-Registers.csv"
+            self.filenameASIC0 = "./yml/FEMB_KCU105_cryo_config_ASIC_ExtClk_RoomTemp_asic0_LDOBypass.yml"
+            self.filenameASIC1 = "./yml/FEMB_KCU105_cryo_config_ASIC_ExtClk_RoomTemp_asic1_LDOBypass.yml"
+
+        if arguments[0] == 7:
+            self.filenameMMCM = "./yml/FEMB_KCU105_cryo_config_mmcm_PLLClk_224MHz.yml"
+            self.filenamePLL = "./config/pll-config/FEMB_Si5345-RevD-CRYO_C01-56MHzIn224MHzOut_Project-Registers.csv"
+            self.filenameASIC0 = "./yml/FEMB_REVB_RoomTemp_ASIC0.yml"
+            self.filenameASIC1 = "./yml/FEMB_REVB_RoomTemp_ASIC1.yml"
+
+        if arguments[0] == 8:
+            self.filenameMMCM = "./yml/FEMB_KCU105_cryo_config_mmcm_PLLClk_224MHz.yml"
+            self.filenamePLL = "./config/pll-config/FEMB_Si5345-RevD-CRYO_C01-56MHzIn224MHzOut_Project-Registers.csv"
+            self.filenameASIC0 = "./yml/FEMB_REVB_COLDTemp_ASIC0.yml"
+            self.filenameASIC1 = "./yml/FEMB_REVB_COLDTemp_ASIC1.yml"
+
         if arguments[0] == 101:
             self.filenameMMCM = "./yml/cryo_config_mmcm_PLLClk_448MHz.yml"
             self.filenamePLL = "./config/pll-config/Si5345-RevD-CRYO_C01-Registers.csv"
