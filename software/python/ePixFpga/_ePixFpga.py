@@ -721,7 +721,7 @@ class EpixHRGen1Cryo(pr.Device):
 #######################################################
 
 class KCU105FEMBCryo(pr.Device):
-    def __init__(self, **kwargs):
+    def __init__(self,ASIC_version = 2, **kwargs):
         if 'description' not in kwargs:
             kwargs['description'] = "HR Gen1 FPGA"
       
@@ -738,9 +738,19 @@ class KCU105FEMBCryo(pr.Device):
             MMCM7Registers(                  name='MMCM7Registers',                    offset=0x80000000, expand=False, enabled=False),
             MMCM7Registers(                  name='MMCMSerdesRegisters',               offset=0x97000000, expand=False, enabled=False),
             TriggerRegisters(                name="TriggerRegisters",                  offset=0x81000000, expand=False, enabled=False),
-            ssiPrbsTxRegisters(              name='ssiPrbs0PktRegisters',              offset=0x00040000, expand=False, enabled=False),
-            epix.CryoAsic0p2(                name='CryoAsic0',                         offset=0x88400000, expand=False, enabled=False),
-            epix.CryoAsic0p2(                name='CryoAsic1',                         offset=0x88000000, expand=False, enabled=False),
+            ssiPrbsTxRegisters(              name='ssiPrbs0PktRegisters',              offset=0x00040000, expand=False, enabled=False)
+          ))
+        if (ASIC_version == 2):
+            self.add((
+                epix.CryoAsic0p2(            name='CryoAsic0',  offset=0x88400000, expand=False, enabled=False),
+                epix.CryoAsic0p2(            name='CryoAsic1',  offset=0x88000000, expand=False, enabled=False)
+                ))
+        if (ASIC_version == 3):
+            self.add((
+                epix.CryoAsic0p3(            name='CryoAsic0', offset=0x88400000, expand=False, enabled=False),
+                epix.CryoAsic0p3(            name='CryoAsic1', offset=0x88000000, expand=False, enabled=False)
+                ))
+        self.add((
             CryoAppCoreFpgaRegisters(        name="AppFpgaRegisters",                  offset=0x96000000, expand=False, enabled=False),
             silabs.Si5345(                   name='Pll',                               offset=0x93000000, expand=False, enabled=False, description = 'This device contains Jitter cleaner PLL'),
             AsicDeserHr12bRegisters(         name="DeserRegisters0",                   offset=0x94000000, expand=False, enabled=False), 
