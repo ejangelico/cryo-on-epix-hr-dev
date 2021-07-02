@@ -841,15 +841,23 @@ class KCU105FEMBCryo(pr.Device):
         if arguments[0] == 3:
             self.filenameMMCM = "./yml/FEMB_KCU105_cryo_config_mmcm_PLLClk_448MHz.yml"
             self.filenamePLL = "./config/pll-config/FEMB_Si5345-RevD-CRYO_C01-56MHzIn448MHzOut_Project-Registers.csv"
-            self.filenameASIC0 = "./yml/FEMB_KCU105_cryo_config_ASIC_ExtClk_RoomTemp_asic0.yml"
-            self.filenameASIC1 = "./yml/FEMB_KCU105_cryo_config_ASIC_ExtClk_RoomTemp_asic1.yml"
+            if (ASIC_version == 2):
+                self.filenameASIC0 = "./yml/FEMB_KCU105_cryo_config_ASIC_ExtClk_RoomTemp_asic0.yml"
+                self.filenameASIC1 = "./yml/FEMB_KCU105_cryo_config_ASIC_ExtClk_RoomTemp_asic1.yml"
+            else:
+                self.filenameASIC0 = "./yml/FEMB_KCU105_cryo_config_ASICv3_ExtClk_RoomTemp_asic0.yml"
+                self.filenameASIC1 = "./yml/FEMB_KCU105_cryo_config_ASICv3_ExtClk_RoomTemp_asic1.yml"
 
         if arguments[0] == 4:
             self.filenameMMCM = "./yml/FEMB_KCU105_cryo_config_mmcm_PLLClk_224MHz.yml"
             self.filenamePLL = "./config/pll-config/FEMB_Si5345-RevD-CRYO_C01-56MHzIn224MHzOut_Project-Registers.csv"
-            self.filenameASIC0 = "./yml/FEMB_KCU105_cryo_config_ASIC_ExtClk_RoomTemp_asic0.yml"
-            self.filenameASIC1 = "./yml/FEMB_KCU105_cryo_config_ASIC_ExtClk_RoomTemp_asic1.yml"
-
+            if (ASIC_version == 2):
+                self.filenameASIC0 = "./yml/FEMB_KCU105_cryo_config_ASIC_ExtClk_RoomTemp_asic0.yml"
+                self.filenameASIC1 = "./yml/FEMB_KCU105_cryo_config_ASIC_ExtClk_RoomTemp_asic1.yml"
+            else:
+                self.filenameASIC0 = "./yml/FEMB_KCU105_cryo_config_ASICv3_ExtClk_RoomTemp_asic0.yml"
+                self.filenameASIC1 = "./yml/FEMB_KCU105_cryo_config_ASICv3_ExtClk_RoomTemp_asic1.yml"
+            
         if arguments[0] == 6:
             self.filenameMMCM = "./yml/FEMB_KCU105_cryo_config_mmcm_PLLClk_224MHz.yml"
             self.filenamePLL = "./config/pll-config/FEMB_Si5345-RevD-CRYO_C01-56MHzIn224MHzOut_Project-Registers.csv"
