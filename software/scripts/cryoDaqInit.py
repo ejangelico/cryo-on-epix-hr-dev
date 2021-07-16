@@ -18,16 +18,17 @@
 # contained in the LICENSE.txt file.
 #-----------------------------------------------------------------------------
 import setupLibPaths
-import pyrogue as pr
+import pyrogue 
+import pyrogue.pydm
 import pyrogue.utilities.prbs
 import pyrogue.utilities.fileio
 import pyrogue.interfaces.simulation
-import pyrogue.gui
+
 import rogue.hardware.pgp
 import rogue.protocols
+
 import surf
-import surf.axi
-import surf.protocols.ssi
+
 from XilinxKcu1500Pgp3.XilinxKcu1500Pgp3 import *
 
 import threading
@@ -37,7 +38,6 @@ import yaml
 import time
 import argparse
 import sys
-#import testBridge
 import ePixViewer as vi
 import ePixFpga as fpga
 
@@ -218,10 +218,9 @@ class MyRunControl(pyrogue.RunControl):
 # Set base
 ##############################
 class Board(pyrogue.Root):
-    def __init__(self, guiTop, cmd, dataWriter, srp, **kwargs):
+    def __init__(self, cmd, dataWriter, srp, **kwargs):
         super().__init__(name='cryoAsicGen1',description='cryo ASIC', **kwargs)
         self.add(dataWriter)
-        self.guiTop = guiTop
         self.cmd = cmd
 
         @self.command()
@@ -268,54 +267,49 @@ else:
     # Set the timeout
     timeout_time = 5000000 # 5.0 seconds default
     
-# Create GUI
-appTop = pyrogue.gui.application(sys.argv)
-guiTop = pyrogue.gui.GuiTop(group='cryoAsicGui')
-cryoAsicBoard = Board(guiTop, cmd, dataWriter, srp)
-if ( args.type == 'dataFile' or args.type == 'SIM'):
-    cryoAsicBoard.start(pollEn=False, pyroGroup=None, timeout=timeout_time)
-else:
-    cryoAsicBoard.start(pollEn=True, pyroGroup=None)
-guiTop.addTree(cryoAsicBoard)
-guiTop.resize(800,800)
+with Board(cmd, dataWriter, srp, timeout=timeout_time) as cryoAsicBoard:
+    print("Got to initialization")
+    try:
+        # Viewer gui
+        if START_VIEWER:
+            onlineViewer = vi.Window(cameraType='cryo64xN')
+            onlineViewer.eventReader.frameIndex = 0
+            onlineViewer.setReadDelay(0)
+            pyrogue.streamTap(pgpL0Vc0, onlineViewer.eventReader)
+            if ( args.type != 'dataFile' ):
+                pyrogue.streamTap(pgpL0Vc2, onlineViewer.eventReaderScope)# PseudoScope
+        #pyrogue.streamTap(pgpL0Vc3, onlineViewer.eventReaderMonitoring) # Slow Monitoring
 
-# Viewer gui
-if START_VIEWER:
-    onlineViewer = vi.Window(cameraType='cryo64xN')
-    onlineViewer.eventReader.frameIndex = 0
-    onlineViewer.setReadDelay(0)
-    pyrogue.streamTap(pgpL0Vc0, onlineViewer.eventReader)
-    if ( args.type != 'dataFile' ):
-        pyrogue.streamTap(pgpL0Vc2, onlineViewer.eventReaderScope)# PseudoScope
-#pyrogue.streamTap(pgpL0Vc3, onlineViewer.eventReaderMonitoring) # Slow Monitoring
+        if ( args.type == 'dataFile' or args.type == 'SIM'):
+            print("Simulation mode does not initialize asic")
+        else:
+            print("Starting ADC config")
+            #configure internal ADC
+            cryoAsicBoard.EpixHRGen1Cryo.FastADCsDebug.enable.set(True)
+            cryoAsicBoard.readBlocks()
+            cryoAsicBoard.EpixHRGen1Cryo.FastADCsDebug.DelayAdc0.set(15)
+            cryoAsicBoard.EpixHRGen1Cryo.FastADCsDebug.enable.set(False)
 
-if ( args.type == 'dataFile' or args.type == 'SIM'):
-    print("Simulation mode does not initialize asic")
-else:
-    #configure internal ADC
-    cryoAsicBoard.EpixHRGen1Cryo.FastADCsDebug.enable.set(True)
-    cryoAsicBoard.readBlocks()
-    cryoAsicBoard.EpixHRGen1Cryo.FastADCsDebug.DelayAdc0.set(15)
-    cryoAsicBoard.EpixHRGen1Cryo.FastADCsDebug.enable.set(False)
+            cryoAsicBoard.EpixHRGen1Cryo.Ad9249Config_Adc_0.enable.set(True)
+            cryoAsicBoard.readBlocks()
+            cryoAsicBoard.EpixHRGen1Cryo.Ad9249Config_Adc_0.InternalPdwnMode.set(3)
+            cryoAsicBoard.EpixHRGen1Cryo.Ad9249Config_Adc_0.InternalPdwnMode.set(0)
+            cryoAsicBoard.EpixHRGen1Cryo.Ad9249Config_Adc_0.OutputFormat.set(0)
+            cryoAsicBoard.readBlocks()
+            cryoAsicBoard.EpixHRGen1Cryo.Ad9249Config_Adc_0.enable.set(False)
+            cryoAsicBoard.readBlocks()
 
-    cryoAsicBoard.EpixHRGen1Cryo.Ad9249Config_Adc_0.enable.set(True)
-    cryoAsicBoard.readBlocks()
-    cryoAsicBoard.EpixHRGen1Cryo.Ad9249Config_Adc_0.InternalPdwnMode.set(3)
-    cryoAsicBoard.EpixHRGen1Cryo.Ad9249Config_Adc_0.InternalPdwnMode.set(0)
-    cryoAsicBoard.EpixHRGen1Cryo.Ad9249Config_Adc_0.OutputFormat.set(0)
-    cryoAsicBoard.readBlocks()
-    cryoAsicBoard.EpixHRGen1Cryo.Ad9249Config_Adc_0.enable.set(False)
-    cryoAsicBoard.readBlocks()
+            # executes the requested initialization
+            cryoAsicBoard.EpixHRGen1Cryo.InitCryo(args.initSeq)
 
-    # executes the requested initialization
-    cryoAsicBoard.EpixHRGen1Cryo.InitCryo(args.initSeq)
+            
+        # Create GUI
+        if (args.start_gui):
+            #################################################################
+            pyrogue.pydm.runPyDM(root=cryoAsicBoard)
+            #################################################################
+    except:
+        cryoAsicBoard.stop()
+        
 
-    
-# Create GUI
-if (args.start_gui):
-    appTop.exec_()
-
-# Close window and stop polling
-cryoAsicBoard.stop()
-exit()
 
