@@ -24,6 +24,8 @@ class XilinxKcu1500Pgp3(pr.Device):
         self.add(pcie.AxiPcieCore(          
             offset = 0x00000000, 
             expand = False,
+            numDmaLanes = 8,
+            boardType = "Kcu1500",
         ))  
         
         # Add PGP Core 

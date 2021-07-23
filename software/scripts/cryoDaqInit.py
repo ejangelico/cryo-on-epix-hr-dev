@@ -231,7 +231,7 @@ class Board(pyrogue.Root):
             #    if pulserAmplitude%1024 == 1023:
             #        pulserAmplitude = 0
             #    else:
-            #        pulserAmplitude += 1
+            #        pulserAmplitude += 10
             #    self.EpixHRGen1Cryo.CryoAsic0.Pulser.set(pulserAmplitude)
 
         # Add Devices
@@ -266,9 +266,10 @@ if (args.type == 'SIM'):
 else:
     # Set the timeout
     timeout_time = 5000000 # 5.0 seconds default
-    
+
+
+appTop = QApplication(sys.argv)
 with Board(cmd, dataWriter, srp, timeout=timeout_time) as cryoAsicBoard:
-    print("Got to initialization")
     try:
         # Viewer gui
         if START_VIEWER:
@@ -283,7 +284,6 @@ with Board(cmd, dataWriter, srp, timeout=timeout_time) as cryoAsicBoard:
         if ( args.type == 'dataFile' or args.type == 'SIM'):
             print("Simulation mode does not initialize asic")
         else:
-            print("Starting ADC config")
             #configure internal ADC
             cryoAsicBoard.EpixHRGen1Cryo.FastADCsDebug.enable.set(True)
             cryoAsicBoard.readBlocks()
@@ -297,17 +297,20 @@ with Board(cmd, dataWriter, srp, timeout=timeout_time) as cryoAsicBoard:
             cryoAsicBoard.EpixHRGen1Cryo.Ad9249Config_Adc_0.OutputFormat.set(0)
             cryoAsicBoard.readBlocks()
             cryoAsicBoard.EpixHRGen1Cryo.Ad9249Config_Adc_0.enable.set(False)
+            
             cryoAsicBoard.readBlocks()
 
             # executes the requested initialization
             cryoAsicBoard.EpixHRGen1Cryo.InitCryo(args.initSeq)
 
-            
         # Create GUI
         if (args.start_gui):
+            print("Starting GUI")
+
             #################################################################
             pyrogue.pydm.runPyDM(root=cryoAsicBoard)
             #################################################################
+            
     except:
         cryoAsicBoard.stop()
         
