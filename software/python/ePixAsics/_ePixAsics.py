@@ -632,6 +632,26 @@ class EpixHrAdcAsic(pr.Device):
 #            self.readBlocks(recurse=True, variable=None)
 #            self.checkBlocks(recurse=True, variable=None)
 
+    def checkBlocks(self, *, recurse=True, variable=None, **kwargs):
+        print("check blox called*****")
+        if variable is not None:
+            try:
+                pr.checkTransaction(variable._block, **kwargs)
+            except Exception as msg:
+                print(f"Ignoring exception: {msg}")
+
+        else:
+            for block in self._blocks:
+                try:
+                    pr.checkTransaction(block, **kwargs)
+                except Exception as msg:
+                    print(f"Ignoring exception: {msg}")
+
+            if recurse:
+                for key,value in self.devices.items():
+                    value.checkBlocks(recurse=True, **kwargs)
+
+
     def fnSetPixelBitmap(self, dev,cmd,arg):
         """SetPixelBitmap command function"""
         addrSize = 4

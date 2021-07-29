@@ -310,9 +310,11 @@ with Board(cmd, dataWriter, srp, timeout=timeout_time) as cryoAsicBoard:
             #################################################################
             pyrogue.pydm.runPyDM(root=cryoAsicBoard)
             #################################################################
-            
+
     except:
         cryoAsicBoard.stop()
+
+    cryoAsicBoard.stop()
         
 
 
