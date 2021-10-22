@@ -223,6 +223,8 @@ class Board(pyrogue.Root):
         self.add(dataWriter)
         self.guiTop = guiTop
         self.cmd = cmd
+        self.pollEn = False
+        
 
         @self.command()
         def Trigger():
@@ -273,9 +275,9 @@ appTop = pyrogue.gui.application(sys.argv)
 guiTop = pyrogue.gui.GuiTop(group='cryoAsicGui')
 cryoAsicBoard = Board(guiTop, cmd, dataWriter, srp)
 if ( args.type == 'dataFile' or args.type == 'SIM'):
-    cryoAsicBoard.start(pollEn=False, pyroGroup=None, timeout=timeout_time)
+    cryoAsicBoard.start()
 else:
-    cryoAsicBoard.start(pollEn=True, pyroGroup=None)
+    cryoAsicBoard.start()
 guiTop.addTree(cryoAsicBoard)
 guiTop.resize(800,800)
 

@@ -110,7 +110,7 @@ class EpixHRGen1Cryo(pr.Device):
         super(self.__class__, self).__init__(**kwargs)
         self.add((
             # core registers
-            axi.AxiVersion(offset=0x00000000),          
+            axi.AxiVersion(offset=0x00000000, enabled=False),          
             #pgp.Pgp2bAxi(name='Pgp2bAxi_lane0', offset=0x05000000, enabled=True, expand=False),
             #pgp.Pgp2bAxi(name='Pgp2bAxi_lane1', offset=0x05010000, enabled=True, expand=False),
             #pgp.Pgp2bAxi(name='Pgp2bAxi_lane2', offset=0x05020000, enabled=True, expand=False),
