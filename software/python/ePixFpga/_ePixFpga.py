@@ -321,6 +321,7 @@ class EpixHRGen1Cryo(pr.Device):
         self.root.readBlocks()
         print("Completed")
 
+
         # load config that sets prog supply
         print("Loading supply configuration")
         self.root.LoadConfig(self.filenamePowerSupply)
