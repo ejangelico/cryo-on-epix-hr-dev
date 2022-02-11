@@ -370,14 +370,14 @@ guiTop.resize(800,800)
 # Viewer gui
 cryoAsicBoard.onlineViewer0 = vi.Window(cameraType='cryo64xN')
 cryoAsicBoard.onlineViewer0.eventReader.frameIndex = 0
-cryoAsicBoard.onlineViewer0.dilplayFramesFromAsics = 0
+cryoAsicBoard.onlineViewer0.dilplayFramesFromAsics = 1
 cryoAsicBoard.onlineViewer0.setReadDelay(0)
 cryoAsicBoard.onlineViewer0.setWindowTitle("ASIC 0")
 pyrogue.streamTap(pgpL0Vc0, cryoAsicBoard.onlineViewer0.eventReader)
 
 cryoAsicBoard.onlineViewer1 = vi.Window(cameraType='cryo64xN')
 cryoAsicBoard.onlineViewer1.eventReader.frameIndex = 0
-cryoAsicBoard.onlineViewer1.dilplayFramesFromAsics = 1
+cryoAsicBoard.onlineViewer1.dilplayFramesFromAsics = 0
 cryoAsicBoard.onlineViewer1.setReadDelay(0)
 cryoAsicBoard.onlineViewer1.setWindowTitle("ASIC 1")
 pyrogue.streamTap(pgpL0Vc0, cryoAsicBoard.onlineViewer1.eventReader)

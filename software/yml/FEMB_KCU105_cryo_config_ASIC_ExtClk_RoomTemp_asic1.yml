@@ -70,8 +70,8 @@ cryoAsicGen1:
       DM2sel: 0x0
       SubBnkEn: 0xFFFF
       LDO_VTBias_B0: 0x3
-      LDO_VTBias_T0: 0xc
-      LDO_VTBias_Br0: 0x0
+      LDO_VTBias_T0: 0xb
+      LDO_VTBias_Br0: 0x2
       LDO_VTBias_Tr0: 0x0
       TPS_DAC_Gain: 0x3
       LDO0TB_En: True
@@ -82,8 +82,8 @@ cryoAsicGen1:
       encoder_mode_dft: 0x0
       En_BankClk_Bk0_LVDS: False
       En_BankClk_Bk1_LVDS: False
-      En_SerClk_out_Bk0_LVDS: True
-      En_SerClk_out_Bk1_LVDS: True
+      En_SerClk_out_Bk0_LVDS: False
+      En_SerClk_out_Bk1_LVDS: False
       rtrimLVDS_b0: 0x2
       SACItristateLVDS_bit: False
       VrefGen_B0_1v2: 0x3
@@ -96,7 +96,7 @@ cryoAsicGen1:
       FE_Amp_B0_1v2: 0x2
       bifb: 0x3
       bbaseref: 0x3
-      blcoarse: 0x3
+      blcoarse: 0x6
       ctrl_pulser: False
       Pulser_Bias_DAC_b0: 0x4
       PP_Pulser_Bias_DAC: True

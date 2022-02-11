@@ -18,7 +18,7 @@
 # copied, modified, propagated, or distributed except according to the terms 
 # contained in the LICENSE.txt file.
 #-----------------------------------------------------------------------------
-
+import setupLibPaths
 import os, sys, time
 import numpy as np
 import pyrogue as pr
@@ -95,7 +95,11 @@ filename = '/u1/cryo/data/FEMB_SN01/Baseline/Cold/T2_224MHz_ASIC0_ASIC1_ExtSuppl
 filename = '/u1/cryo/data/FEMB_SN01/Baseline/Cold/T2_224MHz_ASIC0_ASIC1_ExtSupply_AdaptBoard/FEMB01_224MHz_ASIC0_ASIC1_ExtSupply_AdaptBoard_Tp1u2us.dat'
 filename = '/u1/cryo/data/FEMB_SN01/Baseline/Cold/T2_224MHz_ASIC0_ASIC1_ExtSupply_AdaptBoard/FEMB01_224MHz_ASIC0_ASIC1_ExtSupply_AdaptBoard_Tp2u4us.dat'
 filename = '/u1/cryo/data/FEMB_SN01/Baseline/Cold/T2_224MHz_ASIC0_ASIC1_ExtSupply_AdaptBoard/FEMB01_224MHz_ASIC0_ASIC1_ExtSupply_AdaptBoard_Tp3u6us.dat'
-filename = '/u1/ddoering/data/cryo-c01/FEMB_at_offsiteLab/room/2MSPS/cryo_FEMB_SN1_AllCHsbut0And32_ASIC0_0x0399_tp2u4s_ASIC1_0x0395_4096.dat'
+
+filename = '/home/cryo/data/FEMB_SN01/Baseline/Room/T6_224MHz_CTS/FEMB_0x390.dat'
+filename = '/home/cryo/data/FEMB_SN01/Baseline/Room/T6_224MHz_CTS/FEMB_0x394.dat'
+filename = '/home/cryo/data/FEMB_SN01/Baseline/Room/T6_224MHz_CTS/FEMB_0x398.dat'
+filename = '/home/cryo/data/FEMB_SN01/Baseline/Room/T6_224MHz_CTS/FEMB_0x39c.dat'
 
 f = open(filename, mode = 'rb')
 
