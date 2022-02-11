@@ -127,6 +127,16 @@ parser.add_argument(
     help     = "specify the inicialization sequence to be performed (0 means no initialization).",
 )  
 
+# Add arguments
+parser.add_argument(
+    "--ASIC_version", 
+    type     = int,
+    required = False,
+    default  = 2,
+    help     = "specify the ASIC version being used (2 for nEXO variant and 3 for DUNE variant).",
+)  
+
+
 # Get the arguments
 args = parser.parse_args()
 
@@ -318,7 +328,7 @@ class MyRunControl(pyrogue.RunControl):
 ##############################
 class Board(pyrogue.Root):
     def __init__(self, guiTop, cmd, dataWriter, srp, **kwargs):
-        super().__init__(name='cryoAsicGen1',description='cryo ASIC', **kwargs)
+        super().__init__(name='cryoAsicGen1',description='cryo ASIC', pollEn=False, **kwargs)
         self.add(dataWriter)
         self.guiTop = guiTop
         self.cmd = cmd
@@ -337,7 +347,7 @@ class Board(pyrogue.Root):
         if ( args.type == 'kcu1500' ):
             coreMap = rogue.hardware.axi.AxiMemMap('/dev/datadev_0')
             self.add(XilinxKcu1500Pgp3(memBase=coreMap))        
-        self.add(fpga.KCU105FEMBCryo(name='KCU105FEMBCryo', offset=0, memBase=srp, hidden=False, enabled=True))
+        self.add(fpga.KCU105FEMBCryo(name='KCU105FEMBCryo', ASIC_version = args.ASIC_version, offset=0, memBase=srp, hidden=False, enabled=True))
         self.add(pyrogue.RunControl(name = 'runControl', description='Run Controller hr', cmd=self.Trigger, rates={1:'1 Hz', 2:'2 Hz', 4:'4 Hz', 8:'8 Hz', 10:'10 Hz', 30:'30 Hz', 60:'60 Hz', 120:'120 Hz'}))
 
 if (args.verbose): dbgData = rogue.interfaces.stream.Slave()

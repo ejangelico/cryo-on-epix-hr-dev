@@ -31,7 +31,7 @@ import time
 import ePixViewer.imgProcessing as imgPr
 import ePixViewer.Cameras as cameras
 import numpy as np
-from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 
 import pdb
@@ -43,6 +43,8 @@ try:
 except ImportError:
     from PyQt4.QtCore    import *
     from PyQt4.QtGui     import *
+
+from scipy import signal
 
 
 PRINT_VERBOSE = 0
@@ -466,7 +468,7 @@ class Window(QMainWindow, QObject):
             self.ImgDarkSub = self.imgTool.getDarkSubtractedImg(self.imgDesc)
             
         #check horizontal line display
-        if ((self.cbHorizontalLineEnabled.isChecked()) or (self.cbVerticalLineEnabled.isChecked()) or (self.cbpixelTimeSeriesEnabled.isChecked())):
+        if ((self.cbHorizontalLineEnabled.isChecked()) or (self.cbVerticalLineEnabled.isChecked()) or (self.cbpixelTimeSeriesEnabled.isChecked()) or (self.cbSpectrumLineEnabled.isChecked()) or (self.cbLiveSDLineEnabled.isChecked())):
             self.updatePixelTimeSeriesLinePlot()
             self.updateLinePlots()
     
@@ -477,20 +479,37 @@ class Window(QMainWindow, QObject):
         if (self.imgTool.imgDark_isSet):
             #self.ImgDarkSub
             if ((self.ImgDarkSub.shape[0] > self.mouseY)and(self.ImgDarkSub.shape[1] > self.mouseX)):
+
+                self.lineDisplay1.update_periodogram(self.cbSpectrumLineEnabled.isChecked(), "Frequency", 'g', self.ImgDarkSub[self.mouseY,:])    ###########
+
+                self.lineDisplay1.update_live_sd(self.cbLiveSDLineEnabled.isChecked(), "channel", 'r', self.ImgDarkSub)
+
                 self.lineDisplay1.update_plot(self.cbHorizontalLineEnabled.isChecked(),  "Horizontal", 'r', self.ImgDarkSub[self.mouseY,:], 
                                             self.cbVerticalLineEnabled.isChecked(),    "Vertical",   'b', self.ImgDarkSub[:,self.mouseX],
                                             self.cbpixelTimeSeriesEnabled.isChecked(), "Pixel TS",   'k', self.pixelTimeSeries)
+
+                self.lineDisplay1.draw()
+
             else:
                 print("Invalid line plot position")
         else:
             #print(self.imgDesc.shape)
             if ((self.imgDesc.shape[0] > self.mouseY)and(self.imgDesc.shape[1] > self.mouseX)):
+
+                self.lineDisplay1.axes.cla()
+
+                self.lineDisplay1.update_periodogram(self.cbSpectrumLineEnabled.isChecked(), "Frequency", 'g', self.imgDesc[self.mouseY,:])    ###########
+
+                self.lineDisplay1.update_live_sd(self.cbLiveSDLineEnabled.isChecked(), "channel", 'r', self.imgDesc)
+
                 self.lineDisplay1.update_plot(self.cbHorizontalLineEnabled.isChecked(),  "Horizontal", 'r', self.imgDesc[self.mouseY,:], 
                                             self.cbVerticalLineEnabled.isChecked(),    "Vertical",   'b', self.imgDesc[:,self.mouseX],
                                             self.cbpixelTimeSeriesEnabled.isChecked(), "Pixel TS",   'k', self.pixelTimeSeries)
+
+                self.lineDisplay1.draw()
+
             else:
                 print("Invalid line plot position")
-
 
     """ Plot pixel values for multiple images """
     def clearPixelTimeSeriesLinePlot(self):
@@ -768,7 +787,69 @@ class MplCanvas(FigureCanvas):
         l = [-1, -2, 10, 14] #[random.randint(0, 10) for i in range(4)]
         #self.axes.cla()
         self.axes.plot([0, 1, 2, 3], l, 'r')
-        self.draw()
+        #self.draw()
+
+
+    #the arguments are expected in the following sequence
+    # (display enabled, line name, line color, data array)
+    def update_live_sd(self, *args):
+        argIndex = 0
+        lineName = ""
+
+        for arg in args:
+            if (argIndex%4 == 0):
+                lineEnabled = arg
+            if (argIndex%4 == 1):
+                lineName = arg
+            if (argIndex%4 == 2):
+                lineColor = arg
+            if (argIndex%4 == 3):
+
+                if (lineEnabled):
+                    l = arg
+                    channel_numbers = np.arange(64)
+                    sd = l.std(axis=1)
+                    self.axes.plot(channel_numbers, sd, lineColor)                                              ######### 
+                    #self.axes.text(0.2,argIndex/20, 'std %f' % (np.std(l)),horizontalalignment='center', verticalalignment='center', transform=self.axes.transAxes)
+                    self.axes.grid()
+
+            argIndex = argIndex + 1
+
+        #self.axes.set_title(self.MyTitle)        
+        #self.draw()
+
+
+
+    #the arguments are expected in the following sequence
+    # (display enabled, line name, line color, data array)
+    def update_periodogram(self, *args):
+        argIndex = 0
+        lineName = ""
+
+        for arg in args:
+            if (argIndex%4 == 0):
+                lineEnabled = arg
+            if (argIndex%4 == 1):
+                lineName = arg
+            if (argIndex%4 == 2):
+                lineColor = arg
+            if (argIndex%4 == 3):
+
+                if (lineEnabled):
+                    l = arg 
+                    fs = 1e6                                                                           ### ###
+                    freq, pxx = signal.periodogram(l, fs=fs)                                            #   #
+                    pxx = 10 * np.log10(pxx)                                                         #    ##   #  
+                    self.axes.plot(freq, pxx, lineColor)                                              ######### 
+                    self.axes.text(0.2,argIndex/20, 'std %f' % (np.std(l)),horizontalalignment='center', verticalalignment='center', transform=self.axes.transAxes)
+                    self.axes.grid()
+
+            argIndex = argIndex + 1    
+            #print (freq, "\n", pxx)
+
+        #self.axes.set_title(self.MyTitle)        
+        #self.draw()
+
 
     #the arguments are expected in the following sequence
     # (display enabled, line name, line color, data array)
@@ -778,7 +859,6 @@ class MplCanvas(FigureCanvas):
 #        if (self.fig.cbar!=None):              
 #            self.fig.cbar.remove()
 
-        self.axes.cla()
         for arg in args:
             if (argIndex%4 == 0):
                 lineEnabled = arg
@@ -799,7 +879,8 @@ class MplCanvas(FigureCanvas):
                 #argIndex = -1
             argIndex = argIndex + 1    
         self.axes.set_title(self.MyTitle)        
-        self.draw()
+
+
 
     def update_figure(self, image=None, contrast=None, autoScale = True, plotImageTranspose = True):
         self.axes.cla()
@@ -990,7 +1071,10 @@ class TabbedCtrlCanvas(QTabWidget):
         #
         myParent.cbpixelTimeSeriesEnabled = QCheckBox('Pixel Time Series Line')
         myParent.cbImageZoomEnabled = QCheckBox('Image zoom')
-
+        #
+        myParent.cbSpectrumLineEnabled = QCheckBox('Plot channel vs. frequency')               #####
+        myParent.cbLiveSDLineEnabled = QCheckBox('Plot channel vs. SD')    ####
+        
         # button save trace to file
         btnSaveSeriesToFile = QPushButton("Save to file")
         btnSaveSeriesToFile.setMaximumWidth(150)
@@ -1016,6 +1100,8 @@ class TabbedCtrlCanvas(QTabWidget):
         grid3.addWidget(myParent.cbVerticalLineEnabled,2, 1)
         grid3.addWidget(myParent.cbpixelTimeSeriesEnabled,3, 1)
         grid3.addWidget(myParent.cbImageZoomEnabled,1, 3)
+        grid3.addWidget(myParent.cbSpectrumLineEnabled, 2, 3)                     #######
+        grid3.addWidget(myParent.cbLiveSDLineEnabled, 3, 3)    ####
         grid3.addWidget(btnSaveSeriesToFile,4, 1)
 
 

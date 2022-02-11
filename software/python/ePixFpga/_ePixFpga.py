@@ -110,7 +110,7 @@ class EpixHRGen1Cryo(pr.Device):
         super(self.__class__, self).__init__(**kwargs)
         self.add((
             # core registers
-            axi.AxiVersion(offset=0x00000000),          
+            axi.AxiVersion(offset=0x00000000, enabled=False),          
             #pgp.Pgp2bAxi(name='Pgp2bAxi_lane0', offset=0x05000000, enabled=True, expand=False),
             #pgp.Pgp2bAxi(name='Pgp2bAxi_lane1', offset=0x05010000, enabled=True, expand=False),
             #pgp.Pgp2bAxi(name='Pgp2bAxi_lane2', offset=0x05020000, enabled=True, expand=False),
@@ -721,7 +721,7 @@ class EpixHRGen1Cryo(pr.Device):
 #######################################################
 
 class KCU105FEMBCryo(pr.Device):
-    def __init__(self, **kwargs):
+    def __init__(self,ASIC_version = 2, **kwargs):
         if 'description' not in kwargs:
             kwargs['description'] = "HR Gen1 FPGA"
       
@@ -738,9 +738,19 @@ class KCU105FEMBCryo(pr.Device):
             MMCM7Registers(                  name='MMCM7Registers',                    offset=0x80000000, expand=False, enabled=False),
             MMCM7Registers(                  name='MMCMSerdesRegisters',               offset=0x97000000, expand=False, enabled=False),
             TriggerRegisters(                name="TriggerRegisters",                  offset=0x81000000, expand=False, enabled=False),
-            ssiPrbsTxRegisters(              name='ssiPrbs0PktRegisters',              offset=0x00040000, expand=False, enabled=False),
-            epix.CryoAsic0p2(                name='CryoAsic0',                         offset=0x88000000, expand=False, enabled=False),
-            epix.CryoAsic0p2(                name='CryoAsic1',                         offset=0x88400000, expand=False, enabled=False),
+            ssiPrbsTxRegisters(              name='ssiPrbs0PktRegisters',              offset=0x00040000, expand=False, enabled=False)
+          ))
+        if (ASIC_version == 2):
+            self.add((
+                epix.CryoAsic0p2(            name='CryoAsic0',  offset=0x88400000, expand=False, enabled=False),
+                epix.CryoAsic0p2(            name='CryoAsic1',  offset=0x88000000, expand=False, enabled=False)
+                ))
+        if (ASIC_version == 3):
+            self.add((
+                epix.CryoAsic0p3(            name='CryoAsic0', offset=0x88400000, expand=False, enabled=False),
+                epix.CryoAsic0p3(            name='CryoAsic1', offset=0x88000000, expand=False, enabled=False)
+                ))
+        self.add((
             CryoAppCoreFpgaRegisters(        name="AppFpgaRegisters",                  offset=0x96000000, expand=False, enabled=False),
             silabs.Si5345(                   name='Pll',                               offset=0x93000000, expand=False, enabled=False, description = 'This device contains Jitter cleaner PLL'),
             AsicDeserHr12bRegisters(         name="DeserRegisters0",                   offset=0x98000000, expand=False, enabled=False), 
@@ -831,14 +841,40 @@ class KCU105FEMBCryo(pr.Device):
         if arguments[0] == 3:
             self.filenameMMCM = "./yml/FEMB_KCU105_cryo_config_mmcm_PLLClk_448MHz.yml"
             self.filenamePLL = "./config/pll-config/FEMB_Si5345-RevD-CRYO_C01-56MHzIn448MHzOut_Project-Registers.csv"
-            self.filenameASIC0 = "./yml/FEMB_KCU105_cryo_config_ASIC_ExtClk_RoomTemp_asic0.yml"
-            self.filenameASIC1 = "./yml/FEMB_KCU105_cryo_config_ASIC_ExtClk_RoomTemp_asic1.yml"
+            if (ASIC_version == 2):
+                self.filenameASIC0 = "./yml/FEMB_KCU105_cryo_config_ASIC_ExtClk_RoomTemp_asic0.yml"
+                self.filenameASIC1 = "./yml/FEMB_KCU105_cryo_config_ASIC_ExtClk_RoomTemp_asic1.yml"
+            else:
+                self.filenameASIC0 = "./yml/FEMB_KCU105_cryo_config_ASICv3_ExtClk_RoomTemp_asic0.yml"
+                self.filenameASIC1 = "./yml/FEMB_KCU105_cryo_config_ASICv3_ExtClk_RoomTemp_asic1.yml"
 
         if arguments[0] == 4:
             self.filenameMMCM = "./yml/FEMB_KCU105_cryo_config_mmcm_PLLClk_224MHz.yml"
             self.filenamePLL = "./config/pll-config/FEMB_Si5345-RevD-CRYO_C01-56MHzIn224MHzOut_Project-Registers.csv"
-            self.filenameASIC0 = "./yml/FEMB_KCU105_cryo_config_ASIC_ExtClk_RoomTemp_asic0.yml"
-            self.filenameASIC1 = "./yml/FEMB_KCU105_cryo_config_ASIC_ExtClk_RoomTemp_asic1.yml"
+            if (ASIC_version == 2):
+                self.filenameASIC0 = "./yml/FEMB_KCU105_cryo_config_ASIC_ExtClk_RoomTemp_asic0.yml"
+                self.filenameASIC1 = "./yml/FEMB_KCU105_cryo_config_ASIC_ExtClk_RoomTemp_asic1.yml"
+            else:
+                self.filenameASIC0 = "./yml/FEMB_KCU105_cryo_config_ASICv3_ExtClk_RoomTemp_asic0.yml"
+                self.filenameASIC1 = "./yml/FEMB_KCU105_cryo_config_ASICv3_ExtClk_RoomTemp_asic1.yml"
+            
+        if arguments[0] == 6:
+            self.filenameMMCM = "./yml/FEMB_KCU105_cryo_config_mmcm_PLLClk_224MHz.yml"
+            self.filenamePLL = "./config/pll-config/FEMB_Si5345-RevD-CRYO_C01-56MHzIn224MHzOut_Project-Registers.csv"
+            self.filenameASIC0 = "./yml/FEMB_KCU105_cryo_config_ASIC_ExtClk_RoomTemp_asic0_LDOBypass.yml"
+            self.filenameASIC1 = "./yml/FEMB_KCU105_cryo_config_ASIC_ExtClk_RoomTemp_asic1_LDOBypass.yml"
+
+        if arguments[0] == 7:
+            self.filenameMMCM = "./yml/FEMB_KCU105_cryo_config_mmcm_PLLClk_224MHz.yml"
+            self.filenamePLL = "./config/pll-config/FEMB_Si5345-RevD-CRYO_C01-56MHzIn224MHzOut_Project-Registers.csv"
+            self.filenameASIC0 = "./yml/FEMB_REVB_RoomTemp_ASIC0.yml"
+            self.filenameASIC1 = "./yml/FEMB_REVB_RoomTemp_ASIC1.yml"
+
+        if arguments[0] == 8:
+            self.filenameMMCM = "./yml/FEMB_KCU105_cryo_config_mmcm_PLLClk_224MHz.yml"
+            self.filenamePLL = "./config/pll-config/FEMB_Si5345-RevD-CRYO_C01-56MHzIn224MHzOut_Project-Registers.csv"
+            self.filenameASIC0 = "./yml/FEMB_REVB_COLDTemp_ASIC0.yml"
+            self.filenameASIC1 = "./yml/FEMB_REVB_COLDTemp_ASIC1.yml"
 
         if arguments[0] == 101:
             self.filenameMMCM = "./yml/cryo_config_mmcm_PLLClk_448MHz.yml"
