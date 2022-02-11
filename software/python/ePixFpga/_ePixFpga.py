@@ -724,7 +724,7 @@ class KCU105FEMBCryo(pr.Device):
     def __init__(self,ASIC_version = 2, **kwargs):
         if 'description' not in kwargs:
             kwargs['description'] = "HR Gen1 FPGA"
-      
+        self.ASIC_version = ASIC_version
         trigChEnum={0:'TrigReg', 1:'ThresholdChA', 2:'ThresholdChB', 3:'AcqStart', 4:'AsicAcq', 5:'AsicR0', 6:'AsicRoClk', 7:'AsicPpmat', 8:'AsicPpbe', 9:'AsicSync', 10:'AsicGr', 11:'AsicSaciSel0', 12:'AsicSaciSel1'}
         inChaEnum={0:'Off', 0:'Asic0TpsMux', 1:'Asic1TpsMux'}
         inChbEnum={0:'Off', 0:'Asic0TpsMux', 1:'Asic1TpsMux'}
@@ -740,15 +740,15 @@ class KCU105FEMBCryo(pr.Device):
             TriggerRegisters(                name="TriggerRegisters",                  offset=0x81000000, expand=False, enabled=False),
             ssiPrbsTxRegisters(              name='ssiPrbs0PktRegisters',              offset=0x00040000, expand=False, enabled=False)
           ))
-        if (ASIC_version == 2):
+        if (self.ASIC_version == 2):
             self.add((
-                epix.CryoAsic0p2(            name='CryoAsic0',  offset=0x88400000, expand=False, enabled=False),
-                epix.CryoAsic0p2(            name='CryoAsic1',  offset=0x88000000, expand=False, enabled=False)
+                epix.CryoAsic0p2(            name='CryoAsic0',  offset=0x88000000, expand=False, enabled=False),
+                epix.CryoAsic0p2(            name='CryoAsic1',  offset=0x88400000, expand=False, enabled=False)
                 ))
-        if (ASIC_version == 3):
+        if (self.ASIC_version == 3):
             self.add((
-                epix.CryoAsic0p3(            name='CryoAsic0', offset=0x88400000, expand=False, enabled=False),
-                epix.CryoAsic0p3(            name='CryoAsic1', offset=0x88000000, expand=False, enabled=False)
+                epix.CryoAsic0p3(            name='CryoAsic0', offset=0x88000000, expand=False, enabled=False),
+                epix.CryoAsic0p3(            name='CryoAsic1', offset=0x88400000, expand=False, enabled=False)
                 ))
         self.add((
             CryoAppCoreFpgaRegisters(        name="AppFpgaRegisters",                  offset=0x96000000, expand=False, enabled=False),
@@ -841,7 +841,7 @@ class KCU105FEMBCryo(pr.Device):
         if arguments[0] == 3:
             self.filenameMMCM = "./yml/FEMB_KCU105_cryo_config_mmcm_PLLClk_448MHz.yml"
             self.filenamePLL = "./config/pll-config/FEMB_Si5345-RevD-CRYO_C01-56MHzIn448MHzOut_Project-Registers.csv"
-            if (ASIC_version == 2):
+            if (self.ASIC_version == 2):
                 self.filenameASIC0 = "./yml/FEMB_KCU105_cryo_config_ASIC_ExtClk_RoomTemp_asic0.yml"
                 self.filenameASIC1 = "./yml/FEMB_KCU105_cryo_config_ASIC_ExtClk_RoomTemp_asic1.yml"
             else:
@@ -851,7 +851,7 @@ class KCU105FEMBCryo(pr.Device):
         if arguments[0] == 4:
             self.filenameMMCM = "./yml/FEMB_KCU105_cryo_config_mmcm_PLLClk_224MHz.yml"
             self.filenamePLL = "./config/pll-config/FEMB_Si5345-RevD-CRYO_C01-56MHzIn224MHzOut_Project-Registers.csv"
-            if (ASIC_version == 2):
+            if (self.ASIC_version == 2):
                 self.filenameASIC0 = "./yml/FEMB_KCU105_cryo_config_ASIC_ExtClk_RoomTemp_asic0.yml"
                 self.filenameASIC1 = "./yml/FEMB_KCU105_cryo_config_ASIC_ExtClk_RoomTemp_asic1.yml"
             else:
