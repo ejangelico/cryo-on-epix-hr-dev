@@ -2,7 +2,7 @@
 -- File       : Application.vhd
 -- Company    : SLAC National Accelerator Laboratory
 -- Created    : 2017-04-21
--- Last update: 2020-08-11
+-- Last update: 2021-10-22
 -------------------------------------------------------------------------------
 -- Description: Application Core's Top Level
 -------------------------------------------------------------------------------
@@ -669,6 +669,7 @@ begin
    -- clkOut(1) : 112.00 MHz -- 448 clock div 4
    -- clkOut(2) : 64.00 MHz  -- 448 clock div 7
    -- clkOut(3) : 56.00 MHz  -- cryo input clock default is 56MHz
+   -- 51.250 =>base clock of 1000MHz or 2.2MSPS (62.5MHz)
    -- 45.875 =>base clock of 896MHz or 2MSPS
    -- 41.000 =>base clock of 800MHz or 1.79MSPS
    -- 37.625 =>base clock of 734MHz or 1.63MSPS

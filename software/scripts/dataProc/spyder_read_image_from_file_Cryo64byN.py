@@ -113,7 +113,8 @@ filename = '/u1/cryo/data/Cryo_v2_nEXO_Varinat/Board_SN5/Full_Chain/Baseline/Col
 #
 filename = '/u1/cryo/data/Cryo_v2_nEXO_Varinat/Board_SN4/ADC/Room/RampTest/T0_RampTest_Room/T0_RampTest_20bitDAC_Room_448MHz_CH0toCH3_CH60to63_0.dat'
 filename = '/u1/cryo/data/Cryo_v2_nEXO_Varinat/Board_SN5/ADC/Cold/RampTest/T0_RampTest_20bitDAC_448MHz_Cold/T0_RampTest_20bitDAC_Cold_448MHz_CH0toCH1_ADC1_0.dat'
-
+#
+filename = '/u1/ddoering/localGit/cryo-on-epix-hr-dev/software/checkingForJumps_ch0x1_ch0x21_disabdle_allOthersat0x0429.dat'
 f = open(filename, mode = 'rb')
 
 file_header = [0]
