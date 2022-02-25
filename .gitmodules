@@ -10,7 +10,3 @@
 [submodule "firmware/submodules/axi-pcie-core"]
 	path = firmware/submodules/axi-pcie-core
 	url = git@github.com:slaclab/axi-pcie-core
-[submodule "firmware/submodules/asic-rtl-lib"]
-	path = firmware/submodules/asic-rtl-lib
-	url = git@github.com:slaclab/asic-rtl-lib.git
-	branch = cryo-rev2

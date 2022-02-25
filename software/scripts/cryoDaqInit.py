@@ -222,6 +222,8 @@ class Board(pyrogue.Root):
         super().__init__(name='cryoAsicGen1',description='cryo ASIC', **kwargs)
         self.add(dataWriter)
         self.cmd = cmd
+        self.pollEn = False
+        
 
         @self.command()
         def Trigger():

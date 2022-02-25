@@ -224,6 +224,21 @@ filenameroot = 'T5_SN5_224MHz_CH4ADC2Top_CH59ADC2Bot_Trig5'
 filenamepath = '/u1/cryo/data/Cryo_v2_nEXO_Varinat/Board_SN5/ADC/Cold/RampTest_Cold/T6_224MHz_20bitDAC_Cold_Trig5/'
 filenameroot = 'T6_SN5_224MHz_CH4ADC2Top_CH59ADC2Bot_Trig5_ADCB2B3_0x3'
 
+filenamepath = '/u1/cryo/data/Board_SN05/ADC/Linearity/Cold/T6_B101_SN05_224MHz_Linearity_20bitDAC_CH0to3_CH60to63_Cold/'
+filenameroot = 'T6_B101_SN05_224MHz_Linearity_20bitDAC_CH0to3_CH60to63_Cold'
+
+filenamepath = '/u1/cryo/data/Board_SN05/ADC/Linearity/Cold/T7_B101_SN05_224MHz_Linearity_20bitDAC_CH0to3_CH60to63_Cold/'
+filenameroot = 'T7_B101_SN05_224MHz_Linearity_20bitDAC_CH0to3_CH60to63_Cold'
+
+filenamepath = '/u1/cryo/data/Board_SN05/ADC/Linearity/Cold/T8_B101_SN05_224MHz_Linearity_20bitDAC_CH0to3_CH60to63_Cold/'
+filenameroot = 'T8_B101_SN05_224MHz_Linearity_20bitDAC_CH0to3_CH60to63'
+
+filenamepath = '/u1/cryo/data/Board_SN05/ADC/Linearity/Cold/T9_B101_SN05_224MHz_Linearity_20bitDAC_CH0to3_CH60to63_Cold/'
+filenameroot = 'T9_B101_SN05_224MHz_Linearity_20bitDAC_CH0to3_CH60to63'
+
+filenamepath = '/u1/cryo/data/Board_SN05/ADC/Linearity/Cold/T10_B101_SN05_224MHz_Linearity_20bitDAC_CH0to7_CH56to63_Cold/'
+filenameroot = 'T10_B101_SN05_224MHz_Linearity_20bitDAC_CH0to7_CH56to63_Cold'
+
 frame_index = 1
 
 for j in range(0, 16):
@@ -234,7 +249,7 @@ for j in range(0, 16):
         newImage = getData(f)
         if not len(newImage):
             print("padding image")
-            newImage = np.zeros((5,64,128))
+            newImage = np.zeros((4,64,64))
                         
         print(newImage.shape)
         if i == j*int(65536/16):
@@ -245,7 +260,7 @@ for j in range(0, 16):
 
 
     #LAST PARAMETER DEPENDS ON NUMBER OF SAMPLES ACQUIRED
-    imgDesc = imgList.reshape(-1,64,128) # when setting packet size to 4096
+    imgDesc = imgList.reshape(-1,64,64) # when setting packet size to 4096
     #imgDesc = imgList.reshape(-1,64,256) # when setting packet size to 8192 
     #avgImgDesc = np.average(imgDesc,2)
     if(SAVEHDF5):
