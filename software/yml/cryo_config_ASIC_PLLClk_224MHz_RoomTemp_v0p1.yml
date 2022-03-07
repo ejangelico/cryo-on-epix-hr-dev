@@ -7,15 +7,15 @@ cryoAsicGen1:
       enable: True
       TPS_DAC: 0x3c
       TPS_GR: 0x1
-      TPSMux: 0x8
+      TPSMux: 0x0
       Bias_TPS_Buffer: 0x5
       Bias_TPS: 0x4
       Bias_TPS_DAC: 0x4
       Bias_LVDS_Rx: 0x3
       Bias_LVDS_Tx: 0x3
       RbiasEn: False
-      Pulser: 0x0
-      test: False
+      Pulser: 0x370
+      test: True
       atest: False
       hrtest: False
       sbatest: False
@@ -57,7 +57,7 @@ cryoAsicGen1:
       bamp: 0x4
       bleak: 0x2
       brstVref: 0x4
-      SAH_Ctrl_Visel: True
+      SAH_Ctrl_Visel: False
       ADC_Ocen_Bk0: True
       ADC_Ocen_Bk1: True
       VrefBuffExt_En_Bk0: True
@@ -68,11 +68,11 @@ cryoAsicGen1:
       emph_bd: 0x0
       DM1sel: 0x0
       DM2sel: 0x0
-      SubBnkEn: 0xffff
+      SubBnkEn: 0xFFFF
       LDO_VTBias_B0: 0x3
-      LDO_VTBias_T0: 0xc
+      LDO_VTBias_T0: 0xa
       LDO_VTBias_Br0: 0x0
-      LDO_VTBias_Tr0: 0x0
+      LDO_VTBias_Tr0: 0x5
       TPS_DAC_Gain: 0x3
       LDO0TB_En: True
       LDO0rTB_En: True
@@ -89,14 +89,14 @@ cryoAsicGen1:
       VrefGen_B0_1v2: 0x3
       VrefGen_Br0_1v2: 0x3
       VrefGen_T0_1v2: 0xf
-      VrefGen_Tc0_1v2: 0xe
-      VrefGen_Tr0_1v2: 0xf
+      VrefGen_Tc0_1v2: 0xf
+      VrefGen_Tr0_1v2: 0x0
       VrefBuf_Ext_B0_1v2: 0x3
       VcmBuf_Ext_B0_1v2: 0x0
       FE_Amp_B0_1v2: 0x2
       bifb: 0x3
-      bbaseref: 0x2
-      blcoarse: 0x7
+      bbaseref: 0x3
+      blcoarse: 0x6
       ctrl_pulser: False
       Pulser_Bias_DAC_b0: 0x4
       PP_Pulser_Bias_DAC: True
@@ -126,7 +126,7 @@ cryoAsicGen1:
       PPbePolarity: False
       PPbeDelay: 0
       PPbeWidth: 0
-      SampClkEn: True
+      SampClkEn: False
       SyncPolarity: True
       SyncDelay: 0
       SyncWidth: 0

@@ -1,14 +1,14 @@
 cryoAsicGen1:
   enable: True
   ForceWrite: False
+  InitAfterConfig: False
+  PollEn: True
   dataWriter:
     enable: True
-    dataFile: ''
-    open: False
-    bufferSize: 0
-    maxFileSize: 0
-  XilinxKcu1500Pgp3:
-    enable: True
+    DataFile: ''
+    IsOpen: False
+    BufferSize: 0
+    MaxFileSize: 0
   EpixHRGen1Cryo:
     enable: True
     MMCM7Registers:
