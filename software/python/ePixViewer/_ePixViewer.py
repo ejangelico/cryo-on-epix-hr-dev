@@ -414,11 +414,14 @@ class Window(QMainWindow, QObject):
             chBdata = (2.0-0.053) + chBdata * (-1.04)
 
         print("avgValueChA", str(np.mean(chAdata)))
+        print("avgValueChB", str(np.mean(chBdata)))
+
+        self.lineDisplay2.axes.cla()
         
         if (self.LinePlot2_RB1.isChecked()):
             self.lineDisplay2.update_plot(self.cbScopeCh0.isChecked(), "Scope Trace A", 'r',  chAdata, 
                                             self.cbScopeCh1.isChecked(), "Scope Trace B", 'b',  chBdata)
-       
+        self.lineDisplay2.draw()
 
     def displayMonitoringDataFromReader(self):
         rawData = self.eventReaderMonitoring.frameDataMonitoring
@@ -858,7 +861,6 @@ class MplCanvas(FigureCanvas):
         lineName = ""
 #        if (self.fig.cbar!=None):              
 #            self.fig.cbar.remove()
-
         for arg in args:
             if (argIndex%4 == 0):
                 lineEnabled = arg
@@ -870,6 +872,7 @@ class MplCanvas(FigureCanvas):
                 ##if (PRINT_VERBOSE): print(lineName)
                 if (lineEnabled):
                     l = arg #[random.randint(0, 10) for i in range(4)]
+                    print(l[0:10])
                     #self.axes.set_ylim((-0.1,2.1))
                     #self.axes.set_xticks(np.arange(0, len(l), 20))
                     #self.axes.set_yticks(np.arange(0, 2., 0.25))
