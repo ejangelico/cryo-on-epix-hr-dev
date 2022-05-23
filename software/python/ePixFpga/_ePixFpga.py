@@ -1050,7 +1050,7 @@ class KCU105FEMBCryo(pr.Device):
                         break
                     #limits the number of attempts to get serializer synch.
                     self.serializerSyncAttempsts = self.serializerSyncAttempsts + 1
-                    if self.serializerSyncAttempsts > 2:
+                    if self.serializerSyncAttempsts > 0:
                         break
             if arg[2] != 0:
                 while True:
@@ -1073,7 +1073,7 @@ class KCU105FEMBCryo(pr.Device):
                         break
                     #limits the number of attempts to get serializer synch.
                     self.serializerSyncAttempsts = self.serializerSyncAttempsts + 1
-                    if self.serializerSyncAttempsts > 2:
+                    if self.serializerSyncAttempsts > 0:
                         break
 
         if arg[1] != 0:
