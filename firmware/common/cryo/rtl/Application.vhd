@@ -2,7 +2,7 @@
 -- File       : Application.vhd
 -- Company    : SLAC National Accelerator Laboratory
 -- Created    : 2017-04-21
--- Last update: 2021-02-01
+-- Last update: 2021-10-22
 -------------------------------------------------------------------------------
 -- Description: Application Core's Top Level
 -------------------------------------------------------------------------------
@@ -168,7 +168,7 @@ architecture mapping of Application is
    constant INTERNAL_DAC_C     : boolean := false;
 
    constant SACI_CLK_PERIOD_C   : real  := ite(SIMULATION_G, 0.12E-6, 0.25E-6);
-   constant CRYO_BASECLK_MULT_C : real  := 51.25;
+   constant CRYO_BASECLK_MULT_C : real  := 45.875;
 
    --heart beat signal
    signal heartBeat      : sl;

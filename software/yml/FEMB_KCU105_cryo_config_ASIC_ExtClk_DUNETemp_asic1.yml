@@ -3,13 +3,13 @@ cryoAsicGen1:
   ForceWrite: False
   KCU105FEMBCryo:
     enable: True
-    CryoAsic0:
+    CryoAsic1:
       enable: True
-      TPS_DAC: 0x3c
-      TPS_GR: 0x1
+      TPS_DAC: 0x1f
+      TPS_GR: 0x0
       TPSMux: 0x0
       Bias_TPS_Buffer: 0x5
-      Bias_TPS: 0x4
+      Bias_TPS: 0x0
       Bias_TPS_DAC: 0x4
       Bias_LVDS_Rx: 0x0
       Bias_LVDS_Tx: 0x0
@@ -32,7 +32,7 @@ cryoAsicGen1:
       DM1en: False
       DM2en: False
       Pulser_Monost: 0x0
-      cs_LVDS_Tx: 0x0
+      cs_LVDS_Tx: 0x1
       DCycle_en: False
       DCycle_bypass: False
       DCycle_polarity: False
@@ -41,21 +41,21 @@ cryoAsicGen1:
       PLL_RO_OutDivider: 0x0
       PLL_DCycle_Bypass_B0: 0x3
       PLL_RO_Reset: True
-      PLL_RO_Itune: 0x3
-      PLL_RO_KVCO: 0x1
-      PLL_RO_filter1: 0x5
-      PLL_RO_filter2: 0x4
+      PLL_RO_Itune: 0x0
+      PLL_RO_KVCO: 0x0
+      PLL_RO_filter1: 0x4
+      PLL_RO_filter2: 0x0
       Dcycle_DAC_gain: 0x3
-      VTBias_B0: 0x2
-      VTBias_T0: 0xe
+      VTBias_B0: 0x3
+      VTBias_T0: 0xf
       SAH_B0: 0x0
       SAH_VcmBuf_B0: 0x0
       SigBuf_B0: 0x0
       ADC_VrefBuf_B0: 0x0
-      ADC_B0: 0x3
+      ADC_B0: 0x1
       ADC_VcmBuf_B0: 0x0
-      bamp: 0x4
-      bleak: 0x2
+      bamp: 0x5
+      bleak: 0x5
       brstVref: 0x4
       SAH_Ctrl_Visel: False
       ADC_Ocen_Bk0: True
@@ -68,12 +68,12 @@ cryoAsicGen1:
       emph_bd: 0x0
       DM1sel: 0x0
       DM2sel: 0x0
-      SubBnkEn: 0xFFFF
+      SubBnkEn: 0xffff
       LDO_VTBias_B0: 0x3
-      LDO_VTBias_T0: 0xb
+      LDO_VTBias_T0: 0x5
       LDO_VTBias_Br0: 0x2
-      LDO_VTBias_Tr0: 0x0
-      TPS_DAC_Gain: 0x3
+      LDO_VTBias_Tr0: 0x3
+      TPS_DAC_Gain: 0x7
       LDO0TB_En: True
       LDO0rTB_En: True
       LDO1TB_En: True
@@ -89,14 +89,14 @@ cryoAsicGen1:
       VrefGen_B0_1v2: 0x3
       VrefGen_Br0_1v2: 0x3
       VrefGen_T0_1v2: 0xf
-      VrefGen_Tc0_1v2: 0xf
+      VrefGen_Tc0_1v2: 0x0
       VrefGen_Tr0_1v2: 0x0
       VrefBuf_Ext_B0_1v2: 0x3
-      VcmBuf_Ext_B0_1v2: 0x0
-      FE_Amp_B0_1v2: 0x2
-      bifb: 0x3
-      bbaseref: 0x3
-      blcoarse: 0x6
+      VcmBuf_Ext_B0_1v2: 0x3
+      FE_Amp_B0_1v2: 0x3
+      bifb: 0x5
+      bbaseref: 0x2
+      blcoarse: 0x5
       ctrl_pulser: False
       Pulser_Bias_DAC_b0: 0x4
       PP_Pulser_Bias_DAC: True
@@ -104,7 +104,7 @@ cryoAsicGen1:
       ensdps: False
       enrefps: False
       Ana_Mon_Cal: False
-      ADC_B3B2: 0x2
+      ADC_B3B2: 0x1
       CRYO_ID: 0x0
     AppFpgaRegisters:
       enable: True

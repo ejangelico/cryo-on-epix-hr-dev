@@ -3,8 +3,13 @@ cryoAsicGen1:
   ForceWrite: False
   KCU105FEMBCryo:
     enable: True
-    CryoAsic0:
+    CryoAsic1:
       enable: True
+      RowStart: 0xff
+      RowStop: 0x2f
+      ColStart: 0xff
+      StartPixel: 0x0
+      bleak_boost: 0x0
       TPS_DAC: 0x3c
       TPS_GR: 0x1
       TPSMux: 0x0
@@ -64,16 +69,19 @@ cryoAsicGen1:
       VrefBuffExt_En_Bk1: True
       ROsLVDS_bit: True
       SACIsLVDS_bit: True
-      emph_bc: 0x0
-      emph_bd: 0x0
+      d_emph: 0x0
+      pre_emph_en: False
+      PLL_RO_Itune_b3: 0x0
+      PLL_RO_KVCO_b3: 0x0
       DM1sel: 0x0
       DM2sel: 0x0
       SubBnkEn: 0xFFFF
       LDO_VTBias_B0: 0x3
-      LDO_VTBias_T0: 0xb
-      LDO_VTBias_Br0: 0x2
+      LDO_VTBias_T0: 0xc
+      LDO_VTBias_Br0: 0x0
       LDO_VTBias_Tr0: 0x0
       TPS_DAC_Gain: 0x3
+      S2D_MX: False
       LDO0TB_En: True
       LDO0rTB_En: True
       LDO1TB_En: True
@@ -82,8 +90,8 @@ cryoAsicGen1:
       encoder_mode_dft: 0x0
       En_BankClk_Bk0_LVDS: False
       En_BankClk_Bk1_LVDS: False
-      En_SerClk_out_Bk0_LVDS: False
-      En_SerClk_out_Bk1_LVDS: False
+      En_SerClk_out_Bk0_LVDS: True
+      En_SerClk_out_Bk1_LVDS: True
       rtrimLVDS_b0: 0x2
       SACItristateLVDS_bit: False
       VrefGen_B0_1v2: 0x3
@@ -96,7 +104,7 @@ cryoAsicGen1:
       FE_Amp_B0_1v2: 0x2
       bifb: 0x3
       bbaseref: 0x3
-      blcoarse: 0x6
+      blcoarse: 0x3
       ctrl_pulser: False
       Pulser_Bias_DAC_b0: 0x4
       PP_Pulser_Bias_DAC: True
@@ -105,7 +113,14 @@ cryoAsicGen1:
       enrefps: False
       Ana_Mon_Cal: False
       ADC_B3B2: 0x2
-      CRYO_ID: 0x0
+      eFuse_ADDR: 0x0
+      eFuse_Q: 0x7251
+      LDO1V_VTBias_B: 0x3
+      LDO1V_VTBias_T: 0x9
+      LDO1V_VTBias_Br: 0x0
+      LDO1V_VTBias_Tr: 0x9
+      Rate_mode_b: 0x0
+      PLL_div_sel: 0x0
     AppFpgaRegisters:
       enable: True
       Version: 0x2

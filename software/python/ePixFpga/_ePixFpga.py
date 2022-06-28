@@ -110,7 +110,7 @@ class EpixHRGen1Cryo(pr.Device):
         super(self.__class__, self).__init__(**kwargs)
         self.add((
             # core registers
-            axi.AxiVersion(offset=0x00000000),          
+            axi.AxiVersion(offset=0x00000000, enabled=False),          
             #pgp.Pgp2bAxi(name='Pgp2bAxi_lane0', offset=0x05000000, enabled=True, expand=False),
             #pgp.Pgp2bAxi(name='Pgp2bAxi_lane1', offset=0x05010000, enabled=True, expand=False),
             #pgp.Pgp2bAxi(name='Pgp2bAxi_lane2', offset=0x05020000, enabled=True, expand=False),
@@ -742,10 +742,10 @@ class EpixHRGen1Cryo(pr.Device):
 #######################################################
 
 class KCU105FEMBCryo(pr.Device):
-    def __init__(self, **kwargs):
+    def __init__(self,ASIC_version = 2, **kwargs):
         if 'description' not in kwargs:
             kwargs['description'] = "HR Gen1 FPGA"
-      
+        self.ASIC_version = ASIC_version
         trigChEnum={0:'TrigReg', 1:'ThresholdChA', 2:'ThresholdChB', 3:'AcqStart', 4:'AsicAcq', 5:'AsicR0', 6:'AsicRoClk', 7:'AsicPpmat', 8:'AsicPpbe', 9:'AsicSync', 10:'AsicGr', 11:'AsicSaciSel0', 12:'AsicSaciSel1'}
         inChaEnum={0:'Off', 0:'Asic0TpsMux', 1:'Asic1TpsMux'}
         inChbEnum={0:'Off', 0:'Asic0TpsMux', 1:'Asic1TpsMux'}
@@ -759,15 +759,25 @@ class KCU105FEMBCryo(pr.Device):
             MMCM7Registers(                  name='MMCM7Registers',                    offset=0x80000000, expand=False, enabled=False),
             MMCM7Registers(                  name='MMCMSerdesRegisters',               offset=0x97000000, expand=False, enabled=False),
             TriggerRegisters(                name="TriggerRegisters",                  offset=0x81000000, expand=False, enabled=False),
-            ssiPrbsTxRegisters(              name='ssiPrbs0PktRegisters',              offset=0x00040000, expand=False, enabled=False),
-            epix.CryoAsic0p2(                name='CryoAsic0',                         offset=0x88400000, expand=False, enabled=False),
-            epix.CryoAsic0p2(                name='CryoAsic1',                         offset=0x88000000, expand=False, enabled=False),
+            ssiPrbsTxRegisters(              name='ssiPrbs0PktRegisters',              offset=0x00040000, expand=False, enabled=False)
+          ))
+        if (self.ASIC_version == 2):
+            self.add((
+                epix.CryoAsic0p2(            name='CryoAsic0',  offset=0x88000000, expand=False, enabled=False),
+                epix.CryoAsic0p2(            name='CryoAsic1',  offset=0x88400000, expand=False, enabled=False)
+                ))
+        if (self.ASIC_version == 3):
+            self.add((
+                epix.CryoAsic0p3(            name='CryoAsic0', offset=0x88000000, expand=False, enabled=False),
+                epix.CryoAsic0p3(            name='CryoAsic1', offset=0x88400000, expand=False, enabled=False)
+                ))
+        self.add((
             CryoAppCoreFpgaRegisters(        name="AppFpgaRegisters",                  offset=0x96000000, expand=False, enabled=False),
             silabs.Si5345(                   name='Pll',                               offset=0x93000000, expand=False, enabled=False, description = 'This device contains Jitter cleaner PLL'),
-            AsicDeserHr12bRegisters(         name="DeserRegisters0",                   offset=0x94000000, expand=False, enabled=False), 
-            DigitalPktRegisters(             name="PacketRegisters0",                  offset=0x95000000, expand=False, enabled=False),
-            AsicDeserHr12bRegisters(         name="DeserRegisters1",                   offset=0x98000000, expand=False, enabled=False), 
-            DigitalPktRegisters(             name="PacketRegisters1",                  offset=0x99000000, expand=False, enabled=False)
+            AsicDeserHr12bRegisters(         name="DeserRegisters0",                   offset=0x98000000, expand=False, enabled=False), 
+            DigitalPktRegisters(             name="PacketRegisters0",                  offset=0x99000000, expand=False, enabled=False),
+            AsicDeserHr12bRegisters(         name="DeserRegisters1",                   offset=0x94000000, expand=False, enabled=False), 
+            DigitalPktRegisters(             name="PacketRegisters1",                  offset=0x95000000, expand=False, enabled=False)
             ))
 
         self.add(pr.LocalCommand(name='SetWaveform',         description='Set test waveform for high speed DAC', function=self.fnSetWaveform))
@@ -852,14 +862,40 @@ class KCU105FEMBCryo(pr.Device):
         if arguments[0] == 3:
             self.filenameMMCM = "./yml/FEMB_KCU105_cryo_config_mmcm_PLLClk_448MHz.yml"
             self.filenamePLL = "./config/pll-config/FEMB_Si5345-RevD-CRYO_C01-56MHzIn448MHzOut_Project-Registers.csv"
-            self.filenameASIC0 = "./yml/FEMB_KCU105_cryo_config_ASIC_ExtClk_RoomTemp_asic0.yml"
-            self.filenameASIC1 = "./yml/FEMB_KCU105_cryo_config_ASIC_ExtClk_RoomTemp_asic1.yml"
+            if (self.ASIC_version == 2):
+                self.filenameASIC0 = "./yml/FEMB_KCU105_cryo_config_ASIC_ExtClk_RoomTemp_asic0.yml"
+                self.filenameASIC1 = "./yml/FEMB_KCU105_cryo_config_ASIC_ExtClk_RoomTemp_asic1.yml"
+            else:
+                self.filenameASIC0 = "./yml/FEMB_KCU105_cryo_config_ASICv3_ExtClk_RoomTemp_asic0.yml"
+                self.filenameASIC1 = "./yml/FEMB_KCU105_cryo_config_ASICv3_ExtClk_RoomTemp_asic1.yml"
 
         if arguments[0] == 4:
             self.filenameMMCM = "./yml/FEMB_KCU105_cryo_config_mmcm_PLLClk_224MHz.yml"
             self.filenamePLL = "./config/pll-config/FEMB_Si5345-RevD-CRYO_C01-56MHzIn224MHzOut_Project-Registers.csv"
-            self.filenameASIC0 = "./yml/FEMB_KCU105_cryo_config_ASIC_ExtClk_RoomTemp_asic0.yml"
-            self.filenameASIC1 = "./yml/FEMB_KCU105_cryo_config_ASIC_ExtClk_RoomTemp_asic1.yml"
+            if (self.ASIC_version == 2):
+                self.filenameASIC0 = "./yml/FEMB_KCU105_cryo_config_ASIC_ExtClk_RoomTemp_asic0.yml"
+                self.filenameASIC1 = "./yml/FEMB_KCU105_cryo_config_ASIC_ExtClk_RoomTemp_asic1.yml"
+            else:
+                self.filenameASIC0 = "./yml/FEMB_KCU105_cryo_config_ASICv3_ExtClk_RoomTemp_asic0.yml"
+                self.filenameASIC1 = "./yml/FEMB_KCU105_cryo_config_ASICv3_ExtClk_RoomTemp_asic1.yml"
+            
+        if arguments[0] == 6:
+            self.filenameMMCM = "./yml/FEMB_KCU105_cryo_config_mmcm_PLLClk_224MHz.yml"
+            self.filenamePLL = "./config/pll-config/FEMB_Si5345-RevD-CRYO_C01-56MHzIn224MHzOut_Project-Registers.csv"
+            self.filenameASIC0 = "./yml/FEMB_KCU105_cryo_config_ASIC_ExtClk_RoomTemp_asic0_LDOBypass.yml"
+            self.filenameASIC1 = "./yml/FEMB_KCU105_cryo_config_ASIC_ExtClk_RoomTemp_asic1_LDOBypass.yml"
+
+        if arguments[0] == 7:
+            self.filenameMMCM = "./yml/FEMB_KCU105_cryo_config_mmcm_PLLClk_224MHz.yml"
+            self.filenamePLL = "./config/pll-config/FEMB_Si5345-RevD-CRYO_C01-56MHzIn224MHzOut_Project-Registers.csv"
+            self.filenameASIC0 = "./yml/FEMB_REVB_RoomTemp_ASIC0.yml"
+            self.filenameASIC1 = "./yml/FEMB_REVB_RoomTemp_ASIC1.yml"
+
+        if arguments[0] == 8:
+            self.filenameMMCM = "./yml/FEMB_KCU105_cryo_config_mmcm_PLLClk_224MHz.yml"
+            self.filenamePLL = "./config/pll-config/FEMB_Si5345-RevD-CRYO_C01-56MHzIn224MHzOut_Project-Registers.csv"
+            self.filenameASIC0 = "./yml/FEMB_REVB_COLDTemp_ASIC0.yml"
+            self.filenameASIC1 = "./yml/FEMB_REVB_COLDTemp_ASIC1.yml"
 
         if arguments[0] == 101:
             self.filenameMMCM = "./yml/cryo_config_mmcm_PLLClk_448MHz.yml"
@@ -1035,7 +1071,7 @@ class KCU105FEMBCryo(pr.Device):
                         break
                     #limits the number of attempts to get serializer synch.
                     self.serializerSyncAttempsts = self.serializerSyncAttempsts + 1
-                    if self.serializerSyncAttempsts > 2:
+                    if self.serializerSyncAttempsts > 0:
                         break
             if arg[2] != 0:
                 while True:
@@ -1058,7 +1094,7 @@ class KCU105FEMBCryo(pr.Device):
                         break
                     #limits the number of attempts to get serializer synch.
                     self.serializerSyncAttempsts = self.serializerSyncAttempsts + 1
-                    if self.serializerSyncAttempsts > 2:
+                    if self.serializerSyncAttempsts > 0:
                         break
 
         if arg[1] != 0:
@@ -2352,7 +2388,7 @@ class SlowAdcRegisters(pr.Device):
       #Setup registers & variables
       
       self.add(pr.RemoteVariable(name='StreamEn',        description='StreamEn',          offset=0x00000000, bitSize=1,  bitOffset=0, base=pr.Bool, mode='RW'))
-      self.add(pr.RemoteVariable(name='StreamPeriod',    description='StreamPeriod',      offset=0x00000004, bitSize=32, bitOffset=0, base=pr.UInt, disp = '{}', mode='RW'))
+      self.add(pr.RemoteVariable(name='StreamPeriod',    description='StreamPeriod',      offset=0x00000004, bitSize=31, bitOffset=0, base=pr.UInt, disp = '{}', mode='RW'))
       self.add(pr.RemoteVariable(name='AdcData0',        description='RawAdcData',        offset=0x00000040, bitSize=24, bitOffset=0, base=pr.UInt, disp = '{:#x}',  mode='RO'))
       self.add(pr.RemoteVariable(name='AdcData1',        description='RawAdcData',        offset=0x00000044, bitSize=24, bitOffset=0, base=pr.UInt, disp = '{:#x}',  mode='RO'))
       self.add(pr.RemoteVariable(name='AdcData2',        description='RawAdcData',        offset=0x00000048, bitSize=24, bitOffset=0, base=pr.UInt, disp = '{:#x}',  mode='RO'))
@@ -2363,15 +2399,15 @@ class SlowAdcRegisters(pr.Device):
       self.add(pr.RemoteVariable(name='AdcData7',        description='RawAdcData',        offset=0x0000005C, bitSize=24, bitOffset=0, base=pr.UInt, disp = '{:#x}',  mode='RO'))
       self.add(pr.RemoteVariable(name='AdcData8',        description='RawAdcData',        offset=0x00000060, bitSize=24, bitOffset=0, base=pr.UInt, disp = '{:#x}',  mode='RO'))
       
-      self.add(pr.RemoteVariable(name='EnvData0',        description='Temp1',             offset=0x00000080, bitSize=32, bitOffset=0, base=pr.UInt, disp = '{}',  mode='RO'))
-      self.add(pr.RemoteVariable(name='EnvData1',        description='Temp2',             offset=0x00000084, bitSize=32, bitOffset=0, base=pr.Int,  mode='RO'))
-      self.add(pr.RemoteVariable(name='EnvData2',        description='Humidity',          offset=0x00000088, bitSize=32, bitOffset=0, base=pr.UInt, disp = '{}', mode='RO'))
-      self.add(pr.RemoteVariable(name='EnvData3',        description='AsicAnalogCurr',    offset=0x0000008C, bitSize=32, bitOffset=0, base=pr.UInt, disp = '{}', mode='RO'))
-      self.add(pr.RemoteVariable(name='EnvData4',        description='AsicDigitalCurr',   offset=0x00000090, bitSize=32, bitOffset=0, base=pr.UInt, disp = '{}', mode='RO'))
-      self.add(pr.RemoteVariable(name='EnvData5',        description='AsicVguardCurr',    offset=0x00000094, bitSize=32, bitOffset=0, base=pr.UInt, disp = '{}', mode='RO'))
-      self.add(pr.RemoteVariable(name='EnvData6',        description='Unused',            offset=0x00000098, bitSize=32, bitOffset=0, base=pr.UInt, disp = '{}', mode='RO'))
-      self.add(pr.RemoteVariable(name='EnvData7',        description='AnalogVin',         offset=0x0000009C, bitSize=32, bitOffset=0, base=pr.UInt, disp = '{}', mode='RO'))
-      self.add(pr.RemoteVariable(name='EnvData8',        description='DigitalVin',        offset=0x000000A0, bitSize=32, bitOffset=0, base=pr.UInt, disp = '{}', mode='RO'))
+      self.add(pr.RemoteVariable(name='EnvData0',        description='Temp1',             offset=0x00000080, bitSize=31, bitOffset=0, base=pr.UInt, disp = '{}',  mode='RO'))
+      self.add(pr.RemoteVariable(name='EnvData1',        description='Temp2',             offset=0x00000084, bitSize=31, bitOffset=0, base=pr.Int,  mode='RO'))
+      self.add(pr.RemoteVariable(name='EnvData2',        description='Humidity',          offset=0x00000088, bitSize=31, bitOffset=0, base=pr.UInt, disp = '{}', mode='RO'))
+      self.add(pr.RemoteVariable(name='EnvData3',        description='AsicAnalogCurr',    offset=0x0000008C, bitSize=31, bitOffset=0, base=pr.UInt, disp = '{}', mode='RO'))
+      self.add(pr.RemoteVariable(name='EnvData4',        description='AsicDigitalCurr',   offset=0x00000090, bitSize=31, bitOffset=0, base=pr.UInt, disp = '{}', mode='RO'))
+      self.add(pr.RemoteVariable(name='EnvData5',        description='AsicVguardCurr',    offset=0x00000094, bitSize=31, bitOffset=0, base=pr.UInt, disp = '{}', mode='RO'))
+      self.add(pr.RemoteVariable(name='EnvData6',        description='Unused',            offset=0x00000098, bitSize=31, bitOffset=0, base=pr.UInt, disp = '{}', mode='RO'))
+      self.add(pr.RemoteVariable(name='EnvData7',        description='AnalogVin',         offset=0x0000009C, bitSize=31, bitOffset=0, base=pr.UInt, disp = '{}', mode='RO'))
+      self.add(pr.RemoteVariable(name='EnvData8',        description='DigitalVin',        offset=0x000000A0, bitSize=31, bitOffset=0, base=pr.UInt, disp = '{}', mode='RO'))
       
       
       
