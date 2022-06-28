@@ -151,7 +151,7 @@ class EpixHRGen1Cryo(pr.Device):
         self.add(pr.LocalCommand(name='SendAdcData',         description='Generates the sequence necessary to send adc data', function=self.fnSendAdcData))
         self.add(pr.LocalCommand(name='rampTestToFile',      description='Generates the sequence necessary to send adc data', function=self.fnRampTestCryo))
         self.add(pr.LocalCommand(name='linearityTestToFile', description='Pulser used to check linearity via scope and adc' , function=self.fnLinTestCryo))
-
+        self.add(pr.LocalCommand(name='SetAllBaselines',     description='Calibrates the baseline of each channel, and then corrects the bitsettings for variations', function=self.fnSetAllBaselines))
 
     def fnRampTestCryo(self, dev,cmd,arg):
         """SetTestBitmap command function"""       
@@ -204,6 +204,27 @@ class EpixHRGen1Cryo(pr.Device):
                 
             self.root.dataWriter.open.set(False)
             pulserValue = pulserValue + 1
+
+    def fnSetAllBaselines(self, dev, cmd, arg):
+        print("Initiating a baseline calibration targeted at {:d} ADC counts offset".format(arg))
+        #set the baseline to what would theoretically be the set value given the argument passed. 
+
+
+        #take data into a single temporary datafile 
+        self.root.dataWriter.enable.set(True)
+        self.root.dataWriter.open.set(False)
+        self.currentFilename = "temporary_baseline_calibration.dat" #temporary, deleted after analyzed. 
+        self.currentFrameCount = self.root.dataWriter.frameCount.get()       
+        self.root.dataWriter.dataFile.set(self.currentFilename)
+        self.root.dataWriter.open.set(True)
+        self.root.Trigger()
+        time.sleep(0.01) 
+        self.root.dataWriter.open.set(False)
+
+        
+        
+        
+        
 
     def fnInitCryo(self, dev,cmd,arg):
         """SetTestBitmap command function"""       
